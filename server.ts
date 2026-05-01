@@ -2,6 +2,8 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { initPostalCodeDB, getNearestPostalCode } from './src/services/PostalCodeDB';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,6 +11,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // REMOVED HELMET FOR COMPATIBILITY TESTING
+  
+  // Extra Security Headers / Compatibility Headers
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'ALLOWALL'); 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+  });
+
+  // Rate Limiting to prevent API abuse
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5000, // Increased for map-heavy application
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
+  });
+  app.use('/api/', limiter);
 
   // Initialize Postal Code DB (downloads data in background)
   try {
@@ -27,15 +51,6 @@ async function startServer() {
   });
   process.on('unhandledRejection', (reason, promise) => {
     console.error('[Server] Unhandled Rejection at:', promise, 'reason:', reason);
-  });
-
-  // Basic CORS for AI Studio environment transparency
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
   });
 
   // API Routes

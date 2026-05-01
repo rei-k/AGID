@@ -46,6 +46,14 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'download_map_data': '地図データをダウンロード',
     'info_legal': '情報と法務設定',
     'select_address_lang': '住所の表示言語を選択',
+    'export_center': 'エクスポートセンター',
+    'pro_data_export': 'プロフェッショナル・データエクスポート',
+    'export_geojson': 'GeoJSONをエクスポート',
+    'export_csv': 'CSVをエクスポート',
+    'export_kml': 'KMLをエクスポート',
+    'export_success': 'エクスポートが完了しました',
+    'current_view': '現在のビュー',
+    'saved_locations_count': '保存済み（{{count}}件）',
   },
   en: {
     'search_placeholder': 'Search city, address, or AGID...',
@@ -93,6 +101,14 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'download_map_data': 'Download map data',
     'info_legal': 'Information and legal',
     'select_address_lang': 'Select address display language',
+    'export_center': 'Export Center',
+    'pro_data_export': 'Professional Data Export',
+    'export_geojson': 'Export GeoJSON',
+    'export_csv': 'Export CSV',
+    'export_kml': 'Export KML',
+    'export_success': 'Export completed successfully',
+    'current_view': 'Current View',
+    'saved_locations_count': 'Saved Locations ({{count}})',
   }
 };
 

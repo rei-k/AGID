@@ -35,19 +35,27 @@ export interface AddressFormat {
   postalCodeRegex?: string;
 }
 
+// Vite handles dynamic imports with variables using glob patterns
+const formatModules = (import.meta as any).glob('./*.json');
+
 /**
  * Dynamically loads the address format for a given country code.
  * This improves initial loading speed by not bundling all formats at once.
  */
 export async function getAddressFormat(countryCode: string): Promise<AddressFormat | null> {
   const code = countryCode.toUpperCase();
+  const path = `./${code}.json`;
+  
+  if (!(path in formatModules)) {
+    console.warn(`Address format for ${code} not found.`);
+    return null;
+  }
+
   try {
-    // Vite handles dynamic imports with variables using glob patterns or specific paths
-    // We use a switch or a map of dynamic imports for best compatibility and performance
-    const format = await import(`./${code}.json`);
-    return format.default as AddressFormat;
+    const module = await formatModules[path]() as any;
+    return module.default as AddressFormat;
   } catch (error) {
-    console.warn(`Address format for ${code} not found or failed to load.`);
+    console.warn(`Address format for ${code} failed to load:`, error);
     return null;
   }
 }

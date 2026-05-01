@@ -65,6 +65,7 @@ import {
   ShieldCheck,
   ShieldCheck as ShieldIcon,
   FileText,
+  FileDown,
   ArrowLeft,
   ArrowRight,
   Mountain,
@@ -157,73 +158,12 @@ import { generateAOID, AOIDData } from './lib/aoid';
 import { RoutingService, travelMode } from './services/RoutingService';
 import { COUNTRIES, CountryInfo } from './constants/countries';
 
-const RESOURCE_CATEGORIES = [
-  {
-    title: "1. AGID Prefix System (Regularity)",
-    items: [
-      { name: "Land: [Alpha-2]", desc: "2-char Country Code (ISO 3166-1)", features: "JP, US, FR, etc." },
-      { name: "Sea: [IHO-Code]", desc: "4-char IHO S-23 Sea Area Code", features: "NPAC, NATL, MEDT, SJPN, etc." },
-      { name: "Fallback: [Continent]", desc: "2-char Continent Code for Land", features: "AS, EU, NA, AF, etc." }
-    ]
-  },
-  {
-    title: "2. Hash Calculation (Deterministic)",
-    items: [
-      { name: "Grid Size: 4m", desc: "High-precision 4x4m grid cells", features: "O(1) calculation" },
-      { name: "Base32 Encoding", desc: "Human-readable hash (excluding I, L, O, 0, 1)", features: "8-10 chars" }
-    ]
-  },
-  {
-    title: "3. Reference Standards",
-    items: [
-      { name: "IHO S-23", desc: "Limits of Oceans and Seas", features: "Global Standard" },
-      { name: "ISO 3166-1", desc: "Country Codes", features: "Alpha-2 Standard" }
-    ]
-  },
-  {
-    title: "4. Global High-Precision Mode",
-    items: [
-      { name: "Coverage", desc: "54+ African Countries, Europe, Asia, Americas", features: "Global Accuracy" },
-      { name: "Multi-Box Approximation", desc: "Complex shapes (Italy, UK, France) split into sub-regions", features: "Higher Accuracy" },
-      { name: "Land-First Priority", desc: "Country codes checked before sea regions for accuracy", features: "Zero Conflict" }
-    ]
-  }
-];
-
-const SYSTEMATIC_THEMES: Record<string, string[]> = {
-  geomorphology: ['fluvial', 'coastal', 'volcanic', 'karst', 'glacial', 'tectonic'],
-  climatology: ['precipitation', 'temperature', 'wind', 'zones'],
-  hydrology: ['rivers', 'lakes', 'groundwater', 'springs'],
-  biogeography: ['flora', 'fauna', 'protected_areas'],
-  soil: ['types', 'moisture'],
-  disaster: ['flood', 'landslide', 'seismic', 'volcanic_hazard'],
-  marine: ['bathymetry', 'currents', 'reefs'],
-  earth_system: ['plates', 'faults', 'volcanoes'],
-  economic: ['retail', 'finance', 'resources', 'services'],
-  urban: ['landuse', 'infrastructure', 'housing', 'central_business'],
-  cultural: ['religion', 'language', 'heritage', 'food'],
-  political: ['boundaries', 'administrative', 'military'],
-  population: ['density', 'migration', 'demographics'],
-  transport: ['road', 'rail', 'air', 'sea'],
-  agricultural: ['crops', 'livestock', 'irrigation'],
-  industrial: ['manufacturing', 'mining', 'energy'],
-  tourism: ['attractions', 'hotels', 'facilities'],
-};
-
-const REGIONAL_THEMES: Record<string, string[]> = {
-  static: ['nature', 'history', 'tradition', 'landscape'],
-  dynamic: ['urbanization', 'environment_change', 'globalization', 'migration_flow'],
-};
-
-const MAJOR_CATEGORIES = [
-  { id: 'Asia', name: 'アジア', en: 'Asia', icon: Globe },
-  { id: 'Africa', name: 'アフリカ', en: 'Africa', icon: Globe },
-  { id: 'Oceania', name: 'オセアニア', en: 'Oceania', icon: Globe },
-  { id: 'Americas', name: 'アメリカ', en: 'Americas', icon: Globe },
-  { id: 'Europe', name: 'ヨーロッパ', en: 'Europe', icon: Globe },
-  { id: 'Territories', name: '海外領・自治領', en: 'Territories', icon: ShieldCheck },
-  { id: 'Disputed', name: '係争地域', en: 'Disputed', icon: AlertOctagon }
-];
+import { 
+  RESOURCE_CATEGORIES, 
+  SYSTEMATIC_THEMES, 
+  REGIONAL_THEMES, 
+  MAJOR_CATEGORIES 
+} from './constants/appConstants';
 
 const getMajorCategory = (c: CountryInfo) => {
   if (c.type === 'Disputed') return 'Disputed';
@@ -238,6 +178,11 @@ const getMajorCategory = (c: CountryInfo) => {
   if (r.includes('Caucasus')) return 'Asia'; // Or Europe? Usually transcontinental, but keeping Asia/MidEast together
   return 'Other';
 };
+
+import { FullSeaRegistryView, FullCountryRegistryView } from './components/RegistryViews';
+import { LicensesOverlay, LegalOverlay, ConfirmModal } from './components/Overlays';
+import { ExportService, ExportData } from './services/ExportService';
+import { saveAs } from 'file-saver';
 
 export default function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -347,22 +292,26 @@ export default function App() {
   const [clickedAddressDetails, setClickedAddressDetails] = useState<any>(null);
   const [clickedAddressMap, setClickedAddressMap] = useState<Record<string, string>>({});
   const [clickedActiveLangs, setClickedActiveLangs] = useState<string[]>(['en']);
-  const [settingsTab, setSettingsTab] = useState<'main' | 'home' | 'app' | 'location' | 'offline' | 'about' | 'app-language' | 'address-language' | 'help'>('main');
+  const [settingsTab, setSettingsTab] = useState<'main' | 'home' | 'app' | 'location' | 'offline' | 'about' | 'app-language' | 'address-language' | 'help' | 'export'>('main');
   const [activeLegalDoc, setActiveLegalDoc] = useState<'privacy' | 'terms' | null>(null);
   const [showLicenses, setShowLicenses] = useState(false);
   const [clickedAddressLang, setClickedAddressLang] = useState<string>("Local");
   const [clickedAddressTab, setClickedAddressTab] = useState<string>('en');
   const [copied, setCopied] = useState<string | null>(null);
   const [savedAgids, setSavedAgids] = useState<any[]>(() => {
-    const saved = localStorage.getItem('saved_agids');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('saved_agids');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
   });
   const [homeAgid, setHomeAgid] = useState<string>(() => {
     return localStorage.getItem('agid_home_agid') || "";
   });
   const [isShippingMode, setIsShippingMode] = useState(() => {
-    const saved = localStorage.getItem('agid_shipping_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_shipping_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
 
   // QR Scanning States
@@ -518,8 +467,10 @@ export default function App() {
     return (localStorage.getItem('agid_distance_unit') as 'automatic' | 'kilometers' | 'miles' | 'nautical') || 'automatic';
   });
   const [is3DEnabled, setIs3DEnabled] = useState(() => {
-    const saved = localStorage.getItem('agid_3d_enabled');
-    return saved !== null ? JSON.parse(saved) : true;
+    try {
+      const saved = localStorage.getItem('agid_3d_enabled');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   
   useEffect(() => { localStorage.setItem('agid_map_pitch', mapPitch.toString()); }, [mapPitch]);
@@ -614,47 +565,67 @@ export default function App() {
   }, [clickedAddress, clickedActiveLangs.join(','), translateAddress, clickedAddressLang, addressLanguage]);
 
   const [showHubs, setShowHubs] = useState(() => {
-    const saved = localStorage.getItem('agid_show_hubs');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_show_hubs');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [showFloodRiskLayer, setShowFloodRiskLayer] = useState(() => {
-    const saved = localStorage.getItem('agid_show_flood_risk');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_show_flood_risk');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [showLandslideRiskLayer, setShowLandslideRiskLayer] = useState(() => {
-    const saved = localStorage.getItem('agid_show_landslide_risk');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_show_landslide_risk');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isDisasterMode, setIsDisasterMode] = useState(() => {
-    const saved = localStorage.getItem('agid_disaster_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_disaster_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isMountainMode, setIsMountainMode] = useState(() => {
-    const saved = localStorage.getItem('agid_mountain_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_mountain_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isDeepSeaMode, setIsDeepSeaMode] = useState(() => {
-    const saved = localStorage.getItem('agid_deep_sea_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_deep_sea_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isWaterlessEarthMode, setIsWaterlessEarthMode] = useState(() => {
-    const saved = localStorage.getItem('agid_waterless_earth_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_waterless_earth_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isHeritageMode, setIsHeritageMode] = useState(() => {
-    const saved = localStorage.getItem('agid_heritage_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_heritage_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [isGisMode, setIsGisMode] = useState(() => {
-    const saved = localStorage.getItem('agid_gis_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_gis_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [gisLayer, setGisLayer] = useState<'population' | 'landuse' | 'soil'>(() => {
     return (localStorage.getItem('agid_gis_layer') as any) || 'population';
   });
   const [isSystematicMode, setIsSystematicMode] = useState(() => {
-    const saved = localStorage.getItem('agid_systematic_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_systematic_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [systematicCategory, setSystematicCategory] = useState<'physical' | 'human'>(() => {
     return (localStorage.getItem('agid_systematic_category') as any) || 'physical';
@@ -666,8 +637,10 @@ export default function App() {
     return localStorage.getItem('agid_systematic_theme') || 'all';
   });
   const [isRegionalMode, setIsRegionalMode] = useState(() => {
-    const saved = localStorage.getItem('agid_regional_mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('agid_regional_mode');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch { return false; }
   });
   const [regionalType, setRegionalType] = useState<'static' | 'dynamic'>(() => {
     return (localStorage.getItem('agid_regional_type') as any) || 'static';
@@ -676,7 +649,7 @@ export default function App() {
     return localStorage.getItem('agid_regional_theme') || 'all';
   });
   const [mapStyle, setMapStyle] = useState(() => {
-    return localStorage.getItem('agid_map_style') || 'https://tiles.openfreemap.org/styles/bright';
+    return localStorage.getItem('agid_map_style') || 'https://tiles.openfreemap.org/styles/liberty';
   });
   const [projection, setProjection] = useState<'mercator' | 'globe'>(() => {
     return (localStorage.getItem('agid_projection') as 'mercator' | 'globe') || 'mercator';
@@ -961,16 +934,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('agid_regional_theme', regionalTheme); }, [regionalTheme]);
   useEffect(() => { localStorage.setItem('agid_shipping_mode', JSON.stringify(isShippingMode)); }, [isShippingMode]);
   useEffect(() => { localStorage.setItem('agid_home_agid', homeAgid); }, [homeAgid]);
-
-  // Update central AGID info ONLY if not manually selected or pinned
-  useEffect(() => {
-    // If we have a manual selection that is NOT the current center, don't clobber it automatically
-    // BUT we want the UI to have SOMETHING selected on start.
-    if (!clickedAgid) {
-       const result = encodeAGID(lat, lng);
-       setClickedAgid(result);
-    }
-  }, [lat, lng, clickedAgid]);
 
   // Initialization logic for Geolocation and First Start
   useEffect(() => {
@@ -1931,19 +1894,40 @@ export default function App() {
       bearing: mapBearing,
       attributionControl: true,
       projection: { type: projection },
-      maxParallelImageRequests: 16, // Increase parallel requests for faster loading
-      transformRequest: (url, resourceType) => {
-        // Optimize tile requests: ensure we always use the fastest proxy for common sources
-        if (url.includes('tiles.openfreemap.org')) {
-          // You could optionally redirect or add custom headers here
-        }
-        return { url };
-      }
+      maxParallelImageRequests: 16, 
+      transformRequest: (url) => ({ url })
     } as any);
 
-    // High-Detail Label and Terrain Injection
-    map.current.on('style.load', () => {
+    // Add ResizeObserver to handle map resizing properly
+    const resizeObserver = new ResizeObserver(() => {
+      map.current?.resize();
+    });
+    if (mapContainer.current) {
+      resizeObserver.observe(mapContainer.current);
+    }
+
+    // Enhanced Grid Layer Refresh Logic
+    const refreshGridOrder = () => {
       if (!map.current) return;
+      const layers = ['grid-cells-layer', 'grid-cells-focus-layer', 'selection-point-glow-layer', 'selection-label-layer'];
+      layers.forEach(layerId => {
+        if (map.current?.getLayer(layerId)) {
+          map.current.moveLayer(layerId);
+        }
+      });
+    };
+
+    // Consolidated Event Handling
+    const onMapStyleLoad = () => {
+      if (!map.current) return;
+      console.log("Map style loaded - initializing sources and layers");
+      
+      // Global loaded state - strictly once
+      setIsMapLoaded(true);
+      setIsStyleLoading(false);
+
+      // Re-add sources and layers because setStyle wipes them
+      refreshGridOrder();
 
       // Set cursor to crosshair for grid mode
       try {
@@ -1952,7 +1936,7 @@ export default function App() {
         console.warn("Could not set map cursor dynamically", e);
       }
 
-      // Ensure Terrain DEM is always available as a source
+      // Ensure Terrain DEM is always available
       if (!map.current.getSource('terrain-dem-highres')) {
         map.current.addSource('terrain-dem-highres', {
           type: 'raster-dem',
@@ -1963,46 +1947,71 @@ export default function App() {
         });
       }
 
-      const layers = map.current.getStyle().layers || [];
-      layers.forEach(layer => {
-        if (layer.type === 'symbol' && layer.layout && (layer.layout as any)['text-field']) {
-          // Hide all map labels (IDs/names) to focus only on AGID areas
-          map.current?.setLayoutProperty(layer.id, 'visibility', 'none');
-        }
-      });
+      // Hide default map labels to focus on AGID
+      const style = map.current.getStyle();
+      if (style.layers) {
+        style.layers.forEach(layer => {
+          if (layer.type === 'symbol' && layer.layout && (layer.layout as any)['text-field']) {
+            map.current?.setLayoutProperty(layer.id, 'visibility', 'none');
+          }
+        });
+      }
+
+      // Initial selection logic
+      const center = map.current.getCenter();
+      const result = encodeAGID(center.lat, center.lng);
+      setClickedAgid(result);
+      reverseGeocode(center.lat, center.lng, result.prefix, result.isSea, true);
+    };
+
+    map.current.on('style.load', onMapStyleLoad);
+    
+    map.current.on('styledata', () => {
+      // Don't trigger state updates that cause re-renders if not necessary
+      // setIsStyleLoading(false) here might be too frequent
     });
 
-    // Map Error Handling (gracefully handle tile failures)
+    map.current.on('styledataloading', () => {
+      // Only set loading if it's a major change (like setStyle), not every source update
+    });
+
+    map.current.on('idle', () => {
+      setIsStyleLoading(false);
+      // Removed refreshGridOrder from idle to prevent potential infinite render loops
+      // refreshGridOrder(); 
+    });
+
+    map.current.on('zoomend', refreshGridOrder);
+
+    // Map Error Handling
     map.current.on('error', (e) => {
-      // Avoid spamming tile errors for common sources that might have transient issues
-      if (e.error?.message?.includes('tiles.openfreemap.org') || e.error?.status === 0 || e.error?.status === 404) {
-        console.warn("Map Tile Source Error (Handled):", e.error?.message || "Transient tile failure");
-        return;
-      }
-      
-      // Notify user about persistent map initialization or resource errors
-      if (e.error?.message?.includes('Failed to fetch') || e.error?.message?.includes('NetworkError')) {
-        showAlert("地図読み込みエラー", "地図データの取得に失敗しました。ネットワーク接続を確認するか、しばらく待ってから再試行してください。");
-      }
-      
+      if (e.error?.message?.includes('tiles.openfreemap.org') || e.error?.status === 0 || e.error?.status === 404) return;
       console.error("Maplibre GL Error:", e.error);
     });
 
-    const isMobile = window.innerWidth < 768;
-
-    map.current.addControl(new maplibregl.ScaleControl(), 'bottom-left');
-
+    // Throttled move state updates
+    let lastMoveUpdate = 0;
     map.current.on('move', () => {
       if (!map.current || isGuidanceActive || isTracking) return;
+      
+      const now = performance.now();
+      if (now - lastMoveUpdate < 100) { // Throttle UI state updates to 10fps during pan
+        // Still update the crosshair result for instant feel, but skip the expensive lat/lng state sync
+        if (!isManualSelection) {
+          const center = map.current.getCenter();
+          const result = encodeAGID(center.lat, center.lng);
+          setClickedAgid(prev => (prev?.id === result.id ? prev : result));
+        }
+        return; 
+      }
+      lastMoveUpdate = now;
+
       const center = map.current.getCenter();
       const newZoom = map.current.getZoom();
       const newBearing = map.current.getBearing();
       const newPitch = map.current.getPitch();
 
-      // Precision stabilization to prevent infinite re-render loops from jitter
-      // Also prevents re-rendering if the values haven't actually changed significantly
       const COORD_EPSILON = 0.000001; 
-      
       const newLng = center.lng;
       const newLat = center.lat;
       const newZ = Number(newZoom.toFixed(2));
@@ -2014,6 +2023,11 @@ export default function App() {
       setZoom(prev => Math.abs(prev - newZ) > 0.01 ? newZ : prev);
       setMapBearing(prev => Math.abs(prev - newB) > 0.1 ? newB : prev);
       setMapPitch(prev => Math.abs(prev - newP) > 0.1 ? newP : prev);
+
+      if (!isManualSelection) {
+        const result = encodeAGID(newLat, newLng);
+        setClickedAgid(prev => (prev?.id === result.id ? prev : result));
+      }
     });
 
     map.current.on('dragstart', () => {
@@ -2097,39 +2111,6 @@ export default function App() {
     reverseGeocode(clickLat, clickLng, result.prefix, result.isSea, true);
     });
 
-    map.current.on('style.load', () => {
-      setIsMapLoaded(true);
-      setIsStyleLoading(false);
-
-      // Initial selection of center cell to ensure address/grid are shown without touch
-      if (map.current) {
-        const center = map.current.getCenter();
-        const result = encodeAGID(center.lat, center.lng);
-        setClickedAgid(result);
-        reverseGeocode(center.lat, center.lng, result.prefix, result.isSea, true);
-      }
-    });
-
-    map.current.on('styledataloading', () => {
-      setIsStyleLoading(true);
-    });
-
-    map.current.on('idle', () => {
-      setIsStyleLoading(false);
-    });
-
-    map.current.on('move', () => {
-      if (!map.current || isGuidanceActive || isTracking || isManualSelection) return;
-      
-      const center = map.current.getCenter();
-      const result = encodeAGID(center.lat, center.lng);
-      
-      // Update result instantly for the UI display, but don't geocode yet
-      setClickedAgid(prev => {
-        if (prev?.id === result.id) return prev;
-        return result;
-      });
-    });
 
     map.current.on('moveend', () => {
       if (!map.current || isGuidanceActive || isTracking) return;
@@ -2141,11 +2122,6 @@ export default function App() {
         reverseGeocode(center.lat, center.lng, result.prefix, result.isSea, true);
       }
     });
-
-    const resizeObserver = new ResizeObserver(() => {
-      map.current?.resize();
-    });
-    resizeObserver.observe(mapContainer.current);
 
     return () => {
       resizeObserver.disconnect();
@@ -3394,62 +3370,13 @@ export default function App() {
   }, [is3DEnabled, isMapLoaded, mapStyle]);
 
 
-
+  // Grid Visibility and Style Sync
   useEffect(() => {
     if (!map.current || !isMapLoaded) return;
-    map.current.setPitch(mapPitch);
-  }, [mapPitch, isMapLoaded]);
-
-  useEffect(() => {
-    if (gridUpdateTimer.current) cancelAnimationFrame(gridUpdateTimer.current);
-    
-    // Throttling: even with RAF, we don't want to peg the worker 60 times a second if processing is heavy
-    // A small fixed delay helps maintain responsiveness and saves CPU
-    let throttleMs = 32; // Increased to 32ms for better stability
-    if (zoom < 14) throttleMs = 64;
-    if (zoom < 11) throttleMs = 120;
-    if (zoom < 8) throttleMs = 200;
-    if (zoom < 5) throttleMs = 400;
-    
-    const runUpdate = () => {
-      gridUpdateTimer.current = requestAnimationFrame(() => {
-        const result = encodeAGID(lat, lng);
-        updateGrid(result, clickedAgid || undefined, result.gridSize);
-      });
-    };
-
-    const timer = setTimeout(runUpdate, throttleMs);
-
-    return () => {
-      clearTimeout(timer);
-      if (gridUpdateTimer.current) cancelAnimationFrame(gridUpdateTimer.current);
-    };
-  }, [lat, lng, zoom, mapPitch, mapBearing, isGridVisible, clickedAgid?.id, isMapLoaded, mapStyle, gridOpacityLevel]);
-
-  useEffect(() => {
-    if (!isMapLoaded || !clickedAgid || clickedAgid.isSea) return;
-    
-    const timer = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/nominatim/reverse?lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`);
-        const data = await res.json();
-        if (data && data.address && data.address.country_code) {
-          const countryCode = data.address.country_code.toUpperCase();
-          if (clickedAgid.prefix !== countryCode && !clickedAgid.isSea && /^[A-Z]{2}$/.test(countryCode)) {
-            setClickedAgid(prev => prev ? {
-              ...prev,
-              prefix: countryCode,
-              id: countryCode + prev.hash
-            } : null);
-          }
-        }
-      } catch (err) {
-        // Silently fail
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [lat, lng, isMapLoaded, clickedAgid?.id, clickedAgid?.isSea]);
+    const center = map.current.getCenter();
+    const result = encodeAGID(center.lat, center.lng);
+    updateGrid(result, clickedAgid || undefined, 4, true);
+  }, [zoom, mapPitch, mapBearing, isGridVisible, clickedAgid?.id, isMapLoaded, mapStyle, gridOpacityLevel]);
 
   useEffect(() => {
     if (!map.current || !isMapLoaded) return;
@@ -3578,7 +3505,7 @@ export default function App() {
         map.current.addLayer(layerConfig, (beforeId && map.current.getLayer(beforeId)) ? beforeId : undefined);
         
         // Force selection to top ONLY on creation
-        if (id.includes('selected') || id.includes('selection')) {
+        if ((id.includes('selected') || id.includes('selection')) && map.current.getLayer(layerId)) {
           map.current.moveLayer(layerId);
         }
       }
@@ -4946,6 +4873,7 @@ export default function App() {
                       {settingsTab === 'offline' && t('offline_maps')}
                       {settingsTab === 'about' && t('about_terms')}
                       {settingsTab === 'help' && 'Help & Guides'}
+                      {settingsTab === 'export' && t('export_center')}
                       {settingsTab === 'app-language' && t('app_language')}
                       {settingsTab === 'address-language' && t('address_language')}
                     </h2>
@@ -4957,6 +4885,7 @@ export default function App() {
                       {settingsTab === 'offline' && t('download_map_data')}
                       {settingsTab === 'about' && t('info_legal')}
                       {settingsTab === 'help' && 'How to use AGID'}
+                      {settingsTab === 'export' && t('pro_data_export')}
                       {settingsTab === 'app-language' && t('app_language')}
                       {settingsTab === 'address-language' && t('select_address_lang')}
                     </p>
@@ -5061,6 +4990,22 @@ export default function App() {
                         </button>
 
                         <button 
+                          onClick={() => setSettingsTab('export')}
+                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                              <FileDown className="w-6 h-6" />
+                            </div>
+                            <div className="text-left">
+                              <p className="font-black text-sm md:text-base text-slate-900">{t('export_center')}</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GeoJSON, CSV, KML</p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                        </button>
+
+                        <button 
                           onClick={() => setSettingsTab('about')}
                           className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
                         >
@@ -5094,9 +5039,139 @@ export default function App() {
                       </motion.div>
                     )}
 
+                    {settingsTab === 'export' && (
+                      <motion.div 
+                        key="export"
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 20, opacity: 0 }}
+                        className="p-8 space-y-10"
+                      >
+                        <div className="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
+                          <h4 className="text-sm font-black text-indigo-900 mb-2 uppercase tracking-widest">{t('pro_data_export')}</h4>
+                          <p className="text-xs text-indigo-800/70 leading-relaxed mb-6">
+                            Download your spatial data in industry-standard formats for GIS, analytics, or navigation.
+                          </p>
+
+                          <div className="space-y-4">
+                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                  <Bookmark className="w-4 h-4 text-indigo-600" />
+                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">
+                                    {t('saved_locations_count').replace('{{count}}', String(savedAgids.length))}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 gap-2">
+                                <button 
+                                  disabled={savedAgids.length === 0}
+                                  onClick={() => {
+                                    const data: ExportData[] = savedAgids.map(a => ({
+                                      id: a.id,
+                                      lat: a.lat,
+                                      lon: a.lng,
+                                      name: a.name || a.address,
+                                      type: 'Saved Point',
+                                      timestamp: new Date().toISOString()
+                                    }));
+                                    ExportService.exportToGeoJSON(data, `agid_saved_${new Date().getTime()}.geojson`);
+                                  }}
+                                  className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
+                                >
+                                  <FileDown className="w-3.5 h-3.5" /> {t('export_geojson')}
+                                </button>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <button 
+                                    disabled={savedAgids.length === 0}
+                                    onClick={() => {
+                                      const data: ExportData[] = savedAgids.map(a => ({
+                                        id: a.id,
+                                        lat: a.lat,
+                                        lon: a.lng,
+                                        name: a.name || a.address,
+                                        type: 'Saved Point',
+                                        timestamp: new Date().toISOString()
+                                      }));
+                                      ExportService.exportToCSV(data, `agid_saved_${new Date().getTime()}.csv`);
+                                    }}
+                                    className="py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
+                                  >
+                                    {t('export_csv')}
+                                  </button>
+                                  <button 
+                                    disabled={savedAgids.length === 0}
+                                    onClick={() => {
+                                      const data: ExportData[] = savedAgids.map(a => ({
+                                        id: a.id,
+                                        lat: a.lat,
+                                        lon: a.lng,
+                                        name: a.name || a.address,
+                                        type: 'Saved Point',
+                                        timestamp: new Date().toISOString()
+                                      }));
+                                      ExportService.exportToKML(data, `agid_saved_${new Date().getTime()}.kml`);
+                                    }}
+                                    className="py-3 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
+                                  >
+                                    {t('export_kml')}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                  <History className="w-4 h-4 text-indigo-600" />
+                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Search History ({searchHistory.length})</span>
+                                </div>
+                              </div>
+                              <button 
+                                disabled={searchHistory.length === 0}
+                                onClick={() => {
+                                  const csvContent = "Query\n" + searchHistory.join("\n");
+                                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                                  saveAs(blob, `agid_history_${new Date().getTime()}.csv`);
+                                }}
+                                className="w-full py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
+                              >
+                                <Download className="w-3.5 h-3.5" /> Download History CSV
+                              </button>
+                            </div>
+
+                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4 text-indigo-600" />
+                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{t('current_view')}</span>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => {
+                                  if (!map.current) return;
+                                  const center = map.current.getCenter();
+                                  const zoom = map.current.getZoom();
+                                  const data = {
+                                    lat: center.lat,
+                                    lon: center.lng,
+                                    zoom: zoom,
+                                    timestamp: new Date().toISOString()
+                                  };
+                                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                                  saveAs(blob, `agid_view_${new Date().getTime()}.json`);
+                                }}
+                                className="w-full py-3 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                              >
+                                <Share2 className="w-3.5 h-3.5" /> Save Current Coordinates
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
                     {settingsTab === 'home' && (
                       <motion.div 
-                        key="home"
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: 20, opacity: 0 }}
@@ -7021,146 +7096,10 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Licenses View */}
-      <AnimatePresence>
-        {showLicenses && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-white/80 backdrop-blur-xl flex items-center justify-center p-4 md:p-10"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="w-full max-w-2xl bg-white shadow-2xl rounded-[3rem] border border-slate-100 overflow-hidden flex flex-col max-h-[85vh]"
-            >
-              <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Open Source Licenses</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Data Providers & Infrastructure</p>
-                </div>
-                <button 
-                  onClick={() => setShowLicenses(false)}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm transition-all"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+      <LicensesOverlay show={showLicenses} onClose={() => setShowLicenses(false)} />
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-                <section className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2">Geospatial Data</h4>
-                  <div className="space-y-4">
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-sm font-black text-slate-900">OpenStreetMap</p>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        Data © OpenStreetMap contributors. Licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
-                      </p>
-                    </div>
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-sm font-black text-slate-900">IHO / Marine Regions</p>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        Marine region boundaries provided by the International Hydrographic Organization (IHO) via MarineRegions.org.
-                      </p>
-                    </div>
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-sm font-black text-slate-900">Natural Earth / GEBCO</p>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        Global relief and bathymetry data from General Bathymetric Chart of the Oceans (GEBCO) and Natural Earth datasets.
-                      </p>
-                    </div>
-                  </div>
-                </section>
+      <LegalOverlay activeDoc={activeLegalDoc} onClose={() => setActiveLegalDoc(null)} legalData={legalData} />
 
-                <section className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2">Frontend Frameworks</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {['React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'Lucide React', 'Mapbox GL JS', 'D3.js', 'Recharts'].map(lib => (
-                      <div key={lib} className="px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                        {lib}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <div className="pt-10 border-t border-slate-100 text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Build with ❤️ by AGID Community
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Legal Overlay Modal */}
-      <AnimatePresence>
-        {activeLegalDoc && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-white/80 backdrop-blur-xl flex items-center justify-center"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="w-full h-full md:h-auto md:max-w-2xl bg-white shadow-2xl md:rounded-[3rem] border-x md:border border-slate-100 overflow-hidden flex flex-col md:max-h-[85vh]"
-              style={{ 
-                paddingTop: 'env(safe-area-inset-top)',
-                paddingBottom: 'env(safe-area-inset-bottom)',
-                paddingLeft: 'env(safe-area-inset-left)',
-                paddingRight: 'env(safe-area-inset-right)'
-              }}
-            >
-              <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
-                <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
-                    {activeLegalDoc === 'privacy' ? (legalData as any).privacy_policy.title : (legalData as any).terms_of_service.title}
-                  </h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                    Last Updated: {activeLegalDoc === 'privacy' ? (legalData as any).privacy_policy.updated : (legalData as any).terms_of_service.updated}
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setActiveLegalDoc(null)}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm transition-all active:scale-90"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-10 custom-scrollbar">
-                {((activeLegalDoc === 'privacy' ? (legalData as any).privacy_policy.sections : (legalData as any).terms_of_service.sections) as any[]).map((section, idx) => (
-                  <section key={idx} className="space-y-4">
-                    <h4 className="text-base md:text-lg font-black text-slate-900 tracking-tight flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 shrink-0">
-                        0{idx + 1}
-                      </span>
-                      {section.heading}
-                    </h4>
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium pl-11">
-                      {section.content}
-                    </p>
-                  </section>
-                ))}
-
-                <div className="pt-10 pb-6 border-t border-slate-100 text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Absolute Grid Identity © 2026
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Full Sea Registry View */}
       <AnimatePresence>
         {showFullSeaRegistry && (
           <FullSeaRegistryView 
@@ -7175,7 +7114,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Full Country Registry View */}
       <AnimatePresence>
         {showFullCountryRegistry && (
           <FullCountryRegistryView 
@@ -7190,392 +7128,11 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Custom Confirm Modal */}
-      <AnimatePresence>
-        {confirmConfig?.show && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setConfirmConfig(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[300]"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-3xl shadow-2xl z-[301] p-8 text-center border border-slate-100"
-            >
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Trash2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">{confirmConfig.title}</h3>
-              <p className="text-sm font-bold text-slate-500 mb-8 leading-relaxed">{confirmConfig.message}</p>
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => setConfirmConfig(null)}
-                  className="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-colors active:scale-95"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={() => {
-                    confirmConfig.onConfirm();
-                    setConfirmConfig(null);
-                  }}
-                  className="py-4 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all active:scale-95"
-                >
-                  Confirm
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <ConfirmModal 
+        config={confirmConfig} 
+        onClose={() => setConfirmConfig(null)} 
+      />
     </div>
   );
 }
 
-// --- Full Sea Registry View Component ---
-
-function FullSeaRegistryView({ registry, onClose, onSelect }: { registry: any[], onClose: () => void, onSelect: (item: any) => void }) {
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<'all' | 'Named Sea' | 'Ocean Segment'>('all');
-  const [areaFilter, setAreaFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'name' | 'id' | 'prefix'>('prefix');
-
-  const areas = useMemo(() => {
-    const set = new Set<string>();
-    registry.forEach(item => { if (item.area) set.add(item.area); });
-    return Array.from(set).sort();
-  }, [registry]);
-
-  const filtered = useMemo(() => {
-    return registry
-      .filter(item => {
-        const matchesSearch = item.id.toLowerCase().includes(search.toLowerCase()) || 
-                             item.name.toLowerCase().includes(search.toLowerCase()) ||
-                             item.prefix.toLowerCase().includes(search.toLowerCase());
-        const matchesType = typeFilter === 'all' || item.type === typeFilter;
-        const matchesArea = areaFilter === 'all' || item.area === areaFilter;
-        return matchesSearch && matchesType && matchesArea;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'name') return a.name.localeCompare(b.name);
-        if (sortBy === 'id') return a.id.localeCompare(b.id);
-        return a.prefix.localeCompare(b.prefix);
-      });
-  }, [registry, search, typeFilter, areaFilter, sortBy]);
-
-  return (
-    <motion.div
-      initial={{ y: '100%', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
-      className="fixed inset-0 bg-slate-50 z-[1000] flex flex-col"
-      style={{ 
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
-    >
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-3 md:py-4 flex items-center justify-between shadow-sm shrink-0">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-500 active:scale-90"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="min-w-0">
-            <h2 className="text-base md:text-lg font-black text-slate-900 tracking-tight line-clamp-1">IHO Sea Codes</h2>
-            <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">
-              Global Maritime • {filtered.length} Regions
-            </p>
-          </div>
-        </div>
-        <button 
-          onClick={onClose}
-          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-400 active:scale-90"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </header>
-
-      {/* Filters Bar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search by name, IHO code, or prefix..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-            {['all', 'Named Sea', 'Ocean Segment'].map((type) => (
-              <button
-                key={type}
-                onClick={() => setTypeFilter(type as any)}
-                className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  typeFilter === type 
-                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' 
-                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
-                }`}
-              >
-                {type === 'all' ? 'All Types' : type}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">Area:</span>
-            <select 
-              value={areaFilter}
-              onChange={(e) => setAreaFilter(e.target.value)}
-              className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 focus:outline-none min-w-[140px]"
-            >
-              <option value="all">All Oceans</option>
-              {areas.map(area => (
-                <option key={area} value={area}>{area}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400">
-          <span className="uppercase tracking-widest shrink-0">Sort By:</span>
-          <div className="flex items-center gap-1">
-            {[
-              { id: 'prefix', label: 'AGID Prefix' },
-              { id: 'id', label: 'IHO Code' },
-              { id: 'name', label: 'Name' }
-            ].map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => setSortBy(opt.id as any)}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${
-                  sortBy === opt.id 
-                    ? 'bg-slate-900 border-slate-900 text-white' 
-                    : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Registry Grid */}
-      <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSelect(item)}
-              className="group bg-white p-4 rounded-3xl border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left flex items-center justify-between gap-4"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg font-mono text-[11px] font-black border border-blue-100 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
-                    {item.prefix}
-                  </span>
-                  <span className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg font-mono text-[11px] font-black border border-slate-100">
-                    {item.id}
-                  </span>
-                </div>
-                <h4 className="text-sm font-black text-slate-800 truncate leading-tight mb-1">{item.name}</h4>
-                <div className="flex items-center gap-2">
-                  <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ${
-                    item.type === 'Country' ? 'bg-blue-50 text-blue-600' :
-                    item.type === 'Territory' ? 'bg-amber-50 text-amber-600' :
-                    item.type === 'Autonomous' ? 'bg-emerald-50 text-emerald-600' :
-                    item.type === 'Disputed' ? 'bg-red-50 text-red-600' :
-                    'bg-slate-100 text-slate-500'
-                  }`}>
-                    {item.type}
-                  </span>
-                  {item.area && (
-                    <span className="text-[9px] font-black px-1.5 py-0.5 bg-blue-50 text-blue-500 rounded uppercase tracking-tighter">
-                      {item.area}
-                    </span>
-                  )}
-                  <span className="text-[9px] font-bold text-slate-400 font-mono">
-                    {item.lat.toFixed(1)}°, {item.lon.toFixed(1)}°
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
-            </button>
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <div className="py-20 text-center">
-            <div className="text-slate-300 mb-4 flex justify-center"><Waves className="w-16 h-16" /></div>
-            <h3 className="text-lg font-black text-slate-400">No results found for your search criteria</h3>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// --- Full Country Registry View Component ---
-
-function FullCountryRegistryView({ registry, onClose, onSelect }: { registry: any[], onClose: () => void, onSelect: (item: any) => void }) {
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState('Asia');
-  const [sortBy, setSortBy] = useState<'name' | 'id'>('name');
-
-  const filtered = useMemo(() => {
-    return registry
-      .filter(item => {
-        const matchesSearch = item.id.toLowerCase().includes(search.toLowerCase()) || 
-                             item.name.toLowerCase().includes(search.toLowerCase());
-        const category = getMajorCategory(item as any);
-        const matchesCategory = category === categoryFilter;
-        return matchesSearch && matchesCategory;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'name') return a.name.localeCompare(b.name);
-        return a.id.localeCompare(b.id);
-      });
-  }, [registry, search, categoryFilter, sortBy]);
-
-  return (
-    <motion.div
-      initial={{ y: '100%', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
-      className="fixed inset-0 bg-slate-50 z-[1000] flex flex-col"
-      style={{ 
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
-    >
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-3 md:py-4 flex items-center justify-between shadow-sm shrink-0">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-500 active:scale-90"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="min-w-0">
-            <h2 className="text-base md:text-lg font-black text-slate-900 tracking-tight line-clamp-1">ISO Registry</h2>
-            <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">
-              Country Codes • {filtered.length} Entities
-            </p>
-          </div>
-        </div>
-        <button 
-          onClick={onClose}
-          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-400 active:scale-90"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </header>
-
-      {/* Navigation Filter Bar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 space-y-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {MAJOR_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setCategoryFilter(cat.id)}
-                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  categoryFilter === cat.id 
-                    ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200 scale-105' 
-                    : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'
-                }`}
-              >
-                <cat.icon className={`w-3 h-3 ${categoryFilter === cat.id ? 'text-white' : 'text-slate-300'}`} />
-                {cat.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
-              <input 
-                type="text" 
-                placeholder={`Search entities in ${categoryFilter}...`}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
-              />
-            </div>
-            
-            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
-              {[
-                { id: 'name', label: 'By Name' },
-                { id: 'id', label: 'By Code' }
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setSortBy(opt.id as any)}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                    sortBy === opt.id 
-                      ? 'bg-white border-slate-200 text-slate-900 shadow-sm' 
-                      : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Registry Grid */}
-      <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {filtered.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSelect(item)}
-              className="group bg-white p-4 rounded-3xl border border-slate-200 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/5 transition-all text-left flex items-center justify-between gap-4"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl font-mono text-sm font-black border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
-                    {item.id}
-                  </span>
-                </div>
-                <h4 className="text-sm font-black text-slate-800 truncate leading-tight mb-1">{item.name}</h4>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black px-1.5 py-0.5 bg-emerald-50 text-emerald-500 rounded uppercase tracking-tighter">
-                    {item.area}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
-            </button>
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <div className="py-20 text-center">
-            <div className="text-slate-300 mb-4 flex justify-center"><Globe className="w-16 h-16" /></div>
-            <h3 className="text-lg font-black text-slate-400">No results found for your search criteria</h3>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
