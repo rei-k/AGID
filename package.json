@@ -1,7 +1,9 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "geogrid-explorer",
+  "description": "Interactive map with dynamic grid overlays, elevation metrics, and marine data integration.",
+  "license": "MIT",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
