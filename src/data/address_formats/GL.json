@@ -1,0 +1,31 @@
+{
+  "countryCode": "GL",
+  "name": "Greenland",
+  "native": {
+    "name": "Kalaallit Nunaat",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nKalaallit Nunaat",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Ateq", "placeholder": "Ateq tamaat", "required": true, "type": "text" },
+      { "key": "street", "label": "Aqquserngup aqqa", "placeholder": "Aqquserngup aqqa", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Nr", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummeri", "placeholder": "3900", "required": true, "type": "text" },
+      { "key": "city", "label": "Illoqarfik", "placeholder": "Nuuk", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode} {{city}}\nGreenland",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "3900", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Nuuk", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "39NN",
+    "regex": "^39\\d{2}$"
+  }
+}

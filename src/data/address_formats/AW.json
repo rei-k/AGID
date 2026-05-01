@@ -1,0 +1,29 @@
+{
+  "countryCode": "AW",
+  "name": "Aruba",
+  "native": {
+    "name": "Aruba",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nAruba",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Naam", "placeholder": "Volledige naam", "required": true, "type": "text" },
+      { "key": "street", "label": "Straat", "placeholder": "Straatnaam", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Huisnummer", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "city", "label": "Stad", "placeholder": "Oranjestad", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nAruba",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Oranjestad", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

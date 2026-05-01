@@ -1,0 +1,31 @@
+{
+  "countryCode": "MS",
+  "name": "Montserrat",
+  "native": {
+    "name": "Montserrat",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\nMontserrat",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Saint Anthony", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\nMontserrat",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Saint Anthony", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "",
+    "regex": null,
+    "api": null,
+    "source": "None"
+  }
+}

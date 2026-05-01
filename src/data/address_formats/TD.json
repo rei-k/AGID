@@ -1,0 +1,27 @@
+{
+  "countryCode": "TD",
+  "name": "Chad",
+  "native": {
+    "name": "Tchad",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nTchad",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Mahamat Déby", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "N'Djamena", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nChad",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mahamat Déby", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "N'Djamena", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

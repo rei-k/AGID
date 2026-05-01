@@ -1,0 +1,35 @@
+{
+  "countryCode": "DK",
+  "name": "Denmark",
+  "native": {
+    "name": "Danmark",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Navn", "placeholder": "Fullt navn", "required": true, "type": "text" },
+      { "key": "organization", "label": "Firma/Organisation", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Vej", "placeholder": "Strøget", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Husnummer", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummer", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "By", "placeholder": "København", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Stroget", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Copenhagen", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.postnord.dk/verktojer/find-postnummer",
+    "source": "PostNord Danmark"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "countryCode": "SI",
+  "name": "Slovenia",
+  "native": {
+    "name": "Slovenija",
+    "addressFormat": "{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Podjetje/Organizacija", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulica", "placeholder": "Slovenska cesta", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Hišna številka", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Poštna številka", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "Kraj", "placeholder": "Ljubljana", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Slovenska Rd", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Ljubljana", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.posta.si/iskanje-postnih-stevilk",
+    "source": "Pošta Slovenije"
+  }
+}

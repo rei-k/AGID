@@ -1,0 +1,37 @@
+{
+  "countryCode": "MY",
+  "name": "Malaysia",
+  "native": {
+    "name": "Malaysia",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Nama Bangunan/Syarikat", "placeholder": "Menara Petronas", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No. Rumah/Unit", "placeholder": "Level 4", "required": false, "type": "text" },
+      { "key": "street", "label": "Nama Jalan", "placeholder": "Persiaran Petronas", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Kawasan/Taman", "placeholder": "KLCC", "required": false, "type": "text" },
+      { "key": "city", "label": "Bandar", "placeholder": "Kuala Lumpur", "required": true, "type": "text" },
+      { "key": "state", "label": "Negeri", "placeholder": "Wilayah Persekutuan", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Poskod", "placeholder": "50088", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Petronas Twin Towers", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Level 4", "required": false, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "Persiaran Petronas", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Area/Taman", "placeholder": "KLCC", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Kuala Lumpur", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "Federal Territory", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "50088", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.pos.com.my/postcode-finder",
+    "source": "Pos Malaysia"
+  }
+}

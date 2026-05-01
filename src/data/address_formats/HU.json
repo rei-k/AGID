@@ -1,0 +1,33 @@
+{
+  "countryCode": "HU",
+  "name": "Hungary",
+  "native": {
+    "name": "Magyarország",
+    "addressFormat": "{{city}}\n{{street}} {{houseNumber}}\n{{postcode}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "organization", "label": "Cégnév/Szervezet", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "Város", "placeholder": "Budapest", "required": true, "type": "text" },
+      { "key": "street", "label": "Utca/Házszám", "placeholder": "Váci út", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Házszám/Emelet/Ajtó", "placeholder": "1. em. 1.", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Irányítószám", "placeholder": "1051", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{city}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Vaci Rd", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1, 1st fl, apt 1", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Budapest", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1051", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.posta.hu/ugyfelszolgalat/iranyitoszam-kereso",
+    "source": "Magyar Posta"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "countryCode": "GN",
+  "name": "Guinea",
+  "native": {
+    "name": "Guinée",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGuinée",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Mamadou Diallo", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Conakry", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGuinea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mamadou Diallo", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Conakry", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

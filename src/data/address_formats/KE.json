@@ -1,0 +1,31 @@
+{
+  "countryCode": "KE",
+  "name": "Kenya",
+  "native": {
+    "name": "Kenya",
+    "addressFormat": "{{recipient}}\n{{organization}}\n{{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "organization", "label": "Company (Optional)", "placeholder": "Acme Corp", "required": false, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 12345", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Nairobi", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00100", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{organization}}\n{{street}}\n{{city}} {{postcode}}\nKenya",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "organization", "label": "Company (Optional)", "placeholder": "Acme Corp", "required": false, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 12345", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Nairobi", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00100", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

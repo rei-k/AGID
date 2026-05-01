@@ -1,0 +1,37 @@
+{
+  "countryCode": "CN",
+  "name": "China",
+  "native": {
+    "name": "中国",
+    "addressFormat": "{{postcode}}\n{{state}}{{city}}{{district}}\n{{street}}{{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "邮政编码", "placeholder": "100000", "required": true, "type": "text" },
+      { "key": "state", "label": "省/直辖市/自治区", "placeholder": "北京市", "required": true, "type": "text" },
+      { "key": "city", "label": "市", "placeholder": "北京市", "required": true, "type": "text" },
+      { "key": "district", "label": "区/县", "placeholder": "东城区", "required": true, "type": "text" },
+      { "key": "street", "label": "街道/路", "placeholder": "长安街", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "号/弄", "placeholder": "1号", "required": false, "type": "text" },
+      { "key": "organization", "label": "单位/楼层/房间", "placeholder": "某某大厦 101室", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Floor/Room", "placeholder": "Building Name, Room 101", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "No. 1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Road", "placeholder": "Changan Ave", "required": false, "type": "text" },
+      { "key": "district", "label": "District/County", "placeholder": "Dongcheng District", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Beijing", "required": true, "type": "text" },
+      { "key": "state", "label": "Province/Municipality", "placeholder": "Beijing", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "http://www.ems.com.cn/ (Manual check usually)",
+    "source": "China Post"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "countryCode": "PF",
+  "name": "French Polynesia",
+  "native": {
+    "name": "Polynésie française",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nPolynésie française",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "street", "label": "Numéro + Rue", "placeholder": "Numéro et nom de la rue", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code postal", "placeholder": "987xx", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "ex. Papeete", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nFrench Polynesia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Number + Street", "placeholder": "Number and street name", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "987xx", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "e.g. Papeete", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "987NN",
+    "regex": "^987\\d{2}$",
+    "api": null,
+    "source": "Fare Rata"
+  }
+}

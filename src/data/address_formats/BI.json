@@ -1,0 +1,27 @@
+{
+  "countryCode": "BI",
+  "name": "Burundi",
+  "native": {
+    "name": "Burundi",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nBurundi",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Jean-Baptiste Nkurunziza", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Bujumbura", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nBurundi",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jean-Baptiste Nkurunziza", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Bujumbura", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

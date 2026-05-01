@@ -1,0 +1,33 @@
+{
+  "countryCode": "AT",
+  "name": "Austria",
+  "native": {
+    "name": "Österreich",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Firma/Organisation", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Straße", "placeholder": "Stephansplatz", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Hausnummer", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postleitzahl", "placeholder": "1010", "required": true, "type": "text" },
+      { "key": "city", "label": "Stadt", "placeholder": "Wien", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Stephansplatz", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1010", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Vienna", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.post.at/s/postleitzahl-suche",
+    "source": "Österreichische Post"
+  }
+}

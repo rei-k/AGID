@@ -1,0 +1,33 @@
+{
+  "countryCode": "VG",
+  "name": "British Virgin Islands",
+  "native": {
+    "name": "British Virgin Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nBritish Virgin Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Island", "placeholder": "e.g. Tortola", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "VG1110", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nBritish Virgin Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Island", "placeholder": "e.g. Tortola", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "VG1110", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "VG1110",
+    "regex": "^VG\\d{4}$",
+    "api": null,
+    "source": "BVI Post"
+  }
+}

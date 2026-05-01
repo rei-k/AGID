@@ -1,0 +1,35 @@
+{
+  "countryCode": "RO",
+  "name": "Romania",
+  "native": {
+    "name": "România",
+    "addressFormat": "Str. {{street}} nr. {{houseNumber}}\n{{city}}, {{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Companie/Organizație", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Stradă", "placeholder": "Calea Victoriei", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Număr/Bloc/Ap.", "placeholder": "1, Bl. A, Ap. 1", "required": true, "type": "text" },
+      { "key": "city", "label": "Localitate", "placeholder": "București", "required": true, "type": "text" },
+      { "key": "state", "label": "Județ", "placeholder": "Sector 1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Cod poștal", "placeholder": "010011", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No./Bldg/Apt", "placeholder": "1, Bldg A, Apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Calea Victoriei", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Bucharest", "required": true, "type": "text" },
+      { "key": "state", "label": "County", "placeholder": "Sector 1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "010011", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://www.posta-romana.ro/cauta-cod-postal.html",
+    "source": "Poșta Română"
+  }
+}

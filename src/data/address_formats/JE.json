@@ -1,0 +1,33 @@
+{
+  "countryCode": "JE",
+  "name": "Jersey",
+  "native": {
+    "name": "Jersey",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nJersey",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Saint Helier", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "JE2 4XX", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nJersey",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Saint Helier", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "JE2 4XX", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "JE2 4XX",
+    "regex": "^JE\\d[A-Z\\d]?\\s?\\d[A-Z]{2}$",
+    "api": null,
+    "source": "Jersey Post"
+  }
+}

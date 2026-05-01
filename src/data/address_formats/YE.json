@@ -1,0 +1,33 @@
+{
+  "countryCode": "YE",
+  "name": "Yemen",
+  "native": {
+    "name": "اليمن",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المنزل", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع حدة", "required": true, "type": "text" },
+      { "key": "suburb", "label": "الحي", "placeholder": "حي الوحدة", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "صنعاء", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Hadda St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "District/Area", "placeholder": "Al-Wahda Dist", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Sana'a", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "None/PO Box",
+    "regex": null,
+    "api": null,
+    "source": "Yemen Post"
+  }
+}

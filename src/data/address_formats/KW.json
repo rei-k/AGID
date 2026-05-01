@@ -1,0 +1,35 @@
+{
+  "countryCode": "KW",
+  "name": "Kuwait",
+  "native": {
+    "name": "الكويت",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "برج الحمراء", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المنزل/المبنى", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع الخليج العربي", "required": true, "type": "text" },
+      { "key": "suburb", "label": "القطعة", "placeholder": "قطعة 1", "required": true, "type": "text" },
+      { "key": "city", "label": "المنطقة/المدينة", "placeholder": "مدينة الكويت", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "13001", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "Al Hamra Tower", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Building No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Arabian Gulf St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Block", "placeholder": "Block 1", "required": true, "type": "text" },
+      { "key": "city", "label": "Area/City", "placeholder": "Kuwait City", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "13001", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.moc.gov.kw/post/postcode.html",
+    "source": "Ministry of Communications"
+  }
+}

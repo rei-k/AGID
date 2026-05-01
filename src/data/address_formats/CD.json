@@ -1,0 +1,27 @@
+{
+  "countryCode": "CD",
+  "name": "DR Congo",
+  "native": {
+    "name": "RD Congo",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nRD Congo",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Félix Tshisekedi", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse", "placeholder": "123 Blvd du 30 Juin", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville / Province", "placeholder": "Kinshasa", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nDR Congo",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Félix Tshisekedi", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 June 30th Blvd", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Province", "placeholder": "Kinshasa", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

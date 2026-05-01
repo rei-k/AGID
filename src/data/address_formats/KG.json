@@ -1,0 +1,35 @@
+{
+  "countryCode": "KG",
+  "name": "Kyrgyzstan",
+  "native": {
+    "name": "Кыргызстан",
+    "addressFormat": "{{postcode}}\n{{state}}, {{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Почта индекси", "placeholder": "720000", "required": true, "type": "text" },
+      { "key": "state", "label": "Облус", "placeholder": "Бишкек", "required": true, "type": "text" },
+      { "key": "city", "label": "Шаар/Район", "placeholder": "Бишкек", "required": true, "type": "text" },
+      { "key": "street", "label": "Көчө", "placeholder": "Чүй проспектиси", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Үй/Батир", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "organization", "label": "Имарат/Мекеме", "placeholder": "", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Office", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Chuy Ave", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Bishkek", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Bishkek", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "720000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "http://kyrgyzpost.kg/",
+    "source": "Kyrgyz Pochtasy"
+  }
+}

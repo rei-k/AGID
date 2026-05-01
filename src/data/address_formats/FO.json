@@ -1,0 +1,31 @@
+{
+  "countryCode": "FO",
+  "name": "Faroe Islands",
+  "native": {
+    "name": "Føroyar",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nFøroyar",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Navn", "placeholder": "Fullt navn", "required": true, "type": "text" },
+      { "key": "street", "label": "Gøta", "placeholder": "Gøtunavn", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Nr", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummar", "placeholder": "100", "required": true, "type": "text" },
+      { "key": "city", "label": "Býur/Bygd", "placeholder": "Tórshavn", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nFaroe Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Torshavn", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN",
+    "regex": "^\\d{3}$"
+  }
+}

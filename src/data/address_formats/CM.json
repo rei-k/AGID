@@ -1,0 +1,27 @@
+{
+  "countryCode": "CM",
+  "name": "Cameroon",
+  "native": {
+    "name": "Cameroun",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCameroun",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Paul Biya", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Yaoundé", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCameroon",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Paul Biya", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Yaoundé", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "countryCode": "IM",
+  "name": "Isle of Man",
+  "native": {
+    "name": "Isle of Man",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nIsle of Man",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "Town/Village", "placeholder": "e.g. Douglas", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "IM1 3AA", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nIsle of Man",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "Town/Village", "placeholder": "e.g. Douglas", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "IM1 3AA", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "IM1 3AA",
+    "regex": "^IM\\d[A-Z\\d]?\\s?\\d[A-Z]{2}$",
+    "api": null,
+    "source": "Isle of Man Post Office"
+  }
+}

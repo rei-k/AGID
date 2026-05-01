@@ -1,0 +1,37 @@
+{
+  "countryCode": "IN",
+  "name": "India",
+  "native": {
+    "name": "भारत",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "भवन/कंपनी", "placeholder": "ताज महल पैलेस", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "मकान/फ्लैट नंबर", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "सड़क/गली", "placeholder": "एमजी रोड", "required": true, "type": "text" },
+      { "key": "suburb", "label": "इलाका/क्षेत्र", "placeholder": "इंदिरानगर", "required": false, "type": "text" },
+      { "key": "city", "label": "शहर", "placeholder": "बेंगलुरु", "required": true, "type": "text" },
+      { "key": "state", "label": "राज्य", "placeholder": "कर्नाटक", "required": true, "type": "text" },
+      { "key": "postcode", "label": "पिन कोड", "placeholder": "560038", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Taj Mahal Palace", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Flat No.", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "Street/Road", "placeholder": "MG Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality/Area", "placeholder": "Indiranagar", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Bengaluru", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "Karnataka", "required": true, "type": "text" },
+      { "key": "postcode", "label": "PIN Code", "placeholder": "560038", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://api.postalpincode.in/pincode/{{postcode}}",
+    "source": "India Post"
+  }
+}

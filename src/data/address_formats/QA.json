@@ -1,0 +1,33 @@
+{
+  "countryCode": "QA",
+  "name": "Qatar",
+  "native": {
+    "name": "قطر",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "برج الدوحة", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المبنى", "placeholder": "12", "required": true, "type": "text" },
+      { "key": "street", "label": "رقم الشارع", "placeholder": "980", "required": true, "type": "text" },
+      { "key": "suburb", "label": "رقم المنطقة", "placeholder": "63", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "الدوحة", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "Doha Tower", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Building No.", "placeholder": "12", "required": true, "type": "text" },
+      { "key": "street", "label": "Street No.", "placeholder": "980", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Zone No.", "placeholder": "63", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Doha", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "None/PO Box",
+    "regex": null,
+    "api": null,
+    "source": "Qatar Post"
+  }
+}

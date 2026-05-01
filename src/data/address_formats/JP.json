@@ -1,0 +1,37 @@
+{
+  "countryCode": "JP",
+  "name": "Japan",
+  "native": {
+    "name": "日本",
+    "addressFormat": "〒{{postcode}}\n{{state}}{{city}}{{subdistrict}}\n{{street}}{{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "郵便番号", "placeholder": "100-0001", "required": true, "type": "text" },
+      { "key": "state", "label": "都道府県", "placeholder": "東京都", "required": true, "type": "text" },
+      { "key": "city", "label": "市区町村", "placeholder": "千代田区", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "町名", "placeholder": "永田町", "required": false, "type": "text" },
+      { "key": "street", "label": "番地", "placeholder": "1-1", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "号", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "organization", "label": "建物名・部屋番号", "placeholder": "国会議事堂 101", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Room", "placeholder": "National Diet Building 101", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Block", "placeholder": "1-1", "required": false, "type": "text" },
+      { "key": "subdistrict", "label": "Town/District", "placeholder": "Nagatacho", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Ward", "placeholder": "Chiyoda-ku", "required": true, "type": "text" },
+      { "key": "state", "label": "Prefecture", "placeholder": "Tokyo", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100-0001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN-NNNN",
+    "regex": "^\\d{3}-\\d{4}$",
+    "api": "https://zipcloud.ibsnet.co.jp/api/search?zipcode={{postcode}}",
+    "source": "Japan Post / zipcloud"
+  }
+}

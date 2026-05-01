@@ -1,0 +1,29 @@
+{
+  "countryCode": "NA",
+  "name": "Namibia",
+  "native": {
+    "name": "Namibia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Windhoek", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10001", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}\nNamibia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Windhoek", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10001", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

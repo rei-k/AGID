@@ -1,0 +1,31 @@
+{
+  "countryCode": "PW",
+  "name": "Palau",
+  "native": {
+    "name": "Palau",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Koror", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "PW", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96940", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nPalau",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Koror", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "PW", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96940", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "96940",
+    "regex": "^96940$"
+  }
+}

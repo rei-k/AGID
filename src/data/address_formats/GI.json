@@ -1,0 +1,33 @@
+{
+  "countryCode": "GI",
+  "name": "Gibraltar",
+  "native": {
+    "name": "Gibraltar",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nGibraltar",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Gibraltar", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "GX11 1AA", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nGibraltar",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Gibraltar", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "GX11 1AA", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "GX11 1AA",
+    "regex": "^GX11\\s?1AA$",
+    "api": null,
+    "source": "Royal Gibraltar Post Office"
+  }
+}

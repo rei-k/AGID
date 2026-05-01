@@ -1,0 +1,31 @@
+{
+  "countryCode": "WF",
+  "name": "Wallis and Futuna",
+  "native": {
+    "name": "Wallis-et-Futuna",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nWallis-et-Futuna",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "street", "label": "Numéro + Rue", "placeholder": "Numéro et nom de la rue", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code postal", "placeholder": "986xx", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "ex. Mata-Utu", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nWallis and Futuna",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Number + Street", "placeholder": "Number and street name", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "986xx", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "e.g. Mata-Utu", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "986NN",
+    "regex": "^986\\d{2}$",
+    "api": null,
+    "source": "OPT-WF"
+  }
+}

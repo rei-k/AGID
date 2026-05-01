@@ -1,0 +1,33 @@
+{
+  "countryCode": "FK",
+  "name": "Falkland Islands",
+  "native": {
+    "name": "Falkland Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nFalkland Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "Settlement", "placeholder": "Stanley", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "FIQQ 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nFalkland Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "Settlement", "placeholder": "Stanley", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "FIQQ 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "FIQQ 1ZZ",
+    "regex": "^FIQQ\\s?1ZZ$",
+    "api": null,
+    "source": "Falkland Islands Post Service"
+  }
+}

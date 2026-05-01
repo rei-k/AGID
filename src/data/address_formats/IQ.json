@@ -1,0 +1,37 @@
+{
+  "countryCode": "IQ",
+  "name": "Iraq",
+  "native": {
+    "name": "العراق",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم الدار", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "الزقاق", "placeholder": "10", "required": true, "type": "text" },
+      { "key": "suburb", "label": "المحلة", "placeholder": "601", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة/القضاء", "placeholder": "المنصور", "required": true, "type": "text" },
+      { "key": "state", "label": "المحافظة", "placeholder": "بغداد", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "10011", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Alley (Zukak)", "placeholder": "10", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Neighborhood (Mahala)", "placeholder": "601", "required": true, "type": "text" },
+      { "key": "city", "label": "City/District", "placeholder": "Mansour", "required": true, "type": "text" },
+      { "key": "state", "label": "Governorate", "placeholder": "Baghdad", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10011", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "http://www.iraqpost.net/",
+    "source": "Iraq Post"
+  }
+}

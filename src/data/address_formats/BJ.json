@@ -1,0 +1,27 @@
+{
+  "countryCode": "BJ",
+  "name": "Benin",
+  "native": {
+    "name": "Bénin",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nBénin",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Patrice Talon", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Cotonou", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nBenin",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Patrice Talon", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Cotonou", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

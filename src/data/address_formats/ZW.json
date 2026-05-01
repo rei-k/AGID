@@ -1,0 +1,29 @@
+{
+  "countryCode": "ZW",
+  "name": "Zimbabwe",
+  "native": {
+    "name": "Zimbabwe",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\nZimbabwe",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Moyo", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Samora Machel Ave", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Avondale", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Harare", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\nZimbabwe",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Moyo", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Samora Machel Ave", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Avondale", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Harare", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

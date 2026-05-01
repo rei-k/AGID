@@ -1,0 +1,29 @@
+{
+  "countryCode": "SN",
+  "name": "Senegal",
+  "native": {
+    "name": "Sénégal",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Moussa Diop", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse", "placeholder": "12 Rue de Dakar", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code Postal", "placeholder": "12500", "required": false, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Dakar", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSenegal",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Moussa Diop", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "12 Dakar St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "12500", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Dakar", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

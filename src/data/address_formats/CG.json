@@ -1,0 +1,27 @@
+{
+  "countryCode": "CG",
+  "name": "Congo",
+  "native": {
+    "name": "Congo",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCongo",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Denis Sassou Nguesso", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse", "placeholder": "123 Rue de Brazzaville", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Brazzaville", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCongo",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Denis Sassou Nguesso", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Brazzaville St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Brazzaville", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

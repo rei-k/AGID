@@ -1,0 +1,27 @@
+{
+  "countryCode": "CI",
+  "name": "Ivory Coast",
+  "native": {
+    "name": "Côte d'Ivoire",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCôte d'Ivoire",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Koffi Kouadio", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "01 BP 1234", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Abidjan", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nIvory Coast",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Koffi Kouadio", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "01 PO Box 1234", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Abidjan", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

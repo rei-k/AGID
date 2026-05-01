@@ -1,0 +1,33 @@
+{
+  "countryCode": "BG",
+  "name": "Bulgaria",
+  "native": {
+    "name": "България",
+    "addressFormat": "{{postcode}} {{city}}\n{{street}} {{houseNumber}}\n{{organization}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Организация", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Улица", "placeholder": "бул. Витоша", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Номер/Блок/Ап.", "placeholder": "1, бл. 1, ап. 1", "required": true, "type": "text" },
+      { "key": "city", "label": "Град", "placeholder": "София", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Пощенски код", "placeholder": "1000", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No./Bldg/Apt", "placeholder": "1, bldg 1, apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Vitosha Blvd", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Sofia", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.bgpost.bg/bg/post-codes",
+    "source": "Bulgarian Posts"
+  }
+}

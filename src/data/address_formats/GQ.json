@@ -1,0 +1,27 @@
+{
+  "countryCode": "GQ",
+  "name": "Equatorial Guinea",
+  "native": {
+    "name": "Guinea Ecuatorial",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGuinea Ecuatorial",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nombre Completo", "placeholder": "Teodoro Obiang", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Calle de Malabo, 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ciudad", "placeholder": "Malabo", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nEquatorial Guinea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Teodoro Obiang", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Malabo St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Malabo", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

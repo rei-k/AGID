@@ -1,0 +1,33 @@
+{
+  "countryCode": "ME",
+  "name": "Montenegro",
+  "native": {
+    "name": "Crna Gora",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Preduzeće/Organizacija", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulica", "placeholder": "Slobode", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Kućni broj", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Poštanski broj", "placeholder": "81000", "required": true, "type": "text" },
+      { "key": "city", "label": "Grad", "placeholder": "Podgorica", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Slobode", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "81000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Podgorica", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.postacg.me/pronadjite-postanski-broj/",
+    "source": "Pošta Crne Gore"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "countryCode": "MA",
+  "name": "Morocco",
+  "native": {
+    "name": "المغرب",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "محمد علي", "required": true, "type": "text" },
+      { "key": "street", "label": "العنوان", "placeholder": "١٢٣ شارع محمد الخامس", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "١٠٠٠٠", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "الرباط", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMorocco",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mohamed Ali", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Blvd Mohammed V", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Rabat", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

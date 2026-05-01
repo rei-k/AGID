@@ -1,0 +1,31 @@
+{
+  "countryCode": "PM",
+  "name": "Saint Pierre and Miquelon",
+  "native": {
+    "name": "Saint-Pierre-et-Miquelon",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSaint-Pierre-et-Miquelon",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "street", "label": "Numéro + Rue", "placeholder": "Numéro et nom de la rue", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code postal", "placeholder": "97500", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "ex. Saint-Pierre", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSaint Pierre and Miquelon",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Number + Street", "placeholder": "Number and street name", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "97500", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "e.g. Saint-Pierre", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "97500",
+    "regex": "^97500$",
+    "api": null,
+    "source": "La Poste"
+  }
+}

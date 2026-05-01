@@ -1,0 +1,27 @@
+{
+  "countryCode": "ER",
+  "name": "Eritrea",
+  "native": {
+    "name": "ኤርትራ",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nEritrea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "ሙሉ ስም", "placeholder": "ዮሃንስ ገብረ", "required": true, "type": "text" },
+      { "key": "street", "label": "አድራሻ", "placeholder": "ፖ.ሳ.ቁ 123", "required": true, "type": "text" },
+      { "key": "city", "label": "ከተማ", "placeholder": "አስመራ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nEritrea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Yohannes Gebre", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Asmara", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "countryCode": "TW",
+  "name": "Taiwan",
+  "native": {
+    "name": "台灣",
+    "addressFormat": "{{postcode}}\n{{state}}{{city}}{{district}}\n{{street}}{{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "郵遞區號", "placeholder": "100", "required": true, "type": "text" },
+      { "key": "state", "label": "縣/市", "placeholder": "台北市", "required": true, "type": "text" },
+      { "key": "city", "label": "鄉鎮市區", "placeholder": "中正區", "required": true, "type": "text" },
+      { "key": "district", "label": "村/里", "placeholder": "某某里", "required": false, "type": "text" },
+      { "key": "street", "label": "路/街/巷/弄", "placeholder": "重慶南路一段", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "號/樓", "placeholder": "122號", "required": true, "type": "text" },
+      { "key": "organization", "label": "單位/大樓名稱", "placeholder": "總統府", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Unit", "placeholder": "Presidential Office", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No./Floor", "placeholder": "No. 122", "required": true, "type": "text" },
+      { "key": "street", "label": "Street/Lane/Alley", "placeholder": "Sec. 1, Chongqing S. Rd.", "required": true, "type": "text" },
+      { "key": "district", "label": "Village/Neighborhood", "placeholder": "Village Name", "required": false, "type": "text" },
+      { "key": "city", "label": "District/Township", "placeholder": "Zhongzheng Dist.", "required": true, "type": "text" },
+      { "key": "state", "label": "City/County", "placeholder": "Taipei City", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN(NN)",
+    "regex": "^\\d{3}(\\d{2})?$",
+    "api": "https://www.post.gov.tw/post/internet/Postal/index.jsp?ID=208",
+    "source": "Chunghwa Post"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "countryCode": "SX",
+  "name": "Sint Maarten",
+  "native": {
+    "name": "Sint Maarten",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nSint Maarten",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Philipsburg", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nSint Maarten",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Philipsburg", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

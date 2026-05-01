@@ -1,0 +1,27 @@
+{
+  "countryCode": "AO",
+  "name": "Angola",
+  "native": {
+    "name": "Angola",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nAngola",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome Completo", "placeholder": "Manuel dos Santos", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Rua da Liberdade, 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Cidade / Província", "placeholder": "Luanda", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nAngola",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Manuel dos Santos", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Liberty St", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Province", "placeholder": "Luanda", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

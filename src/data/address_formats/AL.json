@@ -1,0 +1,33 @@
+{
+  "countryCode": "AL",
+  "name": "Albania",
+  "native": {
+    "name": "Shqipëria",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Kompania/Organizata", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Rruga", "placeholder": "Rruga e Durrësit", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Numri i ndërtesës", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Kodi Postar", "placeholder": "1001", "required": true, "type": "text" },
+      { "key": "city", "label": "Qyteti", "placeholder": "Tiranë", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Durres St", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1001", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Tirana", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.postashqiptare.al/gjej-kodin-postar/",
+    "source": "Posta Shqiptare"
+  }
+}

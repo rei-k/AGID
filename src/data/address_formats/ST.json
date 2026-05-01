@@ -1,0 +1,27 @@
+{
+  "countryCode": "ST",
+  "name": "Sao Tome and Principe",
+  "native": {
+    "name": "São Tomé e Príncipe",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSão Tomé e Príncipe",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome Completo", "placeholder": "Carlos Vila Nova", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Rua de São Tomé, 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Cidade / Ilha", "placeholder": "São Tomé", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSao Tome and Principe",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Carlos Vila Nova", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Sao Tome St", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Island", "placeholder": "Sao Tome", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

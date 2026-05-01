@@ -1,0 +1,33 @@
+{
+  "countryCode": "MT",
+  "name": "Malta",
+  "native": {
+    "name": "Malta",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Kumpanija/Organizzazzjoni", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Numru tad-dar", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Triq", "placeholder": "Triq ir-Repubblika", "required": true, "type": "text" },
+      { "key": "city", "label": "Belt/Lokalità", "placeholder": "Valletta", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Kodiċi Postali", "placeholder": "VLT 1117", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Republic St", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Locality", "placeholder": "Valletta", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "VLT 1117", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "AAA NNNN",
+    "regex": "^[A-Z]{3}\\s?\\d{4}$",
+    "api": "https://www.maltapost.com/postcode-search",
+    "source": "MaltaPost"
+  }
+}

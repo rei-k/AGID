@@ -1,0 +1,29 @@
+{
+  "countryCode": "LR",
+  "name": "Liberia",
+  "native": {
+    "name": "Liberia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "George Weah", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Broad St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Monrovia", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nLiberia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "George Weah", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Broad St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Monrovia", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

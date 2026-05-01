@@ -1,0 +1,33 @@
+{
+  "countryCode": "GR",
+  "name": "Greece",
+  "native": {
+    "name": "Ελλάδα",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Εταιρεία/Οργανισμός", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Οδός", "placeholder": "Ερμού", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Αριθμός", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Ταχυδρομικός Κώδικας", "placeholder": "105 63", "required": true, "type": "text" },
+      { "key": "city", "label": "Πόλη", "placeholder": "Αθήνα", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Ermou St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "105 63", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Athens", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN NN",
+    "regex": "^\\d{3}\\s?\\d{2}$",
+    "api": "https://www.elta.gr/find-postcode",
+    "source": "ELTA (Hellenic Post)"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "countryCode": "OM",
+  "name": "Oman",
+  "native": {
+    "name": "عمان",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المنزل", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع السلطان قابوس", "required": true, "type": "text" },
+      { "key": "suburb", "label": "المنطقة", "placeholder": "القرم", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "مسقط", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "100", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Sultan Qaboos St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/District", "placeholder": "Qurum", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Muscat", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN",
+    "regex": "^\\d{3}$",
+    "api": "https://www.omanpost.om/en/postcode-finder",
+    "source": "Oman Post"
+  }
+}

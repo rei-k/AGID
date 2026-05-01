@@ -1,0 +1,27 @@
+{
+  "countryCode": "FJ",
+  "name": "Fiji",
+  "native": {
+    "name": "Fiji",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nFiji",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Victoria Parade", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Suva", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nFiji",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Victoria Parade", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Suva", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

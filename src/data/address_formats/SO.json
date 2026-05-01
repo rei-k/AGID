@@ -1,0 +1,29 @@
+{
+  "countryCode": "SO",
+  "name": "Somalia",
+  "native": {
+    "name": "Soomaaliya",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nSomalia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Magaca oo Full", "placeholder": "Axmed Cali", "required": true, "type": "text" },
+      { "key": "street", "label": "Cinwaanka", "placeholder": "Wadada Maka Al-Mukarama", "required": true, "type": "text" },
+      { "key": "city", "label": "Magaalada", "placeholder": "Muqdisho", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Boostada", "placeholder": "AD 100", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nSomalia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Ahmed Ali", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "Maka Al-Mukarama Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Mogadishu", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "AD 100", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "AA NNN",
+    "regex": "^[A-Z]{2}\\s?\\d{3}$"
+  }
+}

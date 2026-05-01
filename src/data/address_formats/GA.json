@@ -1,0 +1,27 @@
+{
+  "countryCode": "GA",
+  "name": "Gabon",
+  "native": {
+    "name": "Gabon",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGabon",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Brice Oligui Nguema", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse / BP", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Libreville", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGabon",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Brice Oligui Nguema", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Libreville", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

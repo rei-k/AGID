@@ -1,0 +1,33 @@
+{
+  "countryCode": "SY",
+  "name": "Syria",
+  "native": {
+    "name": "سوريا",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المنزل", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع شعلان", "required": true, "type": "text" },
+      { "key": "suburb", "label": "الحي", "placeholder": "حي الشعلان", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "دمشق", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Shaalan St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/District", "placeholder": "Shaalan", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Damascus", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "None/PO Box",
+    "regex": null,
+    "api": null,
+    "source": "Syrian Post"
+  }
+}

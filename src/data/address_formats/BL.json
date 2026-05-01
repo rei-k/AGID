@@ -1,0 +1,31 @@
+{
+  "countryCode": "BL",
+  "name": "Saint Barthélemy",
+  "native": {
+    "name": "Saint-Barthélemy",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSaint-Barthélemy",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "street", "label": "Numéro + Rue", "placeholder": "Numéro et nom de la rue", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code postal", "placeholder": "97133", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "ex. Gustavia", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSaint Barthélemy",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Number + Street", "placeholder": "Number and street name", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "97133", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "e.g. Gustavia", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "97133",
+    "regex": "^97133$",
+    "api": null,
+    "source": "La Poste"
+  }
+}

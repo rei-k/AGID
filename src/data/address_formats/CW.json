@@ -1,0 +1,29 @@
+{
+  "countryCode": "CW",
+  "name": "Curaçao",
+  "native": {
+    "name": "Curaçao",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nCuraçao",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nomber", "placeholder": "Nomber kompleto", "required": true, "type": "text" },
+      { "key": "street", "label": "Kaya", "placeholder": "Nomber di kaya", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Number", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "city", "label": "Siudat", "placeholder": "Willemstad", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{city}}\nCuraçao",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Willemstad", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

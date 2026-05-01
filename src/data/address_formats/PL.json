@@ -1,0 +1,33 @@
+{
+  "countryCode": "PL",
+  "name": "Poland",
+  "native": {
+    "name": "Polska",
+    "addressFormat": "ul. {{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Firma/Organizacja", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulica", "placeholder": "Marszałkowska", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Nr domu/mieszkania", "placeholder": "1/2", "required": true, "type": "text" },
+      { "key": "city", "label": "Miejscowość", "placeholder": "Warszawa", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Kod pocztowy", "placeholder": "00-001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1/2", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Marszalkowska St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Warsaw", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00-001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NN-NNN",
+    "regex": "^\\d{2}-\\d{3}$",
+    "api": "https://kody.poczta-polska.pl/",
+    "source": "Poczta Polska"
+  }
+}

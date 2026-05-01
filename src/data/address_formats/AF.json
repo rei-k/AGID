@@ -1,0 +1,37 @@
+{
+  "countryCode": "AF",
+  "name": "Afghanistan",
+  "native": {
+    "name": "افغانستان",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "عمارت/کمپنی", "placeholder": "ارگ", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "نمبر خانه", "placeholder": "123", "required": false, "type": "text" },
+      { "key": "street", "label": "سرک", "placeholder": "جاده میوند", "required": true, "type": "text" },
+      { "key": "suburb", "label": "ناحیه", "placeholder": "ناحیه ۱", "required": false, "type": "text" },
+      { "key": "city", "label": "شهر", "placeholder": "کابل", "required": true, "type": "text" },
+      { "key": "state", "label": "ولایت", "placeholder": "کابل", "required": true, "type": "text" },
+      { "key": "postcode", "label": "کد پستی", "placeholder": "1001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Arg", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Maiwand Ave", "required": true, "type": "text" },
+      { "key": "suburb", "label": "District/Area", "placeholder": "District 1", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Kabul", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Kabul", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "http://afghanpost.gov.af/",
+    "source": "Afghan Post"
+  }
+}

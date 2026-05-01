@@ -1,0 +1,39 @@
+{
+  "countryCode": "TR",
+  "name": "Turkey",
+  "native": {
+    "name": "Türkiye",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}} {{district}}\n{{postcode}} {{city}}/{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Bina/Şirket Adı", "placeholder": "Anıtkabir", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Kapı/Daire No", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Mahalle/Sokak", "placeholder": "Akdeniz Cd.", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Semt/Köy", "placeholder": "Çankaya", "required": false, "type": "text" },
+      { "key": "district", "label": "İlçe", "placeholder": "Çankaya", "required": true, "type": "text" },
+      { "key": "city", "label": "Şehir", "placeholder": "Ankara", "required": true, "type": "text" },
+      { "key": "state", "label": "İl", "placeholder": "Ankara", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Posta Kodu", "placeholder": "06570", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{postcode}} {{city}}/{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Anitkabir", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street/Neighborhood", "placeholder": "Akdeniz Ave", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "District/Village", "placeholder": "Cankaya", "required": false, "type": "text" },
+      { "key": "district", "label": "Sub-province", "placeholder": "Cankaya", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Ankara", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Ankara", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "06570", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://postakodu.ptt.gov.tr/",
+    "source": "PTT (Turkish Post)"
+  }
+}

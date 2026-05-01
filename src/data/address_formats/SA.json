@@ -1,0 +1,37 @@
+{
+  "countryCode": "SA",
+  "name": "Saudi Arabia",
+  "native": {
+    "name": "المملكة العربية السعودية",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى/الشركة", "placeholder": "برج المملكة", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المبنى", "placeholder": "1234", "required": true, "type": "text" },
+      { "key": "street", "label": "اسم الشارع", "placeholder": "طريق الملك فهد", "required": true, "type": "text" },
+      { "key": "suburb", "label": "الحي", "placeholder": "العليا", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "الرياض", "required": true, "type": "text" },
+      { "key": "state", "label": "المنطقة", "placeholder": "منطقة الرياض", "required": false, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "12211", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Kingdom Centre", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Building No.", "placeholder": "1234", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "King Fahd Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "District", "placeholder": "Olaya", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Riyadh", "required": true, "type": "text" },
+      { "key": "state", "label": "Region", "placeholder": "Riyadh Region", "required": false, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "12211", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://splonline.com.sa/en/postcode-lookup/",
+    "source": "Saudi Post (SPL)"
+  }
+}

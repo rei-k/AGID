@@ -1,0 +1,33 @@
+{
+  "countryCode": "HR",
+  "name": "Croatia",
+  "native": {
+    "name": "Hrvatska",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Tvrtka/Organizacija", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulica", "placeholder": "Ilica", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Kućni broj", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Poštanski broj", "placeholder": "10000", "required": true, "type": "text" },
+      { "key": "city", "label": "Grad", "placeholder": "Zagreb", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Ilica", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Zagreb", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.posta.hr/pretrazivanje-postanskih-ureda/263",
+    "source": "Hrvatska pošta"
+  }
+}

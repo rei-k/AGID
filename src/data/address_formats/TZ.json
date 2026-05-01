@@ -1,0 +1,29 @@
+{
+  "countryCode": "TZ",
+  "name": "Tanzania",
+  "native": {
+    "name": "Tanzania",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Jina Kamili", "placeholder": "Juma Hamisi", "required": true, "type": "text" },
+      { "key": "street", "label": "Anwani ya Mtaa / SLP", "placeholder": "SLP 1234", "required": true, "type": "text" },
+      { "key": "city", "label": "Mji / Mkoa", "placeholder": "Dar es Salaam", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Namba ya Posta", "placeholder": "11101", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nTanzania",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Juma Hamisi", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 1234", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Region", "placeholder": "Dar es Salaam", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11101", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

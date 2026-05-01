@@ -1,0 +1,35 @@
+{
+  "countryCode": "MD",
+  "name": "Moldova",
+  "native": {
+    "name": "Moldova",
+    "addressFormat": "str. {{street}} {{houseNumber}}\n{{city}}, {{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Companie/Organizație", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Stradă", "placeholder": "bd. Ștefan cel Mare și Sfânt", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Nr./Bloc/Ap.", "placeholder": "1, bl. 1, ap. 1", "required": true, "type": "text" },
+      { "key": "city", "label": "Localitate", "placeholder": "Chișinău", "required": true, "type": "text" },
+      { "key": "state", "label": "Raion/Municipiu", "placeholder": "Chișinău", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Cod poștal", "placeholder": "MD-2001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No./Bldg/Apt", "placeholder": "1, bldg 1, apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Stefan cel Mare Blvd", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Chisinau", "required": true, "type": "text" },
+      { "key": "state", "label": "District", "placeholder": "Chisinau", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "MD-2001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "MD-NNNN",
+    "regex": "^MD-\\d{4}$",
+    "api": "http://www.posta.md/ro/postal_code.html",
+    "source": "Poșta Moldovei"
+  }
+}

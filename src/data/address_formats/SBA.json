@@ -1,0 +1,33 @@
+{
+  "countryCode": "SBA",
+  "name": "Sovereign Base Areas",
+  "native": {
+    "name": "Sovereign Base Areas",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nCyprus",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Military Base Area", "placeholder": "Akrotiri or Dhekelia", "required": true, "type": "text" },
+      { "key": "postcode", "label": "BFPO Number", "placeholder": "BFPO 000", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nCyprus",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Military Base Area", "placeholder": "Akrotiri or Dhekelia", "required": true, "type": "text" },
+      { "key": "postcode", "label": "BFPO Number", "placeholder": "BFPO 000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "BFPO NNN",
+    "regex": "^BFPO\\s?\\d{1,4}$",
+    "api": null,
+    "source": "BFPO"
+  }
+}

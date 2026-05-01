@@ -1,0 +1,33 @@
+{
+  "countryCode": "BA",
+  "name": "Bosnia and Herzegovina",
+  "native": {
+    "name": "Bosna i Hercegovina",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Preduzeće/Organizacija", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulica", "placeholder": "Ferhadija", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Kućni broj", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Poštanski broj", "placeholder": "71000", "required": true, "type": "text" },
+      { "key": "city", "label": "Grad", "placeholder": "Sarajevo", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Ferhadija", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "71000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Sarajevo", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.posta.ba/pronadjite-postanski-broj/",
+    "source": "BH Pošta"
+  }
+}

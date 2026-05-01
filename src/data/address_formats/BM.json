@@ -1,0 +1,33 @@
+{
+  "countryCode": "BM",
+  "name": "Bermuda",
+  "native": {
+    "name": "Bermuda",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nBermuda",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Hamilton", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "AA 00", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nBermuda",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "Parish", "placeholder": "e.g. Hamilton", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "AA 00", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "AA 00",
+    "regex": "^[A-Z]{2}\\s?\\d{2}$",
+    "api": null,
+    "source": "Bermuda Post Office"
+  }
+}

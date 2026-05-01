@@ -1,0 +1,31 @@
+{
+  "countryCode": "FM",
+  "name": "Micronesia",
+  "native": {
+    "name": "Micronesia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Pohnpei", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "FM", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96941", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nMicronesia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Pohnpei", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "FM", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96941", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "9694N",
+    "regex": "^9694[1-4]$"
+  }
+}

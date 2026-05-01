@@ -1,0 +1,31 @@
+{
+  "countryCode": "MO",
+  "name": "Macau",
+  "native": {
+    "name": "澳門",
+    "addressFormat": "{{city}}\n{{street}} {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "city", "label": "區域 (澳門/氹仔/路環)", "placeholder": "澳門", "required": true, "type": "text" },
+      { "key": "street", "label": "街道", "placeholder": "亞美打利庇盧大馬路", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "門牌號碼", "placeholder": "1號", "required": false, "type": "text" },
+      { "key": "organization", "label": "大廈/樓層/單位", "placeholder": "某某大廈 10樓 A室", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Floor/Unit", "placeholder": "Building Name, 10/F, Flat A", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Avenida de Almeida Ribeiro", "required": true, "type": "text" },
+      { "key": "city", "label": "Area (Macau/Taipa/Coloane)", "placeholder": "Macau", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "None",
+    "regex": null,
+    "api": null,
+    "source": "CTT (No postal codes used)"
+  }
+}

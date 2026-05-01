@@ -1,0 +1,33 @@
+{
+  "countryCode": "BE",
+  "name": "Belgium",
+  "native": {
+    "name": "België / Belgique",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Bedrijf / Société", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Straat / Rue", "placeholder": "Wetstraat / Rue de la Loi", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Huisnummer / Numéro", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode / Code Postal", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "Stad / Ville", "placeholder": "Brussel / Bruxelles", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Rue de la Loi", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Brussels", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.bpost.be/fr/chercher-un-code-postal",
+    "source": "bpost"
+  }
+}

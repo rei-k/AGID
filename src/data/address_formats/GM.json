@@ -1,0 +1,27 @@
+{
+  "countryCode": "GM",
+  "name": "Gambia",
+  "native": {
+    "name": "Gambia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGambia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Adama Barrow", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Banjul Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Banjul", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nGambia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Adama Barrow", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Banjul Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Banjul", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

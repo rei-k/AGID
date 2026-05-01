@@ -1,0 +1,33 @@
+{
+  "countryCode": "VA",
+  "name": "Vatican City",
+  "native": {
+    "name": "Città del Vaticano",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Ufficio/Organizzazione", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Via/Piazza", "placeholder": "Piazza San Pietro", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Numero civico", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "postcode", "label": "CAP", "placeholder": "00120", "required": true, "type": "text" },
+      { "key": "city", "label": "Città", "placeholder": "Città del Vaticano", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Office/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Square", "placeholder": "St. Peter's Square", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00120", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Vatican City", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^00120$",
+    "api": "https://www.vaticanstate.va/it/stato-governo/servizi-postali-filatelici/poste-vaticane.html",
+    "source": "Poste Vaticane"
+  }
+}

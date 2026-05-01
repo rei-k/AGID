@@ -1,0 +1,31 @@
+{
+  "countryCode": "PT",
+  "name": "Madeira",
+  "native": {
+    "name": "Madeira",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nRegião Autónoma da Madeira\nPortugal",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome", "placeholder": "Nome completo", "required": true, "type": "text" },
+      { "key": "street", "label": "Rua", "placeholder": "Nome da rua", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Número", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "9000-123", "required": true, "type": "text" },
+      { "key": "city", "label": "Localidade", "placeholder": "Funchal", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nMadeira\nPortugal",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "9000-123", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Funchal", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "9NNN-NNN",
+    "regex": "^9[0-9]{3}-[0-9]{3}$"
+  }
+}

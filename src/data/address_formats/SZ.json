@@ -1,0 +1,29 @@
+{
+  "countryCode": "SZ",
+  "name": "Eswatini",
+  "native": {
+    "name": "Eswatini",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mswati III", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Mbabane", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "H100", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}\nEswatini",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mswati III", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Mbabane", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "H100", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "ANNN",
+    "regex": "^[A-Z]\\d{3}$"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "countryCode": "CX",
+  "name": "Christmas Island",
+  "native": {
+    "name": "Christmas Island",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Christmas Island", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "WA", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "6798", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nChristmas Island",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Christmas Island", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "WA", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "6798", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "6798",
+    "regex": "^6798$"
+  }
+}

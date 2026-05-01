@@ -1,0 +1,31 @@
+{
+  "countryCode": "AU",
+  "name": "Australia",
+  "native": {
+    "name": "Australia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Sydney", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "NSW", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "2000", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nAustralia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Sydney", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "NSW", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "2000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "countryCode": "IS",
+  "name": "Iceland",
+  "native": {
+    "name": "Ísland",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Fyrirtæki/Stofnun", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Gata", "placeholder": "Laugavegur", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Húsnúmer", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Póstnúmer", "placeholder": "101", "required": true, "type": "text" },
+      { "key": "city", "label": "Sveitarfélag/Bær", "placeholder": "Reykjavík", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Laugavegur", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "101", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Reykjavik", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN",
+    "regex": "^\\d{3}$",
+    "api": "https://www.posturinn.is/einstaklingar/posthus-og-postnumer/postnumer/",
+    "source": "Íslandspóstur"
+  }
+}

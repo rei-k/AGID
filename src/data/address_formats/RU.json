@@ -1,0 +1,35 @@
+{
+  "countryCode": "RU",
+  "name": "Russia",
+  "native": {
+    "name": "Россия",
+    "addressFormat": "{{postcode}}\n{{state}}\n{{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Почтовый индекс", "placeholder": "101000", "required": true, "type": "text" },
+      { "key": "state", "label": "Область/Край/Республика", "placeholder": "Московская обл.", "required": true, "type": "text" },
+      { "key": "city", "label": "Город/Населенный пункт", "placeholder": "Москва", "required": true, "type": "text" },
+      { "key": "street", "label": "Улица", "placeholder": "Тверская ул.", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Дом/Корпус/Квартира", "placeholder": "1, стр. 1, кв. 1", "required": true, "type": "text" },
+      { "key": "organization", "label": "Организация", "placeholder": "", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1, bldg 1, apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Tverskaya St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Moscow", "required": true, "type": "text" },
+      { "key": "state", "label": "Region", "placeholder": "Moscow Region", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "101000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://www.pochta.ru/support/post-indexes",
+    "source": "Russian Post"
+  }
+}

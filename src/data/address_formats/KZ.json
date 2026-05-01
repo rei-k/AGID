@@ -1,0 +1,35 @@
+{
+  "countryCode": "KZ",
+  "name": "Kazakhstan",
+  "native": {
+    "name": "Қазақстан",
+    "addressFormat": "{{postcode}}\n{{state}}, {{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Пошта индексі", "placeholder": "010000", "required": true, "type": "text" },
+      { "key": "state", "label": "Облыс", "placeholder": "Ақмола облысы", "required": true, "type": "text" },
+      { "key": "city", "label": "Қала", "placeholder": "Астана", "required": true, "type": "text" },
+      { "key": "street", "label": "Көше", "placeholder": "Мәңгілік Ел даңғылы", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Үй/Пәтер", "placeholder": "8", "required": true, "type": "text" },
+      { "key": "organization", "label": "Ғимарат/Кеңсе", "placeholder": "Ақорда", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Office", "placeholder": "Ak Orda", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "8", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Mangilik El Ave", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Astana", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Akmola Region", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "010000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://post.kz/",
+    "source": "Kazpost"
+  }
+}

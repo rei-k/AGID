@@ -1,0 +1,27 @@
+{
+  "countryCode": "SL",
+  "name": "Sierra Leone",
+  "native": {
+    "name": "Sierra Leone",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSierra Leone",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Julius Maada Bio", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Freetown Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Freetown", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSierra Leone",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Julius Maada Bio", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Freetown Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Freetown", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

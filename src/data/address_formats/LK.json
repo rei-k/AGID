@@ -1,0 +1,35 @@
+{
+  "countryCode": "LK",
+  "name": "Sri Lanka",
+  "native": {
+    "name": "ශ්‍රී ලංකාව",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "ගොඩනැගිල්ල/සමාගම", "placeholder": "නෙළුම් කුළුණ", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "නිවාස අංකය", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "වීදිය", "placeholder": "ගාලු පාර", "required": true, "type": "text" },
+      { "key": "suburb", "label": "ප්‍රදේශය", "placeholder": "කොල්ලුපිටිය", "required": false, "type": "text" },
+      { "key": "city", "label": "නගරය", "placeholder": "කොළඹ", "required": true, "type": "text" },
+      { "key": "postcode", "label": "තැපැල් කේතය", "placeholder": "00300", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Lotus Tower", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Galle Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area", "placeholder": "Kollupitiya", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Colombo", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00300", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://slpost.gov.lk/post-code-search/",
+    "source": "Sri Lanka Post"
+  }
+}

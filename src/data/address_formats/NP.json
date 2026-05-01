@@ -1,0 +1,37 @@
+{
+  "countryCode": "NP",
+  "name": "Nepal",
+  "native": {
+    "name": "नेपाल",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "भवन/कम्पनी", "placeholder": "नारायणहिटी दरबार", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "घर नम्बर", "placeholder": "१२३", "required": false, "type": "text" },
+      { "key": "street", "label": "सडक", "placeholder": "दरबार मार्ग", "required": true, "type": "text" },
+      { "key": "suburb", "label": "टोल/क्षेत्र", "placeholder": "लाजिम्पाट", "required": false, "type": "text" },
+      { "key": "city", "label": "शहर", "placeholder": "काठमाडौं", "required": true, "type": "text" },
+      { "key": "state", "label": "प्रदेश", "placeholder": "बागमती प्रदेश", "required": true, "type": "text" },
+      { "key": "postcode", "label": "हुलाक कोड", "placeholder": "४४६००", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Narayanhiti Palace", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Durbar Marg", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Tole/Area", "placeholder": "Lazimpat", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Kathmandu", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Bagmati Province", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "44600", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.postalservice.gov.np/postcode",
+    "source": "Nepal Post"
+  }
+}

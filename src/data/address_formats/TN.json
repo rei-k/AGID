@@ -1,0 +1,29 @@
+{
+  "countryCode": "TN",
+  "name": "Tunisia",
+  "native": {
+    "name": "تونس",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "ياسين بن صالح", "required": true, "type": "text" },
+      { "key": "street", "label": "العنوان", "placeholder": "٤٥ شارع الحبيب بورقيبة", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "١٠٠٠", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة / الولاية", "placeholder": "تونس", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nTunisia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Yassine Ben Salah", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "45 Ave Habib Bourguiba", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Governorate", "placeholder": "Tunis", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

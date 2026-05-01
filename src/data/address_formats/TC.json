@@ -1,0 +1,33 @@
+{
+  "countryCode": "TC",
+  "name": "Turks and Caicos Islands",
+  "native": {
+    "name": "Turks and Caicos Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nTurks and Caicos Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Island", "placeholder": "e.g. Providenciales", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "TKCA 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{state}}\n{{postcode}}\nTurks and Caicos Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "Island", "placeholder": "e.g. Providenciales", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "TKCA 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "TKCA 1ZZ",
+    "regex": "^TKCA\\s?1ZZ$",
+    "api": null,
+    "source": "Turks and Caicos Islands Post Office"
+  }
+}

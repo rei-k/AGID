@@ -1,0 +1,35 @@
+{
+  "countryCode": "AE",
+  "name": "United Arab Emirates",
+  "native": {
+    "name": "الإمارات العربية المتحدة",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}, {{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "المبنى/الشركة", "placeholder": "برج خليفة", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم الفيلا/المبنى", "placeholder": "123", "required": false, "type": "text" },
+      { "key": "street", "label": "اسم الشارع", "placeholder": "شارع الشيخ زايد", "required": true, "type": "text" },
+      { "key": "suburb", "label": "المنطقة", "placeholder": "وسط مدينة دبي", "required": false, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "دبي", "required": true, "type": "text" },
+      { "key": "state", "label": "الإمارة", "placeholder": "دبي", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}, {{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Burj Khalifa", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Villa/Building No.", "placeholder": "123", "required": false, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "Sheikh Zayed Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/Community", "placeholder": "Downtown Dubai", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Dubai", "required": true, "type": "text" },
+      { "key": "state", "label": "Emirate", "placeholder": "Dubai", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "None/PO Box",
+    "regex": null,
+    "api": null,
+    "source": "Emirates Post (Mainly PO Boxes used)"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "countryCode": "CZ",
+  "name": "Czech Republic",
+  "native": {
+    "name": "Česká republika",
+    "addressFormat": "{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Firma/Organizace", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Ulice", "placeholder": "Václavské náměstí", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Číslo popisné/orientační", "placeholder": "1/2", "required": true, "type": "text" },
+      { "key": "city", "label": "Město", "placeholder": "Praha", "required": true, "type": "text" },
+      { "key": "postcode", "label": "PSČ", "placeholder": "110 00", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Wenceslas Square", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1/2", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Prague", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "110 00", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN NN",
+    "regex": "^\\d{3}\\s?\\d{2}$",
+    "api": "https://www.postaonline.cz/vyhledani-psc",
+    "source": "Česká pošta"
+  }
+}

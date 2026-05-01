@@ -1,0 +1,31 @@
+{
+  "countryCode": "SJ",
+  "name": "Jan Mayen",
+  "native": {
+    "name": "Jan Mayen",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nJan Mayen",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Navn", "placeholder": "Fullt navn", "required": true, "type": "text" },
+      { "key": "street", "label": "Gate/Bygning", "placeholder": "Gatenavn eller bygning", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Husnummer", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummer", "placeholder": "JM-3", "required": true, "type": "text" },
+      { "key": "city", "label": "Poststed", "placeholder": "Jan Mayen", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nJan Mayen",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street / Building", "placeholder": "Street or building name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "JM-3", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Jan Mayen", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "JM-N",
+    "regex": "^JM-[0-9]+$"
+  }
+}

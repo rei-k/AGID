@@ -1,0 +1,31 @@
+{
+  "countryCode": "NZ",
+  "name": "New Zealand",
+  "native": {
+    "name": "New Zealand",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jane Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Queen St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Auckland", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1010", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}} {{postcode}}\nNew Zealand",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jane Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Queen St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Auckland", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1010", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

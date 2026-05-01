@@ -1,0 +1,31 @@
+{
+  "countryCode": "CC",
+  "name": "Cocos (Keeling) Islands",
+  "native": {
+    "name": "Cocos (Keeling) Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Cocos Islands", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "WA", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "6799", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nCocos (Keeling) Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
+      { "key": "city", "label": "Suburb/City", "placeholder": "Cocos Islands", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "WA", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "6799", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "6799",
+    "regex": "^6799$"
+  }
+}

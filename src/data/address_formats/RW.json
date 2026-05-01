@@ -1,0 +1,27 @@
+{
+  "countryCode": "RW",
+  "name": "Rwanda",
+  "native": {
+    "name": "Rwanda",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nRwanda",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Amazina Yose", "placeholder": "Jean-Paul Kagame", "required": true, "type": "text" },
+      { "key": "street", "label": "Aderesi", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Umujyi", "placeholder": "Kigali", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nRwanda",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jean-Paul Kagame", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Kigali", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

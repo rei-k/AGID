@@ -1,0 +1,33 @@
+{
+  "countryCode": "SE",
+  "name": "Sweden",
+  "native": {
+    "name": "Sverige",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Företag/Organisation", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Gata", "placeholder": "Kungsgatan", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Gatunummer", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummer", "placeholder": "111 22", "required": true, "type": "text" },
+      { "key": "city", "label": "Ort", "placeholder": "Stockholm", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Kungsgatan", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "111 22", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Stockholm", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN NN",
+    "regex": "^\\d{3}\\s?\\d{2}$",
+    "api": "https://www.postnord.se/verktyg/sok-postnummer-och-adress",
+    "source": "PostNord Sverige"
+  }
+}

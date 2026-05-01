@@ -1,0 +1,35 @@
+{
+  "countryCode": "BY",
+  "name": "Belarus",
+  "native": {
+    "name": "Беларусь",
+    "addressFormat": "{{postcode}}\n{{state}}\n{{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Паштовы індэкс", "placeholder": "220000", "required": true, "type": "text" },
+      { "key": "state", "label": "Вобласць", "placeholder": "Мінская вобл.", "required": true, "type": "text" },
+      { "key": "city", "label": "Горад", "placeholder": "Мінск", "required": true, "type": "text" },
+      { "key": "street", "label": "Вуліца", "placeholder": "пр. Незалежнасці", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Дом/Кватэра", "placeholder": "1, кв. 1", "required": true, "type": "text" },
+      { "key": "organization", "label": "Арганізацыя", "placeholder": "", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1, apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Independence Ave", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Minsk", "required": true, "type": "text" },
+      { "key": "state", "label": "Region", "placeholder": "Minsk Region", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "220000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "http://belpost.by/services/online-services/postcode/",
+    "source": "Belpost"
+  }
+}

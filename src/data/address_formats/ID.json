@@ -1,0 +1,39 @@
+{
+  "countryCode": "ID",
+  "name": "Indonesia",
+  "native": {
+    "name": "Indonesia",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}, {{district}}\n{{city}} {{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Nama Gedung/Perusahaan", "placeholder": "Monas", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No. Rumah/Blok", "placeholder": "No. 1", "required": false, "type": "text" },
+      { "key": "street", "label": "Nama Jalan", "placeholder": "Jl. Medan Merdeka Utara", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Kelurahan/Desa", "placeholder": "Gambir", "required": true, "type": "text" },
+      { "key": "district", "label": "Kecamatan", "placeholder": "Gambir", "required": true, "type": "text" },
+      { "key": "city", "label": "Kota/Kabupaten", "placeholder": "Jakarta Pusat", "required": true, "type": "text" },
+      { "key": "state", "label": "Provinsi", "placeholder": "DKI Jakarta", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Kode Pos", "placeholder": "10110", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Monas", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "No. 1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "Jl. Medan Merdeka Utara", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Kelurahan", "placeholder": "Gambir", "required": true, "type": "text" },
+      { "key": "district", "label": "Kecamatan", "placeholder": "Gambir", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Regency", "placeholder": "Central Jakarta", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Jakarta", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10110", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.posindonesia.co.id/id/check-postcode",
+    "source": "Pos Indonesia"
+  }
+}

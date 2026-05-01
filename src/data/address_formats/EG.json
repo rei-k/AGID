@@ -1,0 +1,31 @@
+{
+  "countryCode": "EG",
+  "name": "Egypt",
+  "native": {
+    "name": "مصر",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "أحمد محمد", "required": true, "type": "text" },
+      { "key": "street", "label": "اسم الشارع / رقم العقار", "placeholder": "١٢ شارع النيل", "required": true, "type": "text" },
+      { "key": "district", "label": "الحي / المنطقة", "placeholder": "الزمالك", "required": false, "type": "text" },
+      { "key": "city", "label": "المدينة / المحافظة", "placeholder": "القاهرة", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "١١٥١١", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}}\n{{postcode}}\nEgypt",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Ahmed Mohamed", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Name / Building No.", "placeholder": "12 Nile St", "required": true, "type": "text" },
+      { "key": "district", "label": "District", "placeholder": "Zamalek", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Governorate", "placeholder": "Cairo", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11511", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

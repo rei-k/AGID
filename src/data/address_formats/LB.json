@@ -1,0 +1,35 @@
+{
+  "countryCode": "LB",
+  "name": "Lebanon",
+  "native": {
+    "name": "لبنان",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم البناء/الطابق", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع الحمرا", "required": true, "type": "text" },
+      { "key": "suburb", "label": "المنطقة", "placeholder": "الحمرا", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "بيروت", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "1103", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Building/Floor No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Hamra St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/District", "placeholder": "Hamra", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Beirut", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1103", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN (or NNNN NNNN)",
+    "regex": "^\\d{4}(\\s?\\d{4})?$",
+    "api": "https://www.libanpost.com/english/postcode-search",
+    "source": "LibanPost"
+  }
+}

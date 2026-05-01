@@ -1,0 +1,37 @@
+{
+  "countryCode": "PK",
+  "name": "Pakistan",
+  "native": {
+    "name": "پاکستان",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}-{{postcode}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "عمارت/کمپنی", "placeholder": "ایوانِ صدر", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "مکان نمبر", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "گلی/روڈ", "placeholder": "جناح روڈ", "required": true, "type": "text" },
+      { "key": "suburb", "label": "علاقہ/سیکٹر", "placeholder": "گلبرگ", "required": false, "type": "text" },
+      { "key": "city", "label": "شہر", "placeholder": "اسلام آباد", "required": true, "type": "text" },
+      { "key": "state", "label": "صوبہ", "placeholder": "پنجاب", "required": true, "type": "text" },
+      { "key": "postcode", "label": "پوسٹل کوڈ", "placeholder": "44000", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}-{{postcode}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Aiwan-e-Sadr", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "Street/Road", "placeholder": "Jinnah Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/Sector", "placeholder": "Gulberg", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Islamabad", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Punjab", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "44000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.pakpost.gov.pk/postcode.php",
+    "source": "Pakistan Post"
+  }
+}

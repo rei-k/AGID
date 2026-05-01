@@ -1,0 +1,33 @@
+{
+  "countryCode": "AD",
+  "name": "Andorra",
+  "native": {
+    "name": "Andorra",
+    "addressFormat": "{{organization}}\n{{street}}, {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa/Organització", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Carrer", "placeholder": "Avinguda Meritxell", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Número", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Codi Postal", "placeholder": "AD500", "required": true, "type": "text" },
+      { "key": "city", "label": "Parròquia", "placeholder": "Andorra la Vella", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}}, {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Meritxell Ave", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Number", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "AD500", "required": true, "type": "text" },
+      { "key": "city", "label": "Parish", "placeholder": "Andorra la Vella", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "ADNNN",
+    "regex": "^AD\\d{3}$",
+    "api": "https://www.correos.ad/",
+    "source": "La Poste / Correos"
+  }
+}

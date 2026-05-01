@@ -1,0 +1,29 @@
+{
+  "countryCode": "MZ",
+  "name": "Mozambique",
+  "native": {
+    "name": "Moçambique",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome Completo", "placeholder": "José Eduardo", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Av. 24 de Julho, 123", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "1100", "required": false, "type": "text" },
+      { "key": "city", "label": "Cidade / Província", "placeholder": "Maputo", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMozambique",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "José Eduardo", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 24th July Ave", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1100", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Province", "placeholder": "Maputo", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

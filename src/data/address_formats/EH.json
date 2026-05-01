@@ -1,0 +1,29 @@
+{
+  "countryCode": "EH",
+  "name": "Western Sahara",
+  "native": {
+    "name": "الصحراء الغربية",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "محمد سالم", "required": true, "type": "text" },
+      { "key": "street", "label": "العنوان", "placeholder": "شارع مكة", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "٧٠٠٠٠", "required": false, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "العيون", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nWestern Sahara",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Mohamed Salem", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "Mecca St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "70000", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Laayoune", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

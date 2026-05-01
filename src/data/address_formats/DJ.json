@@ -1,0 +1,27 @@
+{
+  "countryCode": "DJ",
+  "name": "Djibouti",
+  "native": {
+    "name": "Djibouti",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nDjibouti",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nom Complet", "placeholder": "Jean Dupont", "required": true, "type": "text" },
+      { "key": "street", "label": "Adresse", "placeholder": "BP 123", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Djibouti", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nDjibouti",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jean Dupont", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Djibouti City", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

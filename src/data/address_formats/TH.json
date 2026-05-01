@@ -1,0 +1,38 @@
+{
+  "countryCode": "TH",
+  "name": "Thailand",
+  "native": {
+    "name": "ประเทศไทย",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}} {{district}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "ชื่ออาคาร/บริษัท", "placeholder": "อาคารใบหยก 2", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "บ้านเลขที่", "placeholder": "222", "required": true, "type": "text" },
+      { "key": "street", "label": "ถนน/ซอย", "placeholder": "ถนนราชปรารภ", "required": false, "type": "text" },
+      { "key": "subdistrict", "label": "แขวง/ตำบล", "placeholder": "ถนนพญาไท", "required": true, "type": "text" },
+      { "key": "district", "label": "เขต/อำเภอ", "placeholder": "ราชเทวี", "required": true, "type": "text" },
+      { "key": "city", "label": "เมือง (ถ้ามี)", "placeholder": "", "required": false, "type": "text" },
+      { "key": "state", "label": "จังหวัด", "placeholder": "กรุงเทพมหานคร", "required": true, "type": "text" },
+      { "key": "postcode", "label": "รหัสไปรษณีย์", "placeholder": "10400", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Baiyoke Sky Hotel", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "222", "required": true, "type": "text" },
+      { "key": "street", "label": "Street/Soi", "placeholder": "Ratchaprarop Rd", "required": false, "type": "text" },
+      { "key": "subdistrict", "label": "Sub-district", "placeholder": "Thanon Phaya Thai", "required": true, "type": "text" },
+      { "key": "district", "label": "District", "placeholder": "Ratchathewi", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Bangkok", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10400", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": null,
+    "source": "Thailand Post"
+  }
+}

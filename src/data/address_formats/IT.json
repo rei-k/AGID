@@ -1,0 +1,35 @@
+{
+  "countryCode": "IT",
+  "name": "Italy",
+  "native": {
+    "name": "Italia",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}} {{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Ditta/Organizzazione", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Via/Piazza", "placeholder": "Via Roma", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Numero civico", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "CAP", "placeholder": "00100", "required": true, "type": "text" },
+      { "key": "city", "label": "Città", "placeholder": "Roma", "required": true, "type": "text" },
+      { "key": "state", "label": "Provincia (Sigla)", "placeholder": "RM", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}} ({{state}})\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Square", "placeholder": "Via Roma", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "00100", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Rome", "required": true, "type": "text" },
+      { "key": "state", "label": "Province (Abbr.)", "placeholder": "RM", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.poste.it/cerca/index.html#/cercacap",
+    "source": "Poste Italiane"
+  }
+}

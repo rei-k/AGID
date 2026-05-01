@@ -1,0 +1,33 @@
+{
+  "countryCode": "RS",
+  "name": "Serbia",
+  "native": {
+    "name": "Србија",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Предузеће/Организација", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Улица", "placeholder": "Кнез Михаилова", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Кућни број", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Поштански број", "placeholder": "11000", "required": true, "type": "text" },
+      { "key": "city", "label": "Град", "placeholder": "Београд", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Knez Mihailova", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11000", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Belgrade", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.posta.rs/lat/alati/pronadjite-postanski-broj.aspx",
+    "source": "Pošta Srbije"
+  }
+}

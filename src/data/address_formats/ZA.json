@@ -1,0 +1,31 @@
+{
+  "countryCode": "ZA",
+  "name": "South Africa",
+  "native": {
+    "name": "South Africa",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Thabo Mbeki", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Main Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Sandton", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Johannesburg", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "2196", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nSouth Africa",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Thabo Mbeki", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Main Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Sandton", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Johannesburg", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "2196", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

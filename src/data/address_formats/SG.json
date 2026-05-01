@@ -1,0 +1,33 @@
+{
+  "countryCode": "SG",
+  "name": "Singapore",
+  "native": {
+    "name": "Singapore",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\nSINGAPORE {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Marina Bay Sands", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "10", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Unit No. (Optional)", "placeholder": "#01-01", "required": false, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "018956", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\nSINGAPORE {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Marina Bay Sands", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "10", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Unit No.", "placeholder": "#01-01", "required": false, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "018956", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://developers.onemap.sg/commonapi/search?searchVal={{postcode}}&returnGeom=Y&getAddrDetails=Y",
+    "source": "Singapore Land Authority / OneMap"
+  }
+}

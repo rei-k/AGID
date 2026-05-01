@@ -1,0 +1,33 @@
+{
+  "countryCode": "NO",
+  "name": "Norway",
+  "native": {
+    "name": "Norge",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nNorge",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Navn", "placeholder": "Fullt navn", "required": true, "type": "text" },
+      { "key": "street", "label": "Gate", "placeholder": "Karl Johans gate", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Husnummer", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postnummer", "placeholder": "0150", "required": true, "type": "text" },
+      { "key": "city", "label": "Poststed", "placeholder": "Oslo", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nNorway",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "0150", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Oslo", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.posten.no/adressetjenester/postnummer",
+    "source": "Posten Norge"
+  }
+}

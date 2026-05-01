@@ -1,0 +1,33 @@
+{
+  "countryCode": "FR",
+  "name": "France",
+  "native": {
+    "name": "France",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Société/Organisation", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Numéro", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Rue/Avenue", "placeholder": "Rue de Rivoli", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code Postal", "placeholder": "75001", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "Paris", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Rue de Rivoli", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "75001", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Paris", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.laposte.fr/outils/trouver-un-code-postal",
+    "source": "La Poste"
+  }
+}

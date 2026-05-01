@@ -1,0 +1,35 @@
+{
+  "countryCode": "BN",
+  "name": "Brunei",
+  "native": {
+    "name": "Brunei Darussalam",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Istana Nurul Iman", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Jalan Tutong", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Kampong", "placeholder": "Kampong Kiulap", "required": true, "type": "text" },
+      { "key": "city", "label": "District/City", "placeholder": "Bandar Seri Begawan", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "BA1511", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Istana Nurul Iman", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Jalan Tutong", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Village (Kampong)", "placeholder": "Kampong Kiulap", "required": true, "type": "text" },
+      { "key": "city", "label": "District/City", "placeholder": "Bandar Seri Begawan", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "BA1511", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "AA NNNN",
+    "regex": "^[A-Z]{2}\\s?\\d{4}$",
+    "api": "https://www.post.gov.bn/SitePages/Postcodes.aspx",
+    "source": "Brunei Postal Services Department"
+  }
+}

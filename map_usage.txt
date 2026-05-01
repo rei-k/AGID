@@ -1,0 +1,16 @@
+22:  Map as MapIcon,
+225:  const map = useRef<maplibregl.Map | null>(null);
+892:  // Sync Map Style
+1600:    map.current = new maplibregl.Map({
+1611:    // Map Error Handling (gracefully handle tile failures)
+1615:        console.warn("Map Tile Source Error (Retry handled by browser). Check network or CORS.");
+3514:      {/* Map Background */}
+3522:              <h3 className="text-lg font-black text-slate-900 tracking-tight">Initializing AGID Map</h3>
+3890:                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Guide with External Map</span>
+4032:                              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Map, Units, Theme</p>
+4266:                        {/* Map Appearance (Keep as secondary) */}
+5094:                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Map Layers</h3>
+5107:                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Map Type (地図の種類)</h4>
+5271:                            {projection === 'globe' ? <Globe className="w-5 h-5" /> : <Map className="w-5 h-5" />}
+5288:      {/* Floating Map Controls (Bottom Right) */}
+5598:                              View on Map

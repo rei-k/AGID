@@ -1,0 +1,33 @@
+{
+  "countryCode": "KY",
+  "name": "Cayman Islands",
+  "native": {
+    "name": "Cayman Islands",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No./Name", "placeholder": "", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "", "required": true, "type": "text" },
+      { "key": "city", "label": "District", "placeholder": "George Town", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "KY1-1100", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No./Name", "placeholder": "", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "", "required": true, "type": "text" },
+      { "key": "city", "label": "District", "placeholder": "George Town", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "KY1-1100", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "KYN-NNNN",
+    "regex": "^KY\\d-\\d{4}$",
+    "api": "https://www.caymanpost.gov.ky/",
+    "source": "Cayman Islands Postal Service"
+  }
+}

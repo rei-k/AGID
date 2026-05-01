@@ -1,0 +1,29 @@
+{
+  "countryCode": "ZM",
+  "name": "Zambia",
+  "native": {
+    "name": "Zambia",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Banda", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 32101", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Lusaka", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10101", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nZambia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Banda", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 32101", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Lusaka", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10101", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

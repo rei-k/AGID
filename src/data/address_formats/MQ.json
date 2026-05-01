@@ -1,0 +1,31 @@
+{
+  "countryCode": "MQ",
+  "name": "Martinique",
+  "native": {
+    "name": "Martinique",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMartinique",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "street", "label": "Numéro + Rue", "placeholder": "Numéro et nom de la rue", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Code postal", "placeholder": "972xx", "required": true, "type": "text" },
+      { "key": "city", "label": "Ville", "placeholder": "ex. Fort-de-France", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMartinique",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Number + Street", "placeholder": "Number and street name", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "972xx", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "e.g. Fort-de-France", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "972NN",
+    "regex": "^972\\d{2}$",
+    "api": null,
+    "source": "La Poste"
+  }
+}

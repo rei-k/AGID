@@ -1,0 +1,35 @@
+{
+  "countryCode": "PS",
+  "name": "Palestine",
+  "native": {
+    "name": "فلسطين",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المنزل", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "الشارع", "placeholder": "شارع الإرسال", "required": true, "type": "text" },
+      { "key": "suburb", "label": "الحي", "placeholder": "حي الطيرة", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "رام الله", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "P600", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Al-Irsal St", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area/District", "placeholder": "Al-Tira", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Ramallah", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "P600", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "ANNN (or NNNNN)",
+    "regex": "^[A-Z]?\\d{3,5}$",
+    "api": "https://www.palpost.ps/postcode/",
+    "source": "Palestine Post"
+  }
+}

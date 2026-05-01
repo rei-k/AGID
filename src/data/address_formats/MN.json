@@ -1,0 +1,37 @@
+{
+  "countryCode": "MN",
+  "name": "Mongolia",
+  "native": {
+    "name": "Монгол улс",
+    "addressFormat": "{{postcode}}\n{{state}} {{city}}\n{{district}} {{subdistrict}}\n{{street}} {{houseNumber}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Шуудангийн код", "placeholder": "14210", "required": true, "type": "text" },
+      { "key": "state", "label": "Аймаг/Хот", "placeholder": "Улаанбаатар", "required": true, "type": "text" },
+      { "key": "city", "label": "Сум/Дүүрэг", "placeholder": "Сүхбаатар", "required": true, "type": "text" },
+      { "key": "district", "label": "Баг/Хороо", "placeholder": "1-р хороо", "required": false, "type": "text" },
+      { "key": "subdistrict", "label": "Хэсэг", "placeholder": "12-р хэсэг", "required": false, "type": "text" },
+      { "key": "street", "label": "Гудамж", "placeholder": "Энх тайвны өргөн чөлөө", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Байшин/Хаалга", "placeholder": "10-24", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "houseNumber", "label": "Building/Door", "placeholder": "10-24", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Peace Avenue", "required": false, "type": "text" },
+      { "key": "subdistrict", "label": "Section", "placeholder": "Section 12", "required": false, "type": "text" },
+      { "key": "district", "label": "Sub-district", "placeholder": "1st khoroo", "required": false, "type": "text" },
+      { "key": "city", "label": "District", "placeholder": "Sukhbaatar", "required": true, "type": "text" },
+      { "key": "state", "label": "Province/City", "placeholder": "Ulaanbaatar", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "14210", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://zipcode.mn/",
+    "source": "Mongol Post"
+  }
+}

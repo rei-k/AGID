@@ -1,0 +1,33 @@
+{
+  "countryCode": "IL",
+  "name": "Israel",
+  "native": {
+    "name": "ישראל",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "שם הבניין/חברה", "placeholder": "מגדל עזריאלי", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "מספר בית", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "רחוב", "placeholder": "דרך מנחם בגין", "required": true, "type": "text" },
+      { "key": "city", "label": "עיר", "placeholder": "תל אביב", "required": true, "type": "text" },
+      { "key": "postcode", "label": "מיקוד", "placeholder": "6701101", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Azrieli Tower", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Menachem Begin Rd", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Tel Aviv", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "6701101", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNNN",
+    "regex": "^\\d{7}$",
+    "api": "https://israelpost.co.il/%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D/%D7%90%D7%99%D7%AA%D7%95%D7%A8-%D7%9e%D7%99%D7%A7%D7%95%D7%93/",
+    "source": "Israel Post"
+  }
+}

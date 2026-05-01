@@ -1,0 +1,29 @@
+{
+  "countryCode": "LY",
+  "name": "Libya",
+  "native": {
+    "name": "ليبيا",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "علي حسن", "required": true, "type": "text" },
+      { "key": "street", "label": "العنوان", "placeholder": "شارع الاستقلال", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "طرابلس", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "١٢٣٤٥", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}\nLibya",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Ali Hassan", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "Istiklal Street", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Tripoli", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "12345", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

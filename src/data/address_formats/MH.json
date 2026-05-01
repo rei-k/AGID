@@ -1,0 +1,31 @@
+{
+  "countryCode": "MH",
+  "name": "Marshall Islands",
+  "native": {
+    "name": "Marshall Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Majuro", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "MH", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96960", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nMarshall Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Majuro", "required": true, "type": "text" },
+      { "key": "state", "label": "State", "placeholder": "MH", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "96960", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "96960",
+    "regex": "^96960$"
+  }
+}

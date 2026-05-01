@@ -1,0 +1,37 @@
+{
+  "countryCode": "TL",
+  "name": "Timor-Leste",
+  "native": {
+    "name": "Timor-Leste",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Palacio do Governo", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Avenida de Portugal", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Suco", "placeholder": "Suco Motael", "required": true, "type": "text" },
+      { "key": "district", "label": "Administrative Post", "placeholder": "Vera Cruz", "required": true, "type": "text" },
+      { "key": "city", "label": "Municipality", "placeholder": "Dili", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "80101", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Government Palace", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Avenida de Portugal", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Suco/Village", "placeholder": "Suco Motael", "required": true, "type": "text" },
+      { "key": "district", "label": "Administrative Post", "placeholder": "Vera Cruz", "required": true, "type": "text" },
+      { "key": "city", "label": "Municipality", "placeholder": "Dili", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "80101", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": null,
+    "source": "Correios de Timor-Leste"
+  }
+}

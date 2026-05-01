@@ -1,0 +1,29 @@
+{
+  "countryCode": "PG",
+  "name": "Papua New Guinea",
+  "native": {
+    "name": "Papua New Guinea",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nPapua New Guinea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Port Moresby", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "121", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nPapua New Guinea",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Port Moresby", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "121", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN",
+    "regex": "^\\d{3}$"
+  }
+}

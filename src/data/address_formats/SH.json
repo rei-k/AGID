@@ -1,0 +1,33 @@
+{
+  "countryCode": "SH",
+  "name": "Saint Helena",
+  "native": {
+    "name": "Saint Helena",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nSaint Helena",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "District", "placeholder": "e.g. Jamestown", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "STHL 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nSaint Helena",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "district", "label": "District", "placeholder": "e.g. Jamestown", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "STHL 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "STHL 1ZZ",
+    "regex": "^STHL\\s?1ZZ$",
+    "api": null,
+    "source": "Saint Helena Post Office"
+  }
+}

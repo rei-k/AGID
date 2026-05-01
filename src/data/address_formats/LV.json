@@ -1,0 +1,33 @@
+{
+  "countryCode": "LV",
+  "name": "Latvia",
+  "native": {
+    "name": "Latvija",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{city}}, {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Uzņēmums/Organizācija", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Iela", "placeholder": "Brīvības iela", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Mājas/Dzīvokļa nr.", "placeholder": "1-1", "required": true, "type": "text" },
+      { "key": "city", "label": "Pilsēta/Novads", "placeholder": "Rīga", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Pasta indekss", "placeholder": "LV-1001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{city}}, {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Brivibas St", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1-1", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Riga", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "LV-1001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "LV-NNNN",
+    "regex": "^LV-\\d{4}$",
+    "api": "https://www.pasts.lv/lv/uzzinas/pasta_indeksa_meklesana/",
+    "source": "Latvijas Pasts"
+  }
+}

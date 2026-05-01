@@ -1,0 +1,51 @@
+{
+  "standard": "ITU-T X.121",
+  "comment": "Global rules for English address formatting and normalization",
+  "ordering": "small-to-big",
+  "priority": [
+    "organization",
+    "houseNumber",
+    "street",
+    "suburb",
+    "city",
+    "state",
+    "postcode",
+    "country"
+  ],
+  "templates": {
+    "default": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "compact": "{{houseNumber}} {{street}}, {{city}}, {{state}} {{postcode}}, {{country}}",
+    "shipping": "ATTN: {{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}} {{postcode}}\n{{country}}"
+  },
+  "abbreviations": {
+    "Street": "St",
+    "Road": "Rd",
+    "Avenue": "Ave",
+    "Boulevard": "Blvd",
+    "Drive": "Dr",
+    "Lane": "Ln",
+    "Court": "Ct",
+    "Place": "Pl",
+    "Square": "Sq",
+    "Terrace": "Ter",
+    "Building": "Bldg",
+    "Floor": "Fl",
+    "Apartment": "Apt",
+    "Suite": "Ste",
+    "Department": "Dept",
+    "North": "N",
+    "South": "S",
+    "East": "E",
+    "West": "W",
+    "Northwest": "NW",
+    "Northeast": "NE",
+    "Southwest": "SW",
+    "Southeast": "SE"
+  },
+  "handling": {
+    "casing": "Proper Case",
+    "punctuation": "Minimal (allow commas for separation, periods for abbreviations optional)",
+    "multiline": true,
+    "maxLines": 6
+  }
+}

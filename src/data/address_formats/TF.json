@@ -1,0 +1,29 @@
+{
+  "countryCode": "TF",
+  "name": "French Southern and Antarctic Lands",
+  "native": {
+    "name": "TAAF",
+    "addressFormat": "{{recipient}}\n{{organization}}\n{{city}}\nTAAF",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Destinataire", "placeholder": "Nom complet", "required": true, "type": "text" },
+      { "key": "organization", "label": "Base / Station", "placeholder": "ex. Base Alfred Faure", "required": true, "type": "text" },
+      { "key": "city", "label": "Code", "placeholder": "ex. District de Crozet", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{organization}}\n{{city}}\nTAAF",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "organization", "label": "Base / Station", "placeholder": "e.g. Alfred Faure Station", "required": true, "type": "text" },
+      { "key": "city", "label": "Code", "placeholder": "e.g. Crozet District", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "984NN",
+    "regex": "^984\\d{2}$",
+    "api": null,
+    "source": "TAAF"
+  }
+}

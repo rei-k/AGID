@@ -1,0 +1,37 @@
+{
+  "countryCode": "KP",
+  "name": "North Korea",
+  "native": {
+    "name": "조선민주주의인민공화국",
+    "addressFormat": "{{postcode}}\n{{state}} {{city}} {{district}}\n{{street}} {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "우편번호", "placeholder": "123-456", "required": false, "type": "text" },
+      { "key": "state", "label": "도/직할시", "placeholder": "평양시", "required": true, "type": "text" },
+      { "key": "city", "label": "시/군/구", "placeholder": "중구역", "required": true, "type": "text" },
+      { "key": "district", "label": "동/리", "placeholder": "창전동", "required": false, "type": "text" },
+      { "key": "street", "label": "도로명/번지", "placeholder": "승리거리", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "건물번호", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "organization", "label": "상세주소", "placeholder": "101호", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Detail", "placeholder": "Room 101", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Sungri St", "required": false, "type": "text" },
+      { "key": "district", "label": "Neighborhood/Village", "placeholder": "Changjon-dong", "required": false, "type": "text" },
+      { "key": "city", "label": "City/County/District", "placeholder": "Jung-guyok", "required": true, "type": "text" },
+      { "key": "state", "label": "Province/City", "placeholder": "Pyongyang", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "123-456", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN-NNN",
+    "regex": "^\\d{3}-\\d{3}$",
+    "api": null,
+    "source": "Korea Post (DPRK)"
+  }
+}

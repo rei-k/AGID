@@ -1,0 +1,29 @@
+{
+  "countryCode": "MG",
+  "name": "Madagascar",
+  "native": {
+    "name": "Madagasikara",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Anarana feno", "placeholder": "Jean Rakoto", "required": true, "type": "text" },
+      { "key": "street", "label": "Adiresy", "placeholder": "Lot 123", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Kaody paositra", "placeholder": "101", "required": true, "type": "text" },
+      { "key": "city", "label": "Tanàna", "placeholder": "Antananarivo", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMadagascar",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Jean Rakoto", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "Lot 123", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "101", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Antananarivo", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN",
+    "regex": "^\\d{3}$"
+  }
+}

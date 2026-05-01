@@ -1,0 +1,33 @@
+{
+  "countryCode": "IE",
+  "name": "Ireland",
+  "native": {
+    "name": "Éire",
+    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\n{{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Townland", "placeholder": "O'Connell Street", "required": true, "type": "text" },
+      { "key": "city", "label": "Town/City", "placeholder": "Dublin", "required": true, "type": "text" },
+      { "key": "state", "label": "County", "placeholder": "Co. Dublin", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Townland", "placeholder": "O'Connell Street", "required": true, "type": "text" },
+      { "key": "city", "label": "Town/City", "placeholder": "Dublin", "required": true, "type": "text" },
+      { "key": "state", "label": "County", "placeholder": "Co. Dublin", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "A NN AAAA",
+    "regex": "^[A-Z]\\d{2}\\s?[A-Z\\d]{4}$",
+    "api": "https://finder.eircode.ie/",
+    "source": "Eircode"
+  }
+}

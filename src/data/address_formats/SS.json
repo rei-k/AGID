@@ -1,0 +1,27 @@
+{
+  "countryCode": "SS",
+  "name": "South Sudan",
+  "native": {
+    "name": "South Sudan",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSouth Sudan",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Lado", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "Juba Street", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Juba", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nSouth Sudan",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "John Lado", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "Juba Street", "required": true, "type": "text" },
+      { "key": "city", "label": "City / Town", "placeholder": "Juba", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": null,
+    "regex": null
+  }
+}

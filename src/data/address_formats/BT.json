@@ -1,0 +1,35 @@
+{
+  "countryCode": "BT",
+  "name": "Bhutan",
+  "native": {
+    "name": "འབྲུག་ཡུལ་",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Tashichho Dzong", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Norzin Lam", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area", "placeholder": "Chubachu", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Dzongkhag", "placeholder": "Thimphu", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Tashichho Dzong", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Norzin Lam", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area", "placeholder": "Chubachu", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Dzongkhag", "placeholder": "Thimphu", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.bhutanpost.bt/postcode-finder/",
+    "source": "Bhutan Post"
+  }
+}

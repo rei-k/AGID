@@ -1,0 +1,33 @@
+{
+  "countryCode": "MV",
+  "name": "Maldives",
+  "native": {
+    "name": "ދިވެހިރާއްޖެ",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/House Name", "placeholder": "H. Mulee-aage", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Floor/Apartment", "placeholder": "3rd Floor", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Medhuziyaaraiy Magu", "required": true, "type": "text" },
+      { "key": "city", "label": "Island/City", "placeholder": "Male'", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "20002", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/House Name", "placeholder": "H. Mulee-aage", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Floor/Apartment", "placeholder": "3rd Floor", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Medhuziyaaraiy Magu", "required": true, "type": "text" },
+      { "key": "city", "label": "Island/City", "placeholder": "Male'", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "20002", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.maldivespost.com/postcode-finder",
+    "source": "Maldives Post"
+  }
+}

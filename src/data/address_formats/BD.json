@@ -1,0 +1,37 @@
+{
+  "countryCode": "BD",
+  "name": "Bangladesh",
+  "native": {
+    "name": "বাংলাদেশ",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}} - {{postcode}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "ভবন/কোম্পানি", "placeholder": "বঙ্গভবন", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "বাসা নম্বর", "placeholder": "১২৩", "required": true, "type": "text" },
+      { "key": "street", "label": "রাস্তা", "placeholder": "মিরপুর রোড", "required": true, "type": "text" },
+      { "key": "suburb", "label": "এলাকা", "placeholder": "ধানমন্ডি", "required": false, "type": "text" },
+      { "key": "city", "label": "শহর", "placeholder": "ঢাকা", "required": true, "type": "text" },
+      { "key": "state", "label": "বিভাগ", "placeholder": "ঢাকা", "required": true, "type": "text" },
+      { "key": "postcode", "label": "পোস্টাল কোড", "placeholder": "১২০৫", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}} - {{postcode}}\n{{state}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Bangabhaban", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Mirpur Road", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Area", "placeholder": "Dhanmondi", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Dhaka", "required": true, "type": "text" },
+      { "key": "state", "label": "Division", "placeholder": "Dhaka", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1205", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "http://www.bangladeshpost.gov.bd/",
+    "source": "Bangladesh Post"
+  }
+}

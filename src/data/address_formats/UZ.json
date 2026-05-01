@@ -1,0 +1,35 @@
+{
+  "countryCode": "UZ",
+  "name": "Uzbekistan",
+  "native": {
+    "name": "O'zbekiston",
+    "addressFormat": "{{postcode}}\n{{state}}, {{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Pochta indeksi", "placeholder": "100000", "required": true, "type": "text" },
+      { "key": "state", "label": "Viloyat", "placeholder": "Toshkent viloyati", "required": true, "type": "text" },
+      { "key": "city", "label": "Shahar/Tuman", "placeholder": "Toshkent", "required": true, "type": "text" },
+      { "key": "street", "label": "Ko'cha", "placeholder": "Amir Temur ko'chasi", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Uy/Xonadon", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "organization", "label": "Bino/Idora", "placeholder": "", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Office", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Amir Temur St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Tashkent", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Tashkent Region", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "100000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://www.pochta.uz/ru/uslugi/poisk-pochtovykh-indeksov.html",
+    "source": "O'zbekiston Pochtasi"
+  }
+}

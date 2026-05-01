@@ -1,0 +1,35 @@
+{
+  "countryCode": "ES",
+  "name": "Spain",
+  "native": {
+    "name": "España",
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nEspaña",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nombre", "placeholder": "Nombre completo", "required": true, "type": "text" },
+      { "key": "street", "label": "Calle", "placeholder": "Nombre de la calle", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Número", "placeholder": "Nr", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "28013", "required": true, "type": "text" },
+      { "key": "city", "label": "Localidad", "placeholder": "Madrid", "required": true, "type": "text" },
+      { "key": "state", "label": "Provincia", "placeholder": "Madrid", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nSpain",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "28013", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Town", "placeholder": "Madrid", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Madrid", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.correos.es/es/es/herramientas/codigos-postales/detalle",
+    "source": "Correos"
+  }
+}

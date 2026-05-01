@@ -1,0 +1,29 @@
+{
+  "countryCode": "SD",
+  "name": "Sudan",
+  "native": {
+    "name": "السودان",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "الاسم الكامل", "placeholder": "عمر أحمد", "required": true, "type": "text" },
+      { "key": "street", "label": "العنوان", "placeholder": "شارع القصر", "required": true, "type": "text" },
+      { "key": "city", "label": "المدينة", "placeholder": "الخرطوم", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "١١١١١", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}\nSudan",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Omar Ahmed", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "Al Qasr Ave", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Khartoum", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "11111", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$"
+  }
+}

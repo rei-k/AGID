@@ -1,0 +1,33 @@
+{
+  "countryCode": "GS",
+  "name": "South Georgia and the South Sandwich Islands",
+  "native": {
+    "name": "South Georgia and the South Sandwich Islands",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{organization}}\n{{postcode}}\nSouth Georgia and the South Sandwich Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "organization", "label": "Research Station", "placeholder": "e.g. King Edward Point", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "SIQQ 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{organization}}\n{{postcode}}\nSouth Georgia and the South Sandwich Islands",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
+      { "key": "organization", "label": "Research Station", "placeholder": "e.g. King Edward Point", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "SIQQ 1ZZ", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "SIQQ 1ZZ",
+    "regex": "^SIQQ\\s?1ZZ$",
+    "api": null,
+    "source": "South Georgia Post Office"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "countryCode": "SM",
+  "name": "San Marino",
+  "native": {
+    "name": "San Marino",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Ditta/Organizzazione", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Via/Piazza", "placeholder": "Via della Capannaccia", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Numero civico", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "CAP", "placeholder": "47890", "required": true, "type": "text" },
+      { "key": "city", "label": "Castello", "placeholder": "San Marino", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Street/Square", "placeholder": "Via della Capannaccia", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "47890", "required": true, "type": "text" },
+      { "key": "city", "label": "Municipality", "placeholder": "San Marino", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^4789\\d$",
+    "api": "https://www.poste.sm/",
+    "source": "Poste San Marino"
+  }
+}

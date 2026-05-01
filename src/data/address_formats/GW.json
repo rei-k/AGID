@@ -1,0 +1,29 @@
+{
+  "countryCode": "GW",
+  "name": "Guinea-Bissau",
+  "native": {
+    "name": "Guiné-Bissau",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome Completo", "placeholder": "Umaro Sissoco Embaló", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Rua de Bissau, 123", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "Cidade", "placeholder": "Bissau", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nGuinea-Bissau",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Umaro Sissoco Embaló", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Bissau St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Bissau", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

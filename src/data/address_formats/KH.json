@@ -1,0 +1,37 @@
+{
+  "countryCode": "KH",
+  "name": "Cambodia",
+  "native": {
+    "name": "កម្ពុជា",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "ឈ្មោះអគារ/ក្រុមហ៊ុន", "placeholder": "Vattanac Capital", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "លេខផ្ទះ", "placeholder": "66", "required": true, "type": "text" },
+      { "key": "street", "label": "ផ្លូវ", "placeholder": "ផ្លូវព្រះមុនីវង្ស", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "សង្កាត់/ឃុំ", "placeholder": "សង្កាត់វត្តភ្នំ", "required": true, "type": "text" },
+      { "key": "district", "label": "ខណ្ឌ/ស្រុក", "placeholder": "ខណ្ឌដូនពេញ", "required": true, "type": "text" },
+      { "key": "city", "label": "រាជធានី/ខេត្ត", "placeholder": "ភ្នំពេញ", "required": true, "type": "text" },
+      { "key": "postcode", "label": "លេខកូដប្រៃសណីយ៍", "placeholder": "120211", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "Vattanac Capital", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "66", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Preah Monivong Blvd", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Sangkat/Commune", "placeholder": "Sangkat Wat Phnom", "required": true, "type": "text" },
+      { "key": "district", "label": "Khan/District", "placeholder": "Khan Daun Penh", "required": true, "type": "text" },
+      { "key": "city", "label": "City/Province", "placeholder": "Phnom Penh", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "120211", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5,6}$",
+    "api": "http://www.cambodiapost.com.kh/postcode",
+    "source": "Cambodia Post"
+  }
+}

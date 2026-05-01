@@ -1,0 +1,35 @@
+{
+  "countryCode": "BH",
+  "name": "Bahrain",
+  "native": {
+    "name": "البحرين",
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "اسم المبنى", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "رقم المبنى", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "رقم الطريق", "placeholder": "456", "required": true, "type": "text" },
+      { "key": "suburb", "label": "رقم المجمع", "placeholder": "789", "required": true, "type": "text" },
+      { "key": "city", "label": "المنطقة/المدينة", "placeholder": "المنامة", "required": true, "type": "text" },
+      { "key": "postcode", "label": "الرمز البريدي", "placeholder": "301", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building Name", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Building No.", "placeholder": "123", "required": true, "type": "text" },
+      { "key": "street", "label": "Road No.", "placeholder": "456", "required": true, "type": "text" },
+      { "key": "suburb", "label": "Block No.", "placeholder": "789", "required": true, "type": "text" },
+      { "key": "city", "label": "Area/City", "placeholder": "Manama", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "301", "required": false, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNN (or NNNN)",
+    "regex": "^\\d{3,4}$",
+    "api": "https://www.bahrainpost.gov.bh/",
+    "source": "Bahrain Post"
+  }
+}

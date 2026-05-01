@@ -1,0 +1,37 @@
+{
+  "countryCode": "KR",
+  "name": "South Korea",
+  "native": {
+    "name": "대한민국",
+    "addressFormat": "{{postcode}}\n{{state}} {{city}} {{district}}\n{{street}} {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "우편번호", "placeholder": "06164", "required": true, "type": "text" },
+      { "key": "state", "label": "시/도", "placeholder": "서울특별시", "required": true, "type": "text" },
+      { "key": "city", "label": "시/군/구", "placeholder": "강남구", "required": true, "type": "text" },
+      { "key": "district", "label": "읍/면/동", "placeholder": "삼성동", "required": false, "type": "text" },
+      { "key": "street", "label": "도로명", "placeholder": "영동대로", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "건물번호", "placeholder": "513", "required": true, "type": "text" },
+      { "key": "organization", "label": "상세주소(동/호/건물명)", "placeholder": "코엑스 101호", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{district}}, {{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Detail/Building", "placeholder": "COEX Room 101", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "Building No.", "placeholder": "513", "required": true, "type": "text" },
+      { "key": "street", "label": "Road Name", "placeholder": "Yeongdong-daero", "required": true, "type": "text" },
+      { "key": "district", "label": "Dong/Eup/Myeon", "placeholder": "Samseong-dong", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Gu", "placeholder": "Gangnam-gu", "required": true, "type": "text" },
+      { "key": "state", "label": "Province/City", "placeholder": "Seoul", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "06164", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.epost.go.kr/search.RetrieveAddressIdInfo.comm",
+    "source": "Korea Post"
+  }
+}

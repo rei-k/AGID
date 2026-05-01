@@ -1,0 +1,33 @@
+{
+  "countryCode": "DE",
+  "name": "Germany",
+  "native": {
+    "name": "Deutschland",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Firma/Organisation", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Straße", "placeholder": "Hauptstraße", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Hausnummer", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postleitzahl", "placeholder": "10115", "required": true, "type": "text" },
+      { "key": "city", "label": "Stadt", "placeholder": "Berlin", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Hauptstrasse", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "10115", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Berlin", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.deutschepost.de/de/p/plz-suche.html",
+    "source": "Deutsche Post"
+  }
+}

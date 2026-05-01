@@ -1,0 +1,29 @@
+{
+  "countryCode": "ET",
+  "name": "Ethiopia",
+  "native": {
+    "name": "ኢትዮጵያ",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "ሙሉ ስም", "placeholder": "አበበ ቢቂላ", "required": true, "type": "text" },
+      { "key": "street", "label": "የመንገድ ስም / የቤት ቁጥር", "placeholder": "ፖ.ሳ.ቁ 1234", "required": true, "type": "text" },
+      { "key": "postcode", "label": "የፖስታ ኮድ", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "ከተማ", "placeholder": "አዲስ አበባ", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nEthiopia",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "Abebe Bikila", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 1234", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": false, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Addis Ababa", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

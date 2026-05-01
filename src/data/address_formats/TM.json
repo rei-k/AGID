@@ -1,0 +1,35 @@
+{
+  "countryCode": "TM",
+  "name": "Turkmenistan",
+  "native": {
+    "name": "Türkmenistan",
+    "addressFormat": "{{postcode}}\n{{state}}, {{city}}\n{{street}}, {{houseNumber}}\n{{organization}}",
+    "ordering": "big-to-small",
+    "fields": [
+      { "key": "postcode", "label": "Poçta indeksi", "placeholder": "744000", "required": true, "type": "text" },
+      { "key": "state", "label": "Welaýat", "placeholder": "Aşgabat", "required": true, "type": "text" },
+      { "key": "city", "label": "Şäher/Etrap", "placeholder": "Aşgabat", "required": true, "type": "text" },
+      { "key": "street", "label": "Köçe", "placeholder": "Bitarap Türkmenistan şaýoly", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Jaý/Öý", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "organization", "label": "Bina/Edara", "placeholder": "", "required": false, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Office", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Bitarap Turkmenistan Ave", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Ashgabat", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Ashgabat", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "744000", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "api": "https://www.turkmenpost.gov.tm/",
+    "source": "Turkmenpost"
+  }
+}

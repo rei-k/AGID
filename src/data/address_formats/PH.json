@@ -1,0 +1,39 @@
+{
+  "countryCode": "PH",
+  "name": "Philippines",
+  "native": {
+    "name": "Pilipinas",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company Name", "placeholder": "SM Mall of Asia", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Unit 101", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "J.W. Diokno Blvd", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76", "required": true, "type": "text" },
+      { "key": "district", "label": "District/Zone", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Metro Manila", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "1300", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "SM Mall of Asia", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Unit 101", "required": false, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "J.W. Diokno Blvd", "required": true, "type": "text" },
+      { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76", "required": true, "type": "text" },
+      { "key": "district", "label": "District", "placeholder": "", "required": false, "type": "text" },
+      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City", "required": true, "type": "text" },
+      { "key": "state", "label": "Province", "placeholder": "Metro Manila", "required": true, "type": "text" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "1300", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$",
+    "api": "https://www.phlpost.gov.ph/zip-code-search",
+    "source": "PHLPost"
+  }
+}

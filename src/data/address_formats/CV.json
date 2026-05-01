@@ -1,0 +1,29 @@
+{
+  "countryCode": "CV",
+  "name": "Cape Verde",
+  "native": {
+    "name": "Cabo Verde",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Nome Completo", "placeholder": "José Maria Neves", "required": true, "type": "text" },
+      { "key": "street", "label": "Endereço", "placeholder": "Rua da Praia, 123", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "7600", "required": false, "type": "text" },
+      { "key": "city", "label": "Cidade / Ilha", "placeholder": "Praia", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nCape Verde",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "recipient", "label": "Full Name", "placeholder": "José Maria Neves", "required": true, "type": "text" },
+      { "key": "street", "label": "Street Address", "placeholder": "123 Praia St", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "7600", "required": false, "type": "text" },
+      { "key": "city", "label": "City / Island", "placeholder": "Praia", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNN",
+    "regex": "^\\d{4}$"
+  }
+}

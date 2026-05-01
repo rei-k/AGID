@@ -1,0 +1,35 @@
+{
+  "countryCode": "UA",
+  "name": "Ukraine",
+  "native": {
+    "name": "Україна",
+    "addressFormat": "{{street}}, {{houseNumber}}\n{{city}}\n{{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Організація", "placeholder": "", "required": false, "type": "text" },
+      { "key": "street", "label": "Вулиця", "placeholder": "Хрещатик", "required": true, "type": "text" },
+      { "key": "houseNumber", "label": "Будинок/Квартира", "placeholder": "1, кв. 1", "required": true, "type": "text" },
+      { "key": "city", "label": "Місто", "placeholder": "Київ", "required": true, "type": "text" },
+      { "key": "state", "label": "Область", "placeholder": "Київська обл.", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Поштовий індекс", "placeholder": "01001", "required": true, "type": "text" }
+    ]
+  },
+  "english": {
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Organization", "placeholder": "", "required": false, "type": "text" },
+      { "key": "houseNumber", "label": "House/Apt No.", "placeholder": "1, apt 1", "required": true, "type": "text" },
+      { "key": "street", "label": "Street", "placeholder": "Khreshchatyk St", "required": true, "type": "text" },
+      { "key": "city", "label": "City", "placeholder": "Kyiv", "required": true, "type": "text" },
+      { "key": "state", "label": "Region", "placeholder": "Kyiv Region", "required": true, "type": "text" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "01001", "required": true, "type": "text" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "api": "https://www.ukrposhta.ua/ua/indeksi",
+    "source": "Ukrposhta"
+  }
+}
