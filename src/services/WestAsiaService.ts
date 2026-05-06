@@ -8,10 +8,12 @@ export interface RegionalLandmark {
   name: string;
   type: string;
   distance: number;
+  tags?: Record<string, string>;
 }
 
 export async function fetchWestAsiaContext(lat: number, lon: number): Promise<RegionalLandmark[]> {
-  // Query for Mosques, Souks, Wadis, Oases, and Historic sites common in West Asia
+  // Query for Mosques, Souks, Wadis, Oases, and Historic sites
+  // AND specific addressing tags for Saudi Arabia and UAE
   const query = `
     [out:json][timeout:25];
     (
@@ -20,9 +22,13 @@ export async function fetchWestAsiaContext(lat: number, lon: number): Promise<Re
       node["historic"](around:2000,${lat},${lon});
       node["natural"="wadi"](around:5000,${lat},${lon});
       node["natural"="oasis"](around:5000,${lat},${lon});
+      node["addr:makani"](around:500,${lat},${lon});
+      node["addr:unit"](around:500,${lat},${lon});
       way["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${lat},${lon});
       way["shop"="marketplace"](around:2000,${lat},${lon});
       way["historic"](around:2000,${lat},${lon});
+      way["addr:makani"](around:500,${lat},${lon});
+      way["addr:unit"](around:500,${lat},${lon});
     );
     out center;
   `;
@@ -45,18 +51,21 @@ export async function fetchWestAsiaContext(lat: number, lon: number): Promise<Re
       const dist = calculateDistance(lat, lon, eLat, eLon);
       
       let type = "Landmark";
-      if (el.tags.amenity === 'place_of_worship') type = "Mosque";
+      if (el.tags['addr:makani']) type = "Dubai Makani";
+      else if (el.tags['addr:unit']) type = "Saudi National Address Point";
+      else if (el.tags.amenity === 'place_of_worship') type = "Mosque";
       else if (el.tags.shop === 'marketplace') type = "Souk/Market";
       else if (el.tags.historic) type = "Historic Site";
       else if (el.tags.natural === 'wadi') type = "Wadi";
       else if (el.tags.natural === 'oasis') type = "Oasis";
 
       return {
-        name: el.tags.name || el.tags['name:en'] || "Unnamed Feature",
+        name: el.tags['addr:makani'] || el.tags['addr:full'] || el.tags.name || el.tags['name:en'] || "Unnamed Feature",
         type,
-        distance: Math.round(dist)
+        distance: Math.round(dist),
+        tags: el.tags
       };
-    }).sort((a: any, b: any) => a.distance - b.distance).slice(0, 3);
+    }).sort((a: any, b: any) => a.distance - b.distance).slice(0, 5);
 
   } catch (error) {
     console.error("West Asia Context Error:", error);

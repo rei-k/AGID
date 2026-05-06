@@ -39,6 +39,7 @@
     "motion": "^12.23.24",
     "ngraph.graph": "^20.1.2",
     "ngraph.path": "^1.6.1",
+    "open-location-code": "^1.0.3",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

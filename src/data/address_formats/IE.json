@@ -2,26 +2,44 @@
   "countryCode": "IE",
   "name": "Ireland",
   "native": {
-    "name": "Éire",
-    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\n{{state}}\n{{postcode}}",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Townland", "placeholder": "O'Connell Street", "required": true, "type": "text" },
-      { "key": "city", "label": "Town/City", "placeholder": "Dublin", "required": true, "type": "text" },
-      { "key": "state", "label": "County", "placeholder": "Co. Dublin", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Building No.", "placeholder": "1" },
+      { "key": "street", "label": "Street/Townland", "placeholder": "O'Connell Street" },
+      { "key": "city", "label": "Town/City", "placeholder": "Dublin" },
+      { "key": "state", "label": "County", "placeholder": "Co. Dublin" },
+      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5" }
     ]
   },
+  "domestic": {
+    "ga": {
+      "name": "Gaeilge",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Comhlacht", "placeholder": "" },
+        { "key": "houseNumber", "label": "Uimhir", "placeholder": "1" },
+        { "key": "street", "label": "Sráid", "placeholder": "Sráid Uí Chonaill" },
+        { "key": "city", "label": "Baile", "placeholder": "Baile Átha Cliath" },
+        { "key": "state", "label": "Contae", "placeholder": "Co. Bhaile Átha Cliath" },
+        { "key": "postcode", "label": "Ríomhchód", "placeholder": "D01 F2P5" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\n{{state}}\n{{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}\nIRELAND",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Townland", "placeholder": "O'Connell Street", "required": true, "type": "text" },
-      { "key": "city", "label": "Town/City", "placeholder": "Dublin", "required": true, "type": "text" },
-      { "key": "state", "label": "County", "placeholder": "Co. Dublin", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "street", "label": "St./Rd. (Latin)", "placeholder": "O'Connell Street" },
+      { "key": "city", "label": "City", "placeholder": "Dublin" },
+      { "key": "state", "label": "County Code", "placeholder": "Co. Dublin" },
+      { "key": "postcode", "label": "Eircode", "placeholder": "D01 F2P5" }
     ]
   },
   "postalCode": {

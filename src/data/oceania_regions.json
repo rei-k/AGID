@@ -1,0 +1,24 @@
+{
+  "oceania": [
+    { "code": "AU", "name": "Australia", "n": -10.0, "s": -55.0, "w": 112.9, "e": 159.0 },
+    { "code": "NZ", "name": "New Zealand", "n": -29.0, "s": -53.0, "w": 165.0, "e": -175.0 },
+    { "code": "PG", "name": "Papua New Guinea", "n": 0.0, "s": -12.0, "w": 140.0, "e": 160.0 },
+    { "code": "FJ", "name": "Fiji", "n": -15.0, "s": -22.0, "w": 177.0, "e": -178.0 },
+    { "code": "VU", "name": "Vanuatu", "n": -13.0, "s": -20.5, "w": 166.0, "e": 170.5 },
+    { "code": "SB", "name": "Solomon Islands", "n": -5.0, "s": -12.5, "w": 155.0, "e": 170.5 },
+    { "code": "NC", "name": "New Caledonia", "n": -19.5, "s": -23.0, "w": 163.5, "e": 167.5 },
+    { "code": "WS", "name": "Samoa", "n": -13.0, "s": -15.0, "w": -173.0, "e": -171.0 },
+    { "code": "KI", "name": "Kiribati", "n": 5.0, "s": -12.0, "w": 169.0, "e": -150.0 },
+    { "code": "TO", "name": "Tonga", "n": -15.0, "s": -24.0, "w": -176.0, "e": -173.0 },
+    { "code": "FM", "name": "Micronesia", "n": 11.0, "s": 0.0, "w": 137.0, "e": 164.0 },
+    { "code": "PW", "name": "Palau", "n": 9.0, "s": 2.0, "w": 130.0, "e": 136.0 },
+    { "code": "MH", "name": "Marshall Islands", "n": 15.0, "s": 4.0, "w": 160.0, "e": 173.0 },
+    { "code": "TV", "name": "Tuvalu", "n": -5.0, "s": -11.0, "w": 176.0, "e": 180.0 },
+    { "code": "NR", "name": "Nauru", "n": -0.51, "s": -0.55, "w": 166.9, "e": 166.95 },
+    { "code": "GU", "name": "Guam", "n": 13.7, "s": 13.2, "w": 144.6, "e": 145.0 },
+    { "code": "MP", "name": "Northern Mariana Islands", "n": 21.0, "s": 14.0, "w": 144.0, "e": 146.0 },
+    { "code": "AS", "name": "American Samoa", "n": -11.0, "s": -15.0, "w": -174.0, "e": -167.0 },
+    { "code": "CK", "name": "Cook Islands", "n": -8.0, "s": -24.0, "w": -166.0, "e": -157.0 },
+    { "code": "PF", "name": "French Polynesia", "n": -7.0, "s": -28.0, "w": -155.0, "e": -134.0 }
+  ]
+}

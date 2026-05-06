@@ -1,4 +1,5 @@
 import https from 'https';
+import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -72,7 +73,7 @@ async function loadCountryData(cc: string): Promise<void> {
     if (!fs.existsSync(txtPath)) {
       if (!fs.existsSync(zipPath)) {
         console.log(`Downloading postal data for ${cc}...`);
-        await downloadFile(`https://download.geonames.org/export/zip/${cc}.zip`, zipPath);
+        await downloadFileWithRetry(`https://download.geonames.org/export/zip/${cc}.zip`, zipPath);
       }
       
       // 2. Extract
@@ -148,44 +149,117 @@ async function loadCountryData(cc: string): Promise<void> {
   }
 }
 
+async function downloadFileWithRetry(url: string, dest: string, retries: number = 3): Promise<void> {
+  const mirrors = [
+    url,
+    url.replace('https://download.', 'http://download.'),
+    url.replace('https://download.', 'http://www.'),
+  ];
+
+  for (let i = 0; i < retries; i++) {
+    // Try each mirror in the retry loop
+    const currentUrl = mirrors[i % mirrors.length];
+    try {
+      await downloadFile(currentUrl, dest);
+      
+      // Basic check if the file is truly a zip
+      const stats = fs.statSync(dest);
+      if (stats.size < 1000) { // Zip usually > 1KB
+        throw new Error(`Downloaded file is too small (${stats.size} bytes)`);
+      }
+      
+      // Try to read zip header
+      try {
+        new AdmZip(dest);
+      } catch (e) {
+        throw new Error('Downloaded file is not a valid zip archive');
+      }
+      
+      return;
+    } catch (err: any) {
+      if (fs.existsSync(dest)) {
+        try { fs.unlinkSync(dest); } catch (e) {}
+      }
+      
+      if (i === retries - 1) throw err;
+      console.warn(`Download failed for ${currentUrl} (attempt ${i + 1}/${retries}): ${err.message}. Retrying in 15s...`);
+      await new Promise(resolve => setTimeout(resolve, 15000));
+    }
+  }
+}
+
 function downloadFile(url: string, dest: string): Promise<void> {
-  const USER_AGENT = 'Mozilla/5.0 AGID-Applet/1.0';
+  const USER_AGENT = 'Mozilla/5.0 AGID-Applet/1.2 (SearchBot; +https://ais.google.com/build)';
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
-    const options = {
-      headers: { 'User-Agent': USER_AGENT },
-      timeout: 60000 // 60s timeout
+    let file = fs.createWriteStream(dest);
+    let request: any;
+    
+    const cleanup = (err: Error | null) => {
+      if (request) {
+        request.destroy();
+        request = null;
+      }
+      if (file) {
+        file.close();
+        if (err && fs.existsSync(dest)) {
+          try { fs.unlinkSync(dest); } catch (e) {}
+        }
+        file = null as any;
+      }
+      if (err) reject(err);
     };
 
-    const request = https.get(url, options, (response) => {
+    const options = {
+      headers: { 'User-Agent': USER_AGENT },
+      timeout: 120000 // Increased to 120s timeout
+    };
+
+    const protocol = url.startsWith('https') ? https : http;
+    request = protocol.get(url, options, (response) => {
       if (response.statusCode === 301 || response.statusCode === 302) {
-        file.close();
-        fs.unlink(dest, () => {
-          downloadFile(response.headers.location!, dest).then(resolve).catch(reject);
-        });
+        if (response.headers.location) {
+          cleanup(null);
+          // Recursively follow redirect but ensure we don't loop forever (implicit 1 check here)
+          downloadFile(response.headers.location, dest).then(resolve).catch(reject);
+        } else {
+          cleanup(new Error(`Redirect without location: ${response.statusCode}`));
+        }
         return;
       }
       if (response.statusCode !== 200) {
-        file.close();
-        fs.unlink(dest, () => reject(new Error(`Failed to download: ${response.statusCode}`)));
+        cleanup(new Error(`Failed to download from ${url}: Status ${response.statusCode}`));
         return;
       }
+
+      // Check content type
+      const contentType = response.headers['content-type'] || '';
+      if (contentType.includes('text/html') || contentType.includes('text/plain')) {
+         // Probably an error page
+         cleanup(new Error(`Server returned text (${contentType}) instead of binary data`));
+         return;
+      }
+      
       response.pipe(file);
+      
       file.on('finish', () => {
-        file.close();
-        resolve();
+        if (file) {
+          file.close();
+          file = null as any;
+          resolve();
+        }
+      });
+      
+      response.on('error', (err) => {
+        cleanup(err);
       });
     });
 
-    request.on('error', (err) => {
-      file.close();
-      fs.unlink(dest, () => reject(err));
+    request.on('error', (err: any) => {
+      cleanup(err);
     });
 
     request.on('timeout', () => {
-      request.destroy();
-      file.close();
-      fs.unlink(dest, () => reject(new Error('Download timeout reached')));
+      cleanup(new Error('Download connection timeout reached'));
     });
   });
 }

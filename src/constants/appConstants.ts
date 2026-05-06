@@ -69,3 +69,11 @@ export const MAJOR_CATEGORIES = [
   { id: 'Territories', name: '海外領・自治領', en: 'Territories', icon: ShieldCheck },
   { id: 'Disputed', name: '係争地域', en: 'Disputed', icon: AlertOctagon }
 ];
+
+export const MAP_STYLES = [
+  { id: 'bright', name: 'Bright', url: 'https://tiles.openfreemap.org/styles/bright', thumb: 'https://picsum.photos/seed/map-bright/100/100' },
+  { id: 'liberty', name: 'Liberty', url: 'https://tiles.openfreemap.org/styles/liberty', thumb: 'https://picsum.photos/seed/map-liberty/100/100' },
+  { id: 'positron', name: 'Light', url: 'https://tiles.openfreemap.org/styles/positron', thumb: 'https://picsum.photos/seed/map-light/100/100' },
+  { id: 'dark', name: 'Dark', url: 'https://tiles.openfreemap.org/styles/dark', thumb: 'https://picsum.photos/seed/map-dark/100/100' },
+  { id: 'satellite', name: 'Satellite', url: 'satellite', thumb: 'https://picsum.photos/seed/satellite-view/100/100' },
+];

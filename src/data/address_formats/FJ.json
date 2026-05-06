@@ -2,23 +2,34 @@
   "countryCode": "FJ",
   "name": "Fiji",
   "native": {
-    "name": "Fiji",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nFiji",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Victoria Parade", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Town", "placeholder": "Suva", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House/Floor No.", "placeholder": "123" },
+      { "key": "street", "label": "Street/PO Box", "placeholder": "Victoria Parade" },
+      { "key": "city", "label": "City/Town", "placeholder": "Suva" }
     ]
   },
+  "domestic": {
+    "fj": {
+      "name": "Vosa Vakaviti",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Kumpani", "placeholder": "" },
+        { "key": "houseNumber", "label": "Namba ni Vale", "placeholder": "123" },
+        { "key": "street", "label": "Gaunisala", "placeholder": "Victoria Parade" },
+        { "key": "city", "label": "Koro/Tauni", "placeholder": "Suva" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nFiji",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\nFIJI",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Smith", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "123 Victoria Parade", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Town", "placeholder": "Suva", "required": true, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": null,

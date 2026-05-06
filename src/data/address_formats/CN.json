@@ -16,17 +16,48 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\nCHINA (P.R.C.)",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Floor/Room", "placeholder": "Building Name, Room 101", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "No.", "placeholder": "No. 1", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Road", "placeholder": "Changan Ave", "required": false, "type": "text" },
-      { "key": "district", "label": "District/County", "placeholder": "Dongcheng District", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Beijing", "required": true, "type": "text" },
-      { "key": "state", "label": "Province/Municipality", "placeholder": "Beijing", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "100000", "required": true, "type": "text" }
+      { "key": "organization", "label": "Org./Bldg (ASCII/Pinyin)", "placeholder": "Bldg 1, Room 101" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "No.123" },
+      { "key": "street", "label": "St./Rd. (Latin/Pinyin)", "placeholder": "Changan Jie" },
+      { "key": "district", "label": "District / Qu (Pinyin)", "placeholder": "Chaoyang Qu" },
+      { "key": "city", "label": "City / Shi (Latin)", "placeholder": "Beijing" },
+      { "key": "state", "label": "Prov. / Sheng (Latin)", "placeholder": "Beijing" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "100000" }
     ]
+  },
+  "international": {
+    "zh-Hans": {
+      "name": "中文简体 (国际/拼音)",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\nCHINA (P.R.C.)",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "单位/楼层 (拼音/Pinyin)", "placeholder": "Dasha 101-shi" },
+        { "key": "houseNumber", "label": "号/弄 (Pinyin)", "placeholder": "123 Hao" },
+        { "key": "street", "label": "路/街 (拼音/Pinyin)", "placeholder": "Changan Jie" },
+        { "key": "district", "label": "区/县 (Pinyin)", "placeholder": "Chaoyang Qu" },
+        { "key": "city", "label": "城市/市 (Pinyin)", "placeholder": "Beijing Shi" },
+        { "key": "state", "label": "省/直辖市 (Pinyin)", "placeholder": "Beijing Shi" },
+        { "key": "postcode", "label": "邮编 (Postcode)", "placeholder": "100000" }
+      ]
+    },
+    "zh-Hant": {
+      "name": "中文繁體 (國際/拼音)",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}, {{city}}\n{{state}} {{postcode}}\nCHINA (P.R.C.)",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "單位/樓層 (拼音/Pinyin)", "placeholder": "Dasha 101-shi" },
+        { "key": "houseNumber", "label": "號/弄 (Pinyin)", "placeholder": "123 Hao" },
+        { "key": "street", "label": "路/街 (拼音/Pinyin)", "placeholder": "Changan Jie" },
+        { "key": "district", "label": "區/縣 (Pinyin)", "placeholder": "Chaoyang Qu" },
+        { "key": "city", "label": "城市/市 (Pinyin)", "placeholder": "Beijing Shi" },
+        { "key": "state", "label": "省/直轄市 (Pinyin)", "placeholder": "Beijing Shi" },
+        { "key": "postcode", "label": "郵編 (Postcode)", "placeholder": "100000" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNNN",

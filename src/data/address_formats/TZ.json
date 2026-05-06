@@ -2,25 +2,36 @@
   "countryCode": "TZ",
   "name": "Tanzania",
   "native": {
-    "name": "Tanzania",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}",
+    "name": "Kiswahili",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Jina Kamili", "placeholder": "Juma Hamisi", "required": true, "type": "text" },
-      { "key": "street", "label": "Anwani ya Mtaa / SLP", "placeholder": "SLP 1234", "required": true, "type": "text" },
-      { "key": "city", "label": "Mji / Mkoa", "placeholder": "Dar es Salaam", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Namba ya Posta", "placeholder": "11101", "required": true, "type": "text" }
+      { "key": "organization", "label": "Kampuni", "placeholder": "" },
+      { "key": "houseNumber", "label": "SLP/Namba ya Nyumba", "placeholder": "SLP 1234" },
+      { "key": "street", "label": "Mtaa", "placeholder": "Mtaa wa Samora" },
+      { "key": "city", "label": "Mji/Mkoa", "placeholder": "Dar es Salaam" },
+      { "key": "postcode", "label": "Namba ya Posta", "placeholder": "11101" }
     ]
   },
+  "domestic": {
+    "en": {
+      "name": "English",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Company", "placeholder": "" },
+        { "key": "houseNumber", "label": "PO Box/House No.", "placeholder": "PO Box 1234" },
+        { "key": "street", "label": "Street", "placeholder": "Samora Ave" },
+        { "key": "city", "label": "City/Region", "placeholder": "Dar es Salaam" },
+        { "key": "postcode", "label": "Postal Code", "placeholder": "11101" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{postcode}}\nTanzania",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\nTANZANIA",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Juma Hamisi", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 1234", "required": true, "type": "text" },
-      { "key": "city", "label": "City / Region", "placeholder": "Dar es Salaam", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "11101", "required": true, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "NNNNN",

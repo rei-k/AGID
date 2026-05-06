@@ -2,29 +2,73 @@
   "countryCode": "ES",
   "name": "Spain",
   "native": {
-    "name": "España",
-    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nEspaña",
+    "name": "Español",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Nombre", "placeholder": "Nombre completo", "required": true, "type": "text" },
-      { "key": "street", "label": "Calle", "placeholder": "Nombre de la calle", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "Número", "placeholder": "Nr", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Código Postal", "placeholder": "28013", "required": true, "type": "text" },
-      { "key": "city", "label": "Localidad", "placeholder": "Madrid", "required": true, "type": "text" },
-      { "key": "state", "label": "Provincia", "placeholder": "Madrid", "required": true, "type": "text" }
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Calle", "placeholder": "Calle Mayor", "required": true },
+      { "key": "houseNumber", "label": "Número", "placeholder": "1", "required": true },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "28013", "required": true },
+      { "key": "city", "label": "Localidad", "placeholder": "Madrid", "required": true },
+      { "key": "state", "label": "Provincia", "placeholder": "Madrid", "required": true }
     ]
   },
+  "domestic": {
+    "ca": {
+      "name": "Català",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa" },
+        { "key": "street", "label": "Carrer", "placeholder": "Carrer de Balmes" },
+        { "key": "houseNumber", "label": "Número", "placeholder": "1" },
+        { "key": "postcode", "label": "Codi Postal", "placeholder": "08001" },
+        { "key": "city", "label": "Localitat", "placeholder": "Barcelona" },
+        { "key": "state", "label": "Província", "placeholder": "Barcelona" }
+      ]
+    },
+    "gl": {
+      "name": "Galego",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa" },
+        { "key": "street", "label": "Rúa", "placeholder": "Rúa Nova" },
+        { "key": "houseNumber", "label": "Número", "placeholder": "1" },
+        { "key": "postcode", "label": "Código Postal", "placeholder": "15701" },
+        { "key": "city", "label": "Localidade", "placeholder": "Santiago" },
+        { "key": "state", "label": "Provincia", "placeholder": "A Coruña" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nSpain",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nSPAIN",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Street name", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "House No", "placeholder": "No", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "28013", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Town", "placeholder": "Madrid", "required": true, "type": "text" },
-      { "key": "state", "label": "Province", "placeholder": "Madrid", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street Address (Latin characters)", "placeholder": "Calle Mayor", "required": true },
+      { "key": "houseNumber", "label": "No./Block", "placeholder": "1", "required": true },
+      { "key": "postcode", "label": "Postcode", "placeholder": "28013", "required": true },
+      { "key": "city", "label": "City/Town", "placeholder": "Madrid", "required": true },
+      { "key": "state", "label": "Province (Code)", "placeholder": "MD", "required": true }
     ]
+  },
+  "international": {
+    "es": {
+      "name": "Español (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nESPAÑA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latín)", "placeholder": "" },
+        { "key": "street", "label": "Calle/Via (Latín)", "placeholder": "Calle Mayor", "required": true },
+        { "key": "houseNumber", "label": "Nº/Bloque", "placeholder": "1", "required": true },
+        { "key": "postcode", "label": "Cod. Postal", "placeholder": "28013", "required": true },
+        { "key": "city", "label": "Localidad", "placeholder": "Madrid", "required": true },
+        { "key": "state", "label": "Provincia (Sigla/Cód)", "placeholder": "MD", "required": true }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNN",

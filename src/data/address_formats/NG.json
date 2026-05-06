@@ -2,29 +2,24 @@
   "countryCode": "NG",
   "name": "Nigeria",
   "native": {
-    "name": "Nigeria",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}} {{postcode}}\n{{state}}",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}\n{{city}} {{postcode}}\n{{state}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Adebayo", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Victoria Island Way", "required": true, "type": "text" },
-      { "key": "district", "label": "District / Area", "placeholder": "Victoria Island", "required": false, "type": "text" },
-      { "key": "city", "label": "City / Town", "placeholder": "Lagos", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "101241", "required": false, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "Lagos State", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Plot/House No.", "placeholder": "123" },
+      { "key": "street", "label": "Street Address", "placeholder": "Victoria Island Way" },
+      { "key": "district", "label": "District/Area", "placeholder": "Victoria Island" },
+      { "key": "city", "label": "City/Town", "placeholder": "Lagos" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "101241" },
+      { "key": "state", "label": "State", "placeholder": "Lagos State" }
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}} {{postcode}}\n{{state}}\nNigeria",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}\n{{city}} {{postcode}}\n{{state}}\nNIGERIA",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Adebayo", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Victoria Island Way", "required": true, "type": "text" },
-      { "key": "district", "label": "District / Area", "placeholder": "Victoria Island", "required": false, "type": "text" },
-      { "key": "city", "label": "City / Town", "placeholder": "Lagos", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "101241", "required": false, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "Lagos State", "required": true, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "NNNNNN",

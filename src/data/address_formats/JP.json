@@ -12,20 +12,21 @@
       { "key": "subdistrict", "label": "町名", "placeholder": "永田町", "required": false, "type": "text" },
       { "key": "street", "label": "番地", "placeholder": "1-1", "required": false, "type": "text" },
       { "key": "houseNumber", "label": "号", "placeholder": "1", "required": false, "type": "text" },
-      { "key": "organization", "label": "建物名・部屋番号", "placeholder": "国会議事堂 101", "required": false, "type": "text" }
+      { "key": "organization", "label": "建物名・部屋番号 (外国語可)", "placeholder": "例: 永田町ビル / Nagata-cho Bldg 101", "required": false, "type": "text" }
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{city}}\n{{state}} {{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{city}}\n{{state}} {{postcode}}\nJAPAN",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Room", "placeholder": "National Diet Building 101", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Block", "placeholder": "1-1", "required": false, "type": "text" },
-      { "key": "subdistrict", "label": "Town/District", "placeholder": "Nagatacho", "required": false, "type": "text" },
-      { "key": "city", "label": "City/Ward", "placeholder": "Chiyoda-ku", "required": true, "type": "text" },
-      { "key": "state", "label": "Prefecture", "placeholder": "Tokyo", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "100-0001", "required": true, "type": "text" }
+      { "key": "organization", "label": "Bldg/Rm (Romaji)", "placeholder": "e.g. Imperial Hotel 501" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "street", "label": "Block/St.", "placeholder": "1-1" },
+      { "key": "subdistrict", "label": "Area/Dist. (Romaji)", "placeholder": "Nagatacho" },
+      { "key": "city", "label": "City/Ward (Romaji)", "placeholder": "Chiyoda-ku" },
+      { "key": "state", "label": "Prefecture", "placeholder": "Tokyo" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "100-0001" }
     ]
   },
   "postalCode": {

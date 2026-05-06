@@ -3,7 +3,7 @@
   "name": "Ivory Coast",
   "native": {
     "name": "Côte d'Ivoire",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nCôte d'Ivoire",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}",
     "ordering": "small-to-big",
     "fields": [
       { "key": "recipient", "label": "Nom Complet", "placeholder": "Koffi Kouadio", "required": true, "type": "text" },
@@ -12,13 +12,26 @@
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nIvory Coast",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\nIVORY COAST",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Koffi Kouadio", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "01 PO Box 1234", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Abidjan", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company/Organization", "placeholder": "" },
+      { "key": "street", "label": "Street Address / PO Box", "placeholder": "01 PO Box 1234" },
+      { "key": "city", "label": "City/Town", "placeholder": "Abidjan" }
     ]
+  },
+  "international": {
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{street}}\n{{city}}\nCÔTE D'IVOIRE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Société/Organisation", "placeholder": "" },
+        { "key": "street", "label": "Adresse / BP", "placeholder": "01 BP 1234" },
+        { "key": "city", "label": "Ville", "placeholder": "Abidjan" }
+      ]
+    }
   },
   "postalCode": {
     "format": null,

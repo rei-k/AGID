@@ -1,6 +1,6 @@
 
 import { RegionalLandmark } from './WestAsiaService';
-import { fetchWithRetry } from '../lib/api-utils';
+import { fetchWithRetry } from '../lib/utils';
 
 export interface PolarContext {
   region: string;

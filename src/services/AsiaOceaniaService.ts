@@ -25,16 +25,19 @@ export async function fetchAsiaOceaniaAddress(lat: number, lon: number, cc: stri
     });
     clearTimeout(timeoutId);
     if (response.ok) {
-      const data = await response.json();
-      return {
-        postcode: data.address.postcode,
-        city: data.address.city || data.address.town || data.address.village || data.address.city_district,
-        street: data.address.road,
-        houseNumber: data.address.house_number,
-        suburb: data.address.suburb || data.address.neighbourhood,
-        state: data.address.state || data.address.province || data.address.region,
-        label: data.display_name
-      };
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        return {
+          postcode: data.address?.postcode,
+          city: data.address?.city || data.address?.town || data.address?.village || data.address?.city_district,
+          street: data.address?.road,
+          houseNumber: data.address?.house_number,
+          suburb: data.address?.suburb || data.address?.neighbourhood,
+          state: data.address?.state || data.address?.province || data.address?.region,
+          label: data.display_name || 'Asia/Oceania Address'
+        };
+      }
     }
     return null;
   } catch (error) {
@@ -51,18 +54,21 @@ export async function fetchJapanPostcode(postcode: string): Promise<any | null> 
   try {
     const response = await fetch(`/api/jp-postcode?zipcode=${postcode}`);
     if (response.ok) {
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        const res = data.results[0];
-        return {
-          address1: res.address1, // Prefecture
-          address2: res.address2, // City/Ward
-          address3: res.address3, // Town
-          kana1: res.kana1,
-          kana2: res.kana2,
-          kana3: res.kana3,
-          label: `${res.address1}${res.address2}${res.address3}`
-        };
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          const res = data.results[0];
+          return {
+            address1: res.address1, // Prefecture
+            address2: res.address2, // City/Ward
+            address3: res.address3, // Town
+            kana1: res.kana1,
+            kana2: res.kana2,
+            kana3: res.kana3,
+            label: `${res.address1}${res.address2}${res.address3}`
+          };
+        }
       }
     }
     return null;

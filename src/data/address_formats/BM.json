@@ -2,27 +2,23 @@
   "countryCode": "BM",
   "name": "Bermuda",
   "native": {
-    "name": "Bermuda",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nBermuda",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{district}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
-      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
-      { "key": "district", "label": "Parish", "placeholder": "e.g. Hamilton", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "AA 00", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+      { "key": "street", "label": "Street", "placeholder": "Front St" },
+      { "key": "suburb", "label": "Locality", "placeholder": "" },
+      { "key": "district", "label": "Parish", "placeholder": "Hamilton" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "HM 11" }
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nBermuda",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{district}}\n{{postcode}}\nBERMUDA",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Recipient", "placeholder": "Full Name", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "House number and street name", "required": true, "type": "text" },
-      { "key": "suburb", "label": "Locality", "placeholder": "", "required": false, "type": "text" },
-      { "key": "district", "label": "Parish", "placeholder": "e.g. Hamilton", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "AA 00", "required": true, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "AA 00",

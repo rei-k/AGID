@@ -542,3 +542,97 @@ export async function fetchSpainCatastroAddress(lat: number, lon: number): Promi
     return null;
   }
 }
+
+/**
+ * Fetches detailed Irish address from GeoHive proxy.
+ */
+export async function fetchIrelandAddress(lat: number, lon: number): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/ie-address?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        postcode: data.address.postcode,
+        city: data.address.city || data.address.town || data.address.city_district,
+        street: data.address.road,
+        houseNumber: data.address.house_number,
+        county: data.address.county,
+        label: data.display_name
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching Irish address:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetches detailed UK address from OSM/Postcode proxy.
+ */
+export async function fetchUKAddress(lat: number, lon: number): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/uk-address?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        postcode: data.address.postcode,
+        city: data.address.city || data.address.town || data.address.village || data.address.suburb,
+        street: data.address.road,
+        houseNumber: data.address.house_number,
+        county: data.address.county || data.address.state,
+        label: data.display_name
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching UK address:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetches detailed Luxembourg address from Geoportail proxy.
+ */
+export async function fetchLuxembourgAddress(lat: number, lon: number): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/lu-address?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        postcode: data.address.postcode,
+        city: data.address.city || data.address.town || data.address.village,
+        street: data.address.road,
+        houseNumber: data.address.house_number,
+        quarter: data.address.suburb,
+        label: data.display_name
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching Luxembourg address:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetches detailed Polish address from GUGiK proxy (Official Poland).
+ */
+export async function fetchPolishAddress(lat: number, lon: number): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/pl-address?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.result) {
+        return {
+          label: data.result,
+          source: 'GUGiK (Poland Official)'
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching Polish address:", error);
+    return null;
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "east_asia": [
+    { "code": "JP", "name": "Japan", "n": 45.6, "s": 20.4, "w": 122.9, "e": 154.0 },
+    { "code": "KR", "name": "South Korea", "n": 38.7, "s": 33.0, "w": 124.0, "e": 131.0 },
+    { "code": "KP", "name": "North Korea", "n": 43.1, "s": 37.6, "w": 124.1, "e": 130.7 },
+    { "code": "CN", "name": "China", "n": 53.6, "s": 18.1, "w": 73.5, "e": 134.8 },
+    { "code": "TW", "name": "Taiwan", "n": 26.4, "s": 21.8, "w": 119.3, "e": 122.1 },
+    { "code": "HK", "name": "Hong Kong", "n": 22.6, "s": 22.1, "w": 113.8, "e": 114.5 },
+    { "code": "MO", "name": "Macau", "n": 22.2, "s": 22.1, "w": 113.5, "e": 113.6 },
+    { "code": "MN", "name": "Mongolia", "n": 52.1, "s": 41.5, "w": 87.7, "e": 119.9 }
+  ],
+  "southeast_asia": [
+    { "code": "VN", "name": "Vietnam", "n": 23.4, "s": 8.5, "w": 102.1, "e": 109.5 },
+    { "code": "TH", "name": "Thailand", "n": 20.5, "s": 5.6, "w": 97.3, "e": 105.7 },
+    { "code": "PH", "name": "Philippines", "n": 21.1, "s": 4.6, "w": 116.9, "e": 126.6 },
+    { "code": "MY", "name": "Malaysia", "n": 7.4, "s": 0.8, "w": 99.6, "e": 119.3 },
+    { "code": "ID", "name": "Indonesia", "n": 6.1, "s": -11.1, "w": 94.9, "e": 141.1 },
+    { "code": "SG", "name": "Singapore", "n": 1.5, "s": 1.1, "w": 103.6, "e": 104.1 },
+    { "code": "MM", "name": "Myanmar", "n": 28.5, "s": 9.6, "w": 92.2, "e": 101.2 },
+    { "code": "KH", "name": "Cambodia", "n": 14.7, "s": 10.4, "w": 102.3, "e": 107.6 },
+    { "code": "LA", "name": "Laos", "n": 22.5, "s": 13.9, "w": 100.1, "e": 107.7 },
+    { "code": "BN", "name": "Brunei", "n": 5.1, "s": 4.0, "w": 114.0, "e": 115.4 },
+    { "code": "TL", "name": "Timor-Leste", "n": -8.1, "s": -9.5, "w": 124.0, "e": 127.3 }
+  ],
+  "south_asia": [
+    { "code": "IN", "name": "India", "n": 35.5, "s": 6.7, "w": 68.1, "e": 97.4 },
+    { "code": "PK", "name": "Pakistan", "n": 37.1, "s": 23.6, "w": 60.8, "e": 77.9 },
+    { "code": "BD", "name": "Bangladesh", "n": 26.7, "s": 20.6, "w": 88.0, "e": 92.7 },
+    { "code": "LK", "name": "Sri Lanka", "n": 9.9, "s": 5.9, "w": 79.5, "e": 81.9 },
+    { "code": "AF", "name": "Afghanistan", "n": 38.5, "s": 29.4, "w": 60.5, "e": 74.9 },
+    { "code": "NP", "name": "Nepal", "n": 30.4, "s": 26.3, "w": 80.1, "e": 88.2 },
+    { "code": "BT", "name": "Bhutan", "n": 28.3, "s": 26.7, "w": 88.7, "e": 92.1 },
+    { "code": "MV", "name": "Maldives", "n": 7.1, "s": -0.7, "w": 72.5, "e": 73.8 }
+  ],
+  "central_asia": [
+    { "code": "KZ", "name": "Kazakhstan", "n": 55.4, "s": 40.5, "w": 46.4, "e": 87.3 },
+    { "code": "UZ", "name": "Uzbekistan", "n": 45.6, "s": 37.1, "w": 55.9, "e": 73.1 },
+    { "code": "KG", "name": "Kyrgyzstan", "n": 43.3, "s": 39.2, "w": 69.2, "e": 80.3 },
+    { "code": "TJ", "name": "Tajikistan", "n": 41.1, "s": 36.6, "w": 67.3, "e": 75.2 },
+    { "code": "TM", "name": "Turkmenistan", "n": 42.8, "s": 35.1, "w": 52.4, "e": 66.7 }
+  ],
+  "middle_east": [
+    { "code": "SA", "name": "Saudi Arabia", "n": 32.2, "s": 16.3, "w": 34.4, "e": 55.7 },
+    { "code": "IR", "name": "Iran", "n": 39.8, "s": 25.0, "w": 44.0, "e": 63.4 },
+    { "code": "IQ", "name": "Iraq", "n": 37.4, "s": 29.1, "w": 38.8, "e": 48.6 },
+    { "code": "TR", "name": "Turkey", "n": 42.2, "s": 35.8, "w": 25.6, "e": 44.9 },
+    { "code": "AE", "name": "UAE", "n": 26.1, "s": 22.6, "w": 51.5, "e": 56.4 },
+    { "code": "IL", "name": "Israel", "n": 33.3, "s": 29.4, "w": 34.2, "e": 35.9 },
+    { "code": "JO", "name": "Jordan", "n": 33.4, "s": 29.2, "w": 34.9, "e": 39.3 },
+    { "code": "LB", "name": "Lebanon", "n": 34.7, "s": 33.1, "w": 35.1, "e": 36.6 },
+    { "code": "SY", "name": "Syria", "n": 37.3, "s": 32.3, "w": 35.6, "e": 42.4 },
+    { "code": "OM", "name": "Oman", "n": 26.4, "s": 16.6, "w": 53.0, "e": 59.8 },
+    { "code": "YE", "name": "Yemen", "n": 19.0, "s": 12.1, "w": 42.5, "e": 54.5 },
+    { "code": "QA", "name": "Qatar", "n": 26.2, "s": 24.5, "w": 50.7, "e": 51.7 },
+    { "code": "KW", "name": "Kuwait", "n": 30.1, "s": 28.5, "w": 46.5, "e": 48.5 },
+    { "code": "BH", "name": "Bahrain", "n": 26.3, "s": 25.8, "w": 50.4, "e": 50.7 }
+  ]
+}

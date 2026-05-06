@@ -2,26 +2,29 @@
   "countryCode": "NZ",
   "name": "New Zealand",
   "native": {
-    "name": "New Zealand",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}} {{postcode}}",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Jane Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Queen St", "required": true, "type": "text" },
-      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central", "required": false, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Auckland", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "1010", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "123" },
+      { "key": "street", "label": "Street", "placeholder": "Queen St" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central" },
+      { "key": "city", "label": "City", "placeholder": "Auckland" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1010" }
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{suburb}}\n{{city}} {{postcode}}\nNew Zealand",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}} {{postcode}}\nNEW ZEALAND",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Jane Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Queen St", "required": true, "type": "text" },
-      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central", "required": false, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Auckland", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "1010", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "123" },
+      { "key": "street", "label": "St./Rd. (Latin)", "placeholder": "Queen St" },
+      { "key": "suburb", "label": "Suburb", "placeholder": "Auckland Central" },
+      { "key": "city", "label": "City", "placeholder": "Auckland" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1010" }
     ]
   },
   "postalCode": {

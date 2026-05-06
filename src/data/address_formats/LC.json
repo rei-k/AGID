@@ -1,0 +1,22 @@
+{
+  "countryCode": "LC",
+  "name": "Saint Lucia",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+      { "key": "street", "label": "Street", "placeholder": "William Peter Blvd" },
+      { "key": "city", "label": "Town/City", "placeholder": "Castries" },
+      { "key": "state", "label": "Quarter", "placeholder": "Castries" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\nSAINT LUCIA",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}

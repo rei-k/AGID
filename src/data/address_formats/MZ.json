@@ -13,14 +13,28 @@
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nMozambique",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}}\n{{postcode}} {{city}}\nMOZAMBIQUE",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "José Eduardo", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 24th July Ave", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "1100", "required": false, "type": "text" },
-      { "key": "city", "label": "City / Province", "placeholder": "Maputo", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Av. 24 de Julho, 123" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1100" },
+      { "key": "city", "label": "City", "placeholder": "Maputo" }
     ]
+  },
+  "international": {
+    "pt": {
+      "name": "Português (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}}\n{{postcode}} {{city}}\nMOÇAMBIQUE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latim)", "placeholder": "" },
+        { "key": "street", "label": "Endereço (Latim)", "placeholder": "Av. 24 de Julho, 123" },
+        { "key": "postcode", "label": "C.P. (Latin)", "placeholder": "1100" },
+        { "key": "city", "label": "Cidade", "placeholder": "Maputo" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNN",

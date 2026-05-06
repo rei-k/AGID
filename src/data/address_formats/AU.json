@@ -2,30 +2,35 @@
   "countryCode": "AU",
   "name": "Australia",
   "native": {
-    "name": "Australia",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}",
+    "name": "English (Australia)",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}} {{state}} {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
-      { "key": "city", "label": "Suburb/City", "placeholder": "Sydney", "required": true, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "NSW", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "2000", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "2" },
+      { "key": "street", "label": "Street", "placeholder": "Opera Quays" },
+      { "key": "suburb", "label": "Suburb/City", "placeholder": "Sydney" },
+      { "key": "state", "label": "State", "placeholder": "NSW" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "2000" }
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}} {{state}} {{postcode}}\nAustralia",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}} {{state}} {{postcode}}\nAUSTRALIA",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 George St", "required": true, "type": "text" },
-      { "key": "city", "label": "Suburb/City", "placeholder": "Sydney", "required": true, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "NSW", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "2000", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "2" },
+      { "key": "street", "label": "St./Rd./Ave. (Latin)", "placeholder": "Opera Quays" },
+      { "key": "suburb", "label": "Suburb/City", "placeholder": "Sydney" },
+      { "key": "state", "label": "State Code", "placeholder": "NSW" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "2000" }
     ]
   },
   "postalCode": {
     "format": "NNNN",
-    "regex": "^\\d{4}$"
+    "regex": "^\\d{4}$",
+    "api": "https://auspost.com.au/postcode",
+    "source": "Australia Post"
   }
 }

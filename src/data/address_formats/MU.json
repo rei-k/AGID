@@ -2,28 +2,40 @@
   "countryCode": "MU",
   "name": "Mauritius",
   "native": {
-    "name": "Maurice",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Nom Complet", "placeholder": "Jean-Pierre", "required": true, "type": "text" },
-      { "key": "street", "label": "Adresse", "placeholder": "123 Rue de la Paix", "required": true, "type": "text" },
-      { "key": "city", "label": "Ville", "placeholder": "Port Louis", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Code Postal", "placeholder": "12345", "required": false, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+      { "key": "street", "label": "Street", "placeholder": "Royal Road" },
+      { "key": "city", "label": "Town/City", "placeholder": "Port Louis" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "12345" }
     ]
   },
+  "domestic": {
+    "fr": {
+      "name": "Français",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Organisation", "placeholder": "" },
+        { "key": "houseNumber", "label": "No. de maison", "placeholder": "1" },
+        { "key": "street", "label": "Rue", "placeholder": "Route Royale" },
+        { "key": "city", "label": "Ville", "placeholder": "Port Louis" },
+        { "key": "postcode", "label": "Code postal", "placeholder": "12345" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\n{{postcode}}\nMauritius",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\nMAURITIUS",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Peace St", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Port Louis", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "12345", "required": false, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "NNNNN",
-    "regex": "^\\d{5}$"
+    "regex": "^\\d{5}$",
+    "source": "Mauritius Post"
   }
 }

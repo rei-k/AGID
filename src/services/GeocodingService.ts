@@ -2,19 +2,19 @@ import Dexie, { Table } from 'dexie';
 import { fetchWestAsiaContext, RegionalLandmark } from './WestAsiaService';
 import { fetchRussiaContext, RussiaContext } from './RussiaService';
 import { fetchCentralAsiaContext, CentralAsiaContext } from './CentralAsiaService';
-import { fetchSouthAsiaContext, SouthAsiaContext } from './SouthAsiaService';
+import { fetchSouthAsiaContext, SouthAsiaContext, fetchIndiaOfficialAddress } from './SouthAsiaService';
 import { fetchUKIrelandContext, UKIrelandContext, fetchUKPostcodeDetails } from './UKIrelandService';
 import { fetchNordicContext, NordicContext, fetchNordicWeather, fetchDanishAddress, fetchNorwegianAddress, fetchFinnishAddress } from './NordicService';
-import { fetchFrenchAddress, fetchDutchAddress, fetchGermanAddress, fetchBelgianAddress, fetchSwissAddress, fetchAustrianAddress, fetchSwedishAddress, fetchEstonianAddress, fetchLatvianAddress, fetchLithuanianAddress, fetchIcelandicAddress, fetchItalianAddress, fetchSpanishAddress, fetchPortugueseAddress, fetchGreekAddress, fetchMalteseAddress, fetchCypriotAddress, fetchMicrostateAddress, fetchEEBalkanAddress, fetchBelgiumBestAddress, fetchCzechRuianAddress, fetchSpainCatastroAddress } from './EuropePostalService';
+import { fetchFrenchAddress, fetchDutchAddress, fetchGermanAddress, fetchBelgianAddress, fetchSwissAddress, fetchAustrianAddress, fetchSwedishAddress, fetchEstonianAddress, fetchLatvianAddress, fetchLithuanianAddress, fetchIcelandicAddress, fetchItalianAddress, fetchSpanishAddress, fetchPortugueseAddress, fetchGreekAddress, fetchMalteseAddress, fetchCypriotAddress, fetchMicrostateAddress, fetchEEBalkanAddress, fetchBelgiumBestAddress, fetchCzechRuianAddress, fetchSpainCatastroAddress, fetchIrelandAddress, fetchLuxembourgAddress, fetchUKAddress, fetchPolishAddress } from './EuropePostalService';
 import { fetchAsiaOceaniaAddress } from './AsiaOceaniaService';
 import { fetchOceaniaContext, OceaniaContext } from './OceaniaService';
-import { fetchEastAsiaContext, EastAsiaContext, fetchKoreaOfficialAddress } from './EastAsiaService';
+import { fetchEastAsiaContext, EastAsiaContext, fetchKoreaOfficialAddress, fetchHKOfficialAddress } from './EastAsiaService';
 import { fetchNorthAmericaContext, NorthAmericaContext, fetchUSCensusData, fetchCanadaOfficialAddress, fetchMexicoOfficialAddress } from './NorthAmericaService';
-import { fetchSouthAmericaContext, SouthAmericaContext, fetchBrazilOfficialAddress, fetchSouthAmericaOfficialAddress } from './SouthAmericaService';
+import { fetchSouthAmericaContext, SouthAmericaContext, fetchBrazilOfficialAddress, fetchSouthAmericaOfficialAddress, fetchBrazilViaCEP } from './SouthAmericaService';
 import { fetchCaribbeanContext, CaribbeanContext, fetchCaribbeanOfficialAddress } from './CaribbeanService';
 import { fetchCentralAmericaContext, CentralAmericaContext, fetchCentralAmericaOfficialAddress } from './CentralAmericaService';
 import { fetchSoutheastAsiaContext, SoutheastAsiaContext, fetchSoutheastAsiaOfficialAddress } from './SoutheastAsiaService';
-import { fetchAfricaContext, AfricaContext, fetchAfricaOfficialAddress } from './AfricaService';
+import { fetchAfricaContext, AfricaContext, fetchAfricaOfficialAddress, fetchSouthAfricaAddress, fetchEgyptAddress } from './AfricaService';
 import { fetchPolarContext, fetchPolarOfficialData, PolarContext } from './PolarService';
 import { fetchNatureContext, NatureContext } from './NatureService';
 import { fetchSeaContext, SeaContext } from './SeaService';
@@ -40,7 +40,7 @@ export interface OSMPlace {
 
 import { calculateMountainClass, calculateConsensusMetrics } from '../lib/agid';
 
-import { fetchGlobalContext, GlobalWeather, LocalTimeInfo } from './GlobalContextService';
+import { fetchGlobalContext, GlobalWeather, LocalTimeInfo, fetchGlobalPostcodeDetails, fetchPlusCode } from './GlobalContextService';
 
 export interface ParsedAddress {
   houseNumber?: string;
@@ -49,6 +49,7 @@ export interface ParsedAddress {
   city?: string;
   state?: string;
   postcode?: string;
+  plus_code?: string | null;
   country?: string;
   poi?: string;
   elevation?: number;
@@ -175,7 +176,7 @@ export function parseAddress(text: string): ParsedAddress {
 
 // --- OSM Data (Overpass API) ---
 
-import { fetchWithRetry } from '../lib/api-utils';
+import { fetchWithRetry } from '../lib/utils';
 
 /**
  * Fetches nearby OSM places using the server-side Overpass proxy.
@@ -459,6 +460,8 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
 
   let results: PromiseSettledResult<any>[] = [];
   let globalContextIdx = -1;
+  let plusCodeIdx = -1;
+  let hkAlsIdx = -1;
 
   try {
     const promises: Promise<any>[] = [
@@ -494,6 +497,8 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
       promises.push(fetchSouthAsiaContext(lat, lon));
     } else if (ukIrelandCountries.includes(cc)) {
       promises.push(fetchUKIrelandContext(lat, lon));
+      if (cc === 'gb') promises.push(fetchUKAddress(lat, lon));
+      else if (cc === 'ie') promises.push(fetchIrelandAddress(lat, lon));
     } else if (nordicCountries.includes(cc)) {
       promises.push(fetchNordicContext(lat, lon));
       promises.push(fetchNordicWeather(lat, lon));
@@ -502,6 +507,12 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
       else if (cc === 'fi') promises.push(fetchFinnishAddress(lat, lon));
     } else if (cc === 'fr') {
       promises.push(fetchFrenchAddress(lat, lon));
+    } else if (cc === 'za') {
+      promises.push(fetchSouthAfricaAddress(lat, lon));
+    } else if (cc === 'eg') {
+      promises.push(fetchEgyptAddress(lat, lon));
+    } else if (cc === 'lu') {
+      promises.push(fetchLuxembourgAddress(lat, lon));
     } else if (cc === 'nl') {
       promises.push(fetchDutchAddress(lat, lon));
     } else if (cc === 'de') {
@@ -542,6 +553,8 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
       promises.push(fetchEEBalkanAddress(lat, lon, cc));
       if (cc === 'cz') {
         promises.push(fetchCzechRuianAddress(lat, lon));
+      } else if (cc === 'pl') {
+        promises.push(fetchPolishAddress(lat, lon));
       }
     } else if (['us', 'ca', 'mx', 'gl'].includes(cc)) {
       promises.push(fetchNorthAmericaContext(lat, lon, cc));
@@ -623,10 +636,22 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
     globalContextIdx = promises.length;
     promises.push(fetchGlobalContext(lat, lon).catch(() => ({ weather: null, time: null })));
 
+    // 10. Global Plus Code (Vital for areas without postal codes)
+    plusCodeIdx = promises.length;
+    promises.push(fetchPlusCode(lat, lon).catch(() => null));
+
+    // 11. Hong Kong ALS (Official Address lookup for HK which has no postcodes)
+    if (cc === 'hk') {
+      hkAlsIdx = promises.length;
+      promises.push(fetchHKOfficialAddress(lat, lon).catch(() => null));
+    }
+
     results = await Promise.allSettled(promises);
 
     const safeJson = async (result: any) => {
       if (result.status !== 'fulfilled' || !result.value || !result.value.ok) return null;
+      const contentType = result.value.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) return null;
       try {
         return await result.value.json();
       } catch (e) {
@@ -671,6 +696,16 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
       const res6 = (results[6] as PromiseFulfilledResult<any>).value;
       if (westAsiaCountries.includes(cc)) {
         westAsiaContext = res6;
+        if (westAsiaContext && westAsiaContext.length > 0) {
+          const mainContext = westAsiaContext[0];
+          if (mainContext.type === "Dubai Makani" || mainContext.type === "Saudi National Address Point") {
+            officialRegionalData = { ...officialRegionalData, ...mainContext.tags };
+            // Inject building number into address if missing
+            if (nominatimData && nominatimData.address && !nominatimData.address.house_number) {
+              nominatimData.address.house_number = mainContext.tags?.['addr:housenumber'] || mainContext.tags?.['addr:building_number'] || mainContext.tags?.['addr:makani'];
+            }
+          }
+        }
       } else if (cc === 'ru') {
         russiaContext = res6;
       } else if (centralAsiaCountries.includes(cc)) {
@@ -679,6 +714,9 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
         southAsiaContext = res6;
       } else if (ukIrelandCountries.includes(cc)) {
         ukIrelandContext = res6;
+        if (results[7] && results[7].status === 'fulfilled') {
+          europeanPostalData = (results[7] as PromiseFulfilledResult<any>).value;
+        }
       } else if (nordicCountries.includes(cc)) {
         nordicContext = res6;
         if (results[7] && results[7].status === 'fulfilled' && nordicContext) {
@@ -695,6 +733,8 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
         } else if (cc === 'es' && results[7] && results[7].status === 'fulfilled') {
           europeanPostalData = { ...europeanPostalData, ...(results[7] as PromiseFulfilledResult<any>).value };
         } else if (cc === 'cz' && results[7] && results[7].status === 'fulfilled') {
+          europeanPostalData = { ...europeanPostalData, ...(results[7] as PromiseFulfilledResult<any>).value };
+        } else if (cc === 'pl' && results[7] && results[7].status === 'fulfilled') {
           europeanPostalData = { ...europeanPostalData, ...(results[7] as PromiseFulfilledResult<any>).value };
         }
       } else if (['us', 'ca', 'mx'].includes(cc)) {
@@ -800,9 +840,32 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
             ukIrelandContext = { landmarks: [], postcodeDetails: ukPcRes };
           }
         }
-        
-        const zRes = await fetch(`/api/postal-code/zippo?cc=${cc}&pc=${pc}`);
-        if (zRes.ok) zippoData = await zRes.json();
+
+        // For Brazil, use ViaCEP for more detailed address
+        if (cc === 'br') {
+          const brPcRes = await fetchBrazilViaCEP(pc);
+          if (brPcRes) {
+            if (officialRegionalData) {
+              officialRegionalData = { ...officialRegionalData, viaCEP: brPcRes };
+            } else {
+              officialRegionalData = { viaCEP: brPcRes };
+            }
+          }
+        }
+
+        // For India, use Pincode API
+        if (cc === 'in') {
+          const inPcRes = await fetchIndiaOfficialAddress(lat, lon, pc);
+          if (inPcRes) {
+            officialRegionalData = inPcRes;
+          }
+        }
+
+        // Fetch Global Enrichment via Zippopotam
+        const globalZippo = await fetchGlobalPostcodeDetails(cc, pc);
+        if (globalZippo) {
+          zippoData = globalZippo;
+        }
       } catch (e) {}
     }
     
@@ -927,6 +990,24 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
       nominatimData.mountain_name = mountainData.peaks[0].name;
     }
 
+    // Prioritize official European address data
+    if (europeanPostalData) {
+      if (europeanPostalData.postcode) nominatimData.address.postcode = europeanPostalData.postcode;
+      if (europeanPostalData.city) nominatimData.address.city = europeanPostalData.city;
+      if (europeanPostalData.street) nominatimData.address.road = europeanPostalData.street;
+      if (europeanPostalData.houseNumber) nominatimData.address.house_number = europeanPostalData.houseNumber;
+      if (europeanPostalData.label) nominatimData.display_name = europeanPostalData.label;
+    }
+
+    // Prioritize official Nordic address data
+    if (nordicContext?.addressDetails) {
+      const ad = nordicContext.addressDetails;
+      if (ad.postcode) nominatimData.address.postcode = ad.postcode;
+      if (ad.city) nominatimData.address.city = ad.city;
+      if (ad.street) nominatimData.address.road = ad.street;
+      if (ad.houseNumber) nominatimData.address.house_number = ad.houseNumber;
+    }
+
     if (geoRiskData) {
       nominatimData.landslide_risk = geoRiskData.risks?.landslide;
       nominatimData.seismic_risk = geoRiskData.risks?.seismic;
@@ -959,6 +1040,21 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
     if (globalContextIdx !== -1 && results[globalContextIdx] && results[globalContextIdx].status === 'fulfilled') {
       nominatimData.global_context = (results[globalContextIdx] as PromiseFulfilledResult<any>).value;
     }
+
+    if (plusCodeIdx !== -1 && results[plusCodeIdx] && results[plusCodeIdx].status === 'fulfilled') {
+      nominatimData.plus_code = (results[plusCodeIdx] as PromiseFulfilledResult<any>).value;
+    }
+
+    if (hkAlsIdx !== -1 && results[hkAlsIdx] && results[hkAlsIdx].status === 'fulfilled') {
+      const hkData = (results[hkAlsIdx] as PromiseFulfilledResult<any>).value;
+      if (hkData) {
+        nominatimData.official_regional_data = { ...nominatimData.official_regional_data, hkALS: hkData };
+        // Improve search labels for countries without postcodes
+        if (!nominatimData.address.suburb && hkData.district) {
+          nominatimData.address.suburb = hkData.district;
+        }
+      }
+    }
     
     return nominatimData;
   }
@@ -971,6 +1067,7 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
     return {
       elevation: elevationData?.elevation,
       delivery_difficulty: deliveryDifficulty,
+      plus_code: (results[plusCodeIdx] && results[plusCodeIdx].status === 'fulfilled') ? (results[plusCodeIdx] as PromiseFulfilledResult<any>).value : null,
       flood_risk: floodRisk,
       mountain_name: mountainData?.peaks?.[0]?.name,
       landslide_risk: geoRiskData?.risks?.landslide,
@@ -1015,6 +1112,7 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
     return {
       elevation: elevationData?.elevation,
       delivery_difficulty: deliveryDifficulty,
+      plus_code: (results[plusCodeIdx] && results[plusCodeIdx].status === 'fulfilled') ? (results[plusCodeIdx] as PromiseFulfilledResult<any>).value : null,
       flood_risk: floodRisk,
       mountain_name: mountainData?.peaks?.[0]?.name,
       landslide_risk: geoRiskData?.risks?.landslide,

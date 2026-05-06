@@ -14,15 +14,30 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\nFRANCE",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Rue de Rivoli", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "75001", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Paris", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Rue de Rivoli" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "75001" },
+      { "key": "city", "label": "City/Town", "placeholder": "Paris" }
     ]
+  },
+  "international": {
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\nFRANCE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Société/Org.", "placeholder": "" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "street", "label": "Rue (Latín)", "placeholder": "Rue de Rivoli" },
+        { "key": "postcode", "label": "Code Postal", "placeholder": "75001" },
+        { "key": "city", "label": "Ville", "placeholder": "Paris" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNN",

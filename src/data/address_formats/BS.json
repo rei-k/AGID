@@ -1,0 +1,22 @@
+{
+  "countryCode": "BS",
+  "name": "Bahamas",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House/P.O. Box", "placeholder": "P.O. Box N-1234" },
+      { "key": "street", "label": "Street", "placeholder": "Bay Street" },
+      { "key": "city", "label": "Town/City", "placeholder": "Nassau" },
+      { "key": "state", "label": "Island", "placeholder": "New Providence" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\nBAHAMAS",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}

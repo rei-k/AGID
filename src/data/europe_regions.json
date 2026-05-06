@@ -1,0 +1,51 @@
+{
+  "western_europe": [
+    { "code": "FR", "name": "France", "n": 51.1, "s": 41.3, "w": -5.1, "e": 9.6 },
+    { "code": "BE", "name": "Belgium", "n": 51.5, "s": 49.5, "w": 2.5, "e": 6.4 },
+    { "code": "NL", "name": "Netherlands", "n": 53.6, "s": 50.7, "w": 3.3, "e": 7.2 },
+    { "code": "LU", "name": "Luxembourg", "n": 50.2, "s": 49.4, "w": 5.7, "e": 6.5 },
+    { "code": "MC", "name": "Monaco", "n": 43.75, "s": 43.72, "w": 7.41, "e": 7.43 }
+  ],
+  "northern_europe": [
+    { "code": "GB", "name": "United Kingdom", "n": 60.9, "s": 49.8, "w": -8.7, "e": 1.8 },
+    { "code": "IE", "name": "Ireland", "n": 55.4, "s": 51.4, "w": -10.5, "e": -6.0 },
+    { "code": "NO", "name": "Norway", "n": 71.2, "s": 57.9, "w": 4.6, "e": 31.1 },
+    { "code": "SE", "name": "Sweden", "n": 69.1, "s": 55.3, "w": 10.9, "e": 24.2 },
+    { "code": "FI", "name": "Finland", "n": 70.1, "s": 59.7, "w": 20.5, "e": 31.6 },
+    { "code": "DK", "name": "Denmark", "n": 57.8, "s": 54.5, "w": 8.0, "e": 15.2 },
+    { "code": "IS", "name": "Iceland", "n": 66.6, "s": 63.3, "w": -24.5, "e": -13.5 },
+    { "code": "AX", "name": "Åland Islands", "n": 60.5, "s": 59.8, "w": 19.3, "e": 21.1 }
+  ],
+  "central_europe": [
+    { "code": "DE", "name": "Germany", "n": 55.1, "s": 47.3, "w": 5.9, "e": 15.0 },
+    { "code": "CH", "name": "Switzerland", "n": 47.8, "s": 45.8, "w": 5.9, "e": 10.5 },
+    { "code": "AT", "name": "Austria", "n": 49.0, "s": 46.4, "w": 9.5, "e": 17.2 },
+    { "code": "PL", "name": "Poland", "n": 54.9, "s": 49.0, "w": 14.1, "e": 24.2 },
+    { "code": "CZ", "name": "Czechia", "n": 51.1, "s": 48.5, "w": 12.1, "e": 18.9 },
+    { "code": "SK", "name": "Slovakia", "n": 49.6, "s": 47.7, "w": 16.8, "e": 22.6 },
+    { "code": "HU", "name": "Hungary", "n": 48.6, "s": 45.7, "w": 16.1, "e": 22.9 },
+    { "code": "LI", "name": "Liechtenstein", "n": 47.3, "s": 47.0, "w": 9.4, "e": 9.6 }
+  ],
+  "southern_europe": [
+    { "code": "IT", "name": "Italy", "n": 47.1, "s": 35.5, "w": 6.6, "e": 18.6 },
+    { "code": "ES", "name": "Spain", "n": 43.8, "s": 35.2, "w": -19.0, "e": 4.4 },
+    { "code": "PT", "name": "Portugal", "n": 42.2, "s": 36.9, "w": -31.3, "e": -6.2 },
+    { "code": "GR", "name": "Greece", "n": 41.8, "s": 34.8, "w": 19.3, "e": 28.3 },
+    { "code": "AL", "name": "Albania", "n": 42.7, "s": 39.6, "w": 19.1, "e": 21.1 },
+    { "code": "RS", "name": "Serbia", "n": 46.2, "s": 41.8, "w": 18.8, "e": 23.0 },
+    { "code": "HR", "name": "Croatia", "n": 46.6, "s": 42.3, "w": 13.4, "e": 19.5 },
+    { "code": "BA", "name": "Bosnia & Herzegovina", "n": 45.3, "s": 42.5, "w": 15.7, "e": 19.6 },
+    { "code": "ME", "name": "Montenegro", "n": 43.6, "s": 41.8, "w": 18.4, "e": 20.4 },
+    { "code": "MT", "name": "Malta", "n": 36.1, "s": 35.8, "w": 14.1, "e": 14.6 },
+    { "code": "AD", "name": "Andorra", "n": 42.6, "s": 42.4, "w": 1.4, "e": 1.7 },
+    { "code": "SM", "name": "San Marino", "n": 43.95, "s": 43.89, "w": 12.4, "e": 12.5 },
+    { "code": "VA", "name": "Vatican City", "n": 41.907, "s": 41.9, "w": 12.447, "e": 12.458 }
+  ],
+  "eastern_europe": [
+    { "code": "UA", "name": "Ukraine", "n": 52.4, "s": 44.4, "w": 22.1, "e": 40.2 },
+    { "code": "BY", "name": "Belarus", "n": 56.2, "s": 51.2, "w": 23.1, "e": 32.8 },
+    { "code": "RO", "name": "Romania", "n": 48.3, "s": 43.6, "w": 20.2, "e": 29.8 },
+    { "code": "BG", "name": "Bulgaria", "n": 44.2, "s": 41.2, "w": 22.3, "e": 28.6 },
+    { "code": "MD", "name": "Moldova", "n": 48.5, "s": 45.4, "w": 26.6, "e": 30.1 }
+  ]
+}

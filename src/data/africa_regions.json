@@ -1,0 +1,60 @@
+{
+  "northern_africa": [
+    { "code": "EG", "name": "Egypt", "n": 31.7, "s": 21.9, "w": 24.6, "e": 36.9 },
+    { "code": "MA", "name": "Morocco", "n": 35.9, "s": 21.3, "w": -17.2, "e": -1.0 },
+    { "code": "DZ", "name": "Algeria", "n": 37.1, "s": 18.9, "w": -8.7, "e": 12.0 },
+    { "code": "LY", "name": "Libya", "n": 33.0, "s": 19.5, "w": 9.4, "e": 25.1 },
+    { "code": "TN", "name": "Tunisia", "n": 37.6, "s": 30.2, "w": 7.5, "e": 11.6 },
+    { "code": "MR", "name": "Mauritania", "n": 27.3, "s": 14.7, "w": -17.1, "e": -4.8 }
+  ],
+  "western_africa": [
+    { "code": "NG", "name": "Nigeria", "n": 13.9, "s": 4.2, "w": 2.6, "e": 14.7 },
+    { "code": "GH", "name": "Ghana", "n": 11.2, "s": 4.7, "w": -3.3, "e": 1.2 },
+    { "code": "CI", "name": "Ivory Coast", "n": 10.8, "s": 4.3, "w": -8.6, "e": -2.4 },
+    { "code": "SN", "name": "Senegal", "n": 16.7, "s": 12.3, "w": -17.6, "e": -11.3 },
+    { "code": "ML", "name": "Mali", "n": 25.0, "s": 10.1, "w": -12.2, "e": 4.3 },
+    { "code": "NE", "name": "Niger", "n": 23.5, "s": 11.7, "w": 0.1, "e": 16.0 },
+    { "code": "BF", "name": "Burkina Faso", "n": 15.1, "s": 9.4, "w": -5.5, "e": 2.4 },
+    { "code": "GM", "name": "Gambia", "n": 13.8, "s": 13.1, "w": -16.9, "e": -13.8 },
+    { "code": "SL", "name": "Sierra Leone", "n": 10.0, "s": 6.9, "w": -13.3, "e": -10.2 },
+    { "code": "GN", "name": "Guinea", "n": 12.7, "s": 7.2, "w": -15.1, "e": -7.6 },
+    { "code": "GW", "name": "Guinea-Bissau", "n": 12.7, "s": 10.9, "w": -16.8, "e": -13.6 },
+    { "code": "LR", "name": "Liberia", "n": 8.6, "s": 4.3, "w": -11.5, "e": -7.3 },
+    { "code": "BJ", "name": "Benin", "n": 12.4, "s": 6.2, "w": 0.7, "e": 3.9 },
+    { "code": "TG", "name": "Togo", "n": 11.2, "s": 6.1, "w": -0.2, "e": 1.9 }
+  ],
+  "eastern_africa": [
+    { "code": "ET", "name": "Ethiopia", "n": 14.9, "s": 3.3, "w": 32.9, "e": 48.0 },
+    { "code": "KE", "name": "Kenya", "n": 5.5, "s": -4.7, "w": 33.9, "e": 41.9 },
+    { "code": "TZ", "name": "Tanzania", "n": -0.9, "s": -11.8, "w": 29.3, "e": 40.5 },
+    { "code": "UG", "name": "Uganda", "n": 4.3, "s": -1.5, "w": 29.5, "e": 35.1 },
+    { "code": "SO", "name": "Somalia", "n": 12.0, "s": -1.7, "w": 40.9, "e": 51.5 },
+    { "code": "RW", "name": "Rwanda", "n": -1.0, "s": -2.9, "w": 28.8, "e": 30.9 },
+    { "code": "BI", "name": "Burundi", "n": -2.3, "s": -4.5, "w": 28.9, "e": 30.9 },
+    { "code": "DJ", "name": "Djibouti", "n": 12.7, "s": 10.9, "w": 41.7, "e": 43.5 },
+    { "code": "ER", "name": "Eritrea", "n": 18.1, "s": 12.3, "w": 36.4, "e": 43.2 },
+    { "code": "MG", "name": "Madagascar", "n": -11.9, "s": -25.7, "w": 43.1, "e": 50.5 },
+    { "code": "MU", "name": "Mauritius", "n": -19.9, "s": -20.6, "w": 57.3, "e": 57.8 },
+    { "code": "SC", "name": "Seychelles", "n": -3.6, "s": -10.3, "w": 46.1, "e": 56.4 }
+  ],
+  "southern_africa": [
+    { "code": "ZA", "name": "South Africa", "n": -22.1, "s": -34.9, "w": 16.4, "e": 32.9 },
+    { "code": "ZW", "name": "Zimbabwe", "n": -15.6, "s": -22.5, "w": 25.2, "e": 33.1 },
+    { "code": "ZM", "name": "Zambia", "n": -8.2, "s": -18.1, "w": 21.9, "e": 33.7 },
+    { "code": "BW", "name": "Botswana", "n": -17.7, "s": -26.9, "w": 19.9, "e": 29.4 },
+    { "code": "NA", "name": "Namibia", "n": -16.9, "s": -29.0, "w": 11.7, "e": 25.3 },
+    { "code": "MZ", "name": "Mozambique", "n": -10.4, "s": -26.9, "w": 30.2, "e": 40.9 },
+    { "code": "LS", "name": "Lesotho", "n": -28.5, "s": -30.7, "w": 27.0, "e": 29.5 },
+    { "code": "SZ", "name": "Eswatini", "n": -25.7, "s": -27.3, "w": 30.7, "e": 32.2 }
+  ],
+  "central_africa": [
+    { "code": "CD", "name": "DR Congo", "n": 5.4, "s": -13.5, "w": 12.2, "e": 31.3 },
+    { "code": "AO", "name": "Angola", "n": -4.4, "s": -18.1, "w": 11.6, "e": 24.1 },
+    { "code": "CM", "name": "Cameroon", "n": 13.1, "s": 1.6, "w": 8.4, "e": 16.2 },
+    { "code": "TD", "name": "Chad", "n": 23.5, "s": 7.4, "w": 13.4, "e": 24.1 },
+    { "code": "CF", "name": "Central African Republic", "n": 11.0, "s": 2.2, "w": 14.4, "e": 27.5 },
+    { "code": "CG", "name": "Congo", "n": 3.7, "s": -5.1, "w": 11.1, "e": 18.7 },
+    { "code": "GA", "name": "Gabon", "n": 2.4, "s": -3.9, "w": 8.4, "e": 14.5 },
+    { "code": "GQ", "name": "Equatorial Guinea", "n": 3.8, "s": 1.0, "w": 8.4, "e": 11.4 }
+  ]
+}

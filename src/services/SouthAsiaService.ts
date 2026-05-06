@@ -77,3 +77,31 @@ export async function fetchSouthAsiaContext(lat: number, lon: number): Promise<S
     return null;
   }
 }
+
+/**
+ * Fetches detailed India address using Postal Pincode API via server proxy.
+ */
+export async function fetchIndiaOfficialAddress(lat: number, lon: number, pincode?: string): Promise<any | null> {
+  if (!pincode) return null;
+  
+  try {
+    const response = await fetch(`/api/in-pincode/${pincode}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data[0] && data[0].PostOffice) {
+        const po = data[0].PostOffice[0];
+        return {
+          label: `${po.Name}, ${po.District}, ${po.State}, India`,
+          postOffice: po.Name,
+          district: po.District,
+          state: po.State,
+          source: 'India Postal Pincode'
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching India official address:", error);
+    return null;
+  }
+}

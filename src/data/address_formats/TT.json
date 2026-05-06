@@ -1,0 +1,22 @@
+{
+  "countryCode": "TT",
+  "name": "Trinidad and Tobago",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "10" },
+      { "key": "street", "label": "Street", "placeholder": "Independence Square" },
+      { "key": "city", "label": "Town/City", "placeholder": "Port of Spain" },
+      { "key": "state", "label": "Parish/County", "placeholder": "Saint George" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\nTRINIDAD AND TOBAGO",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}

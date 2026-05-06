@@ -14,15 +14,30 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\nLIECHTENSTEIN",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Staedtle", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "9490", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Vaduz", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Staedtle" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "9490" },
+      { "key": "city", "label": "City", "placeholder": "Vaduz" }
     ]
+  },
+  "international": {
+    "de": {
+      "name": "Deutsch (International)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nLIECHTENSTEIN",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Firma/Org. (Latein)", "placeholder": "" },
+        { "key": "street", "label": "Strasse (Latein)", "placeholder": "Städtle" },
+        { "key": "houseNumber", "label": "Nr.", "placeholder": "1" },
+        { "key": "postcode", "label": "PLZ", "placeholder": "9490" },
+        { "key": "city", "label": "Stadt", "placeholder": "Vaduz" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNN",

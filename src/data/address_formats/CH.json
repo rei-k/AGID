@@ -13,15 +13,80 @@
       { "key": "city", "label": "Ort", "placeholder": "Zürich", "required": true, "type": "text" }
     ]
   },
+  "domestic": {
+    "fr": {
+      "name": "Français",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Société/Organisation", "placeholder": "" },
+        { "key": "street", "label": "Rue/Avenue", "placeholder": "Rue du Marché" },
+        { "key": "houseNumber", "label": "Numéro", "placeholder": "1" },
+        { "key": "postcode", "label": "Code Postal", "placeholder": "1204" },
+        { "key": "city", "label": "Ville", "placeholder": "Genève" }
+      ]
+    },
+    "it": {
+      "name": "Italiano",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Ditta/Organizzazione", "placeholder": "" },
+        { "key": "street", "label": "Via/Piazza", "placeholder": "Via Nassa" },
+        { "key": "houseNumber", "label": "Numero civico", "placeholder": "1" },
+        { "key": "postcode", "label": "CAP", "placeholder": "6900" },
+        { "key": "city", "label": "Città", "placeholder": "Lugano" }
+      ]
+    }
+  },
+  "international": {
+    "de": {
+      "name": "Deutsch (International)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nSCHWEIZ",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Firma/Org. (Latein)", "placeholder": "" },
+        { "key": "street", "label": "Strasse (Latein)", "placeholder": "Bahnhofstrasse" },
+        { "key": "houseNumber", "label": "Nr.", "placeholder": "1" },
+        { "key": "postcode", "label": "PLZ", "placeholder": "8001" },
+        { "key": "city", "label": "Stadt", "placeholder": "Zürich" }
+      ]
+    },
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nSUISSE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "street", "label": "Rue (Latín)", "placeholder": "Rue du Marché" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "postcode", "label": "Code Postal", "placeholder": "1204" },
+        { "key": "city", "label": "Ville", "placeholder": "Genève" }
+      ]
+    },
+    "it": {
+      "name": "Italiano (Internazionale)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nSVIZZERA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "street", "label": "Via/Piazza (Latín)", "placeholder": "Via Nassa" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "postcode", "label": "CAP", "placeholder": "6900" },
+        { "key": "city", "label": "Città", "placeholder": "Lugano" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{postcode}} {{city}}\nSWITZERLAND",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Bahnhofstrasse", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "8001", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Zurich", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "street", "label": "St./Ave./Rd.", "placeholder": "Bahnhofstrasse" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "8001" },
+      { "key": "city", "label": "City", "placeholder": "Zurich" }
     ]
   },
   "postalCode": {

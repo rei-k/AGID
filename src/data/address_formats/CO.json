@@ -1,0 +1,53 @@
+{
+  "countryCode": "CO",
+  "name": "Colombia",
+  "native": {
+    "name": "Español",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{city}}, {{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Calle/Carrera", "placeholder": "Carrera 7", "required": true },
+      { "key": "houseNumber", "label": "Número", "placeholder": "32-12", "required": true },
+      { "key": "subdistrict", "label": "Barrio", "placeholder": "Centro", "required": true },
+      { "key": "city", "label": "Ciudad", "placeholder": "Bogotá", "required": true },
+      { "key": "state", "label": "Departamento", "placeholder": "Cundinamarca", "required": true },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "110111", "required": true }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{city}}, {{state}}\n{{postcode}}\nCOLOMBIA",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Carrera 7", "required": true },
+      { "key": "houseNumber", "label": "No.", "placeholder": "32-12", "required": true },
+      { "key": "subdistrict", "label": "Neighborhood", "placeholder": "Centro", "required": true },
+      { "key": "city", "label": "City", "placeholder": "Bogota", "required": true },
+      { "key": "state", "label": "Dept. Code", "placeholder": "Cundinamarca", "required": true },
+      { "key": "postcode", "label": "Postcode", "placeholder": "110111", "required": true }
+    ]
+  },
+  "international": {
+    "es": {
+      "name": "Español (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{city}}, {{state}}\n{{postcode}}\nCOLOMBIA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latín)", "placeholder": "" },
+        { "key": "street", "label": "Calle/Via (Latín)", "placeholder": "Carrera 7", "required": true },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "32-12", "required": true },
+        { "key": "subdistrict", "label": "Barrio", "placeholder": "Centro", "required": true },
+        { "key": "city", "label": "Ciudad", "placeholder": "Bogotá", "required": true },
+        { "key": "state", "label": "Dpto. (Sigla)", "placeholder": "Cundinamarca", "required": true },
+        { "key": "postcode", "label": "C.P. (Latin)", "placeholder": "110111", "required": true }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "NNNNNN",
+    "regex": "^\\d{6}$",
+    "source": "ServiEntrega / 4-72"
+  }
+}

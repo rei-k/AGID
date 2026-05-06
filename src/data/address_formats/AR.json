@@ -1,0 +1,50 @@
+{
+  "countryCode": "AR",
+  "name": "Argentina",
+  "native": {
+    "name": "Español",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Calle", "placeholder": "Avenida de Mayo", "required": true },
+      { "key": "houseNumber", "label": "Número", "placeholder": "123", "required": true },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "C1084", "required": true },
+      { "key": "city", "label": "Ciudad", "placeholder": "Buenos Aires", "required": true },
+      { "key": "state", "label": "Provincia", "placeholder": "CAPITAL FEDERAL", "required": true }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nARGENTINA",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "St./Ave. (Latin)", "placeholder": "Av. de Mayo", "required": true },
+      { "key": "houseNumber", "label": "No.", "placeholder": "123", "required": true },
+      { "key": "postcode", "label": "Postcode", "placeholder": "C1084", "required": true },
+      { "key": "city", "label": "City", "placeholder": "Buenos Aires", "required": true },
+      { "key": "state", "label": "Prov. Code", "placeholder": "B", "required": true }
+    ]
+  },
+  "international": {
+    "es": {
+      "name": "Español (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}\nARGENTINA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latín)", "placeholder": "" },
+        { "key": "street", "label": "Calle/Via (Latín)", "placeholder": "Av. de Mayo", "required": true },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "123", "required": true },
+        { "key": "postcode", "label": "C.P. (Latin)", "placeholder": "C1084", "required": true },
+        { "key": "city", "label": "Ciudad", "placeholder": "Buenos Aires", "required": true },
+        { "key": "state", "label": "Prov. (Sigla)", "placeholder": "B", "required": true }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "ANNNNAAA / NNNN",
+    "regex": "^([A-Z]\\d{4}[A-Z]{3}|\\d{4})$",
+    "source": "Correo Argentino"
+  }
+}

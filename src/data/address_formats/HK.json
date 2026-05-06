@@ -2,26 +2,41 @@
   "countryCode": "HK",
   "name": "Hong Kong",
   "native": {
-    "name": "香港",
+    "name": "繁體中文",
     "addressFormat": "{{state}}\n{{city}}\n{{street}} {{houseNumber}}\n{{organization}}",
     "ordering": "big-to-small",
     "fields": [
-      { "key": "state", "label": "地區 (香港/九龍/新界)", "placeholder": "香港島", "required": true, "type": "text" },
-      { "key": "city", "label": "區域", "placeholder": "中環", "required": true, "type": "text" },
-      { "key": "street", "label": "街道", "placeholder": "皇后大道中", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "門牌號碼", "placeholder": "1號", "required": false, "type": "text" },
-      { "key": "organization", "label": "大廈/樓層/單位", "placeholder": "某某大廈 10樓 A室", "required": false, "type": "text" }
+      { "key": "state", "label": "地區", "placeholder": "香港島" },
+      { "key": "city", "label": "區域", "placeholder": "中環" },
+      { "key": "street", "label": "街道", "placeholder": "皇后大道中" },
+      { "key": "houseNumber", "label": "門牌號碼", "placeholder": "1號" },
+      { "key": "organization", "label": "大廈/單位", "placeholder": "某某大廈 10樓 A室" }
     ]
   },
+  "domestic": {
+    "en": {
+      "name": "English",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Building/Floor/Unit", "placeholder": "Bldg A, 10/F" },
+        { "key": "houseNumber", "label": "House/Block No.", "placeholder": "1" },
+        { "key": "street", "label": "Street Address", "placeholder": "Queen's Road Central" },
+        { "key": "city", "label": "District", "placeholder": "Central" },
+        { "key": "state", "label": "Region", "placeholder": "Hong Kong Island" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\nHONG KONG",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Floor/Unit", "placeholder": "Building Name, 10/F, Flat A", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "No.", "placeholder": "1", "required": false, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Queen's Road Central", "required": true, "type": "text" },
-      { "key": "city", "label": "District", "placeholder": "Central", "required": true, "type": "text" },
-      { "key": "state", "label": "Area (HK/KLN/NT)", "placeholder": "Hong Kong Island", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Unit", "placeholder": "Bldg A, 10/F" },
+      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "1" },
+      { "key": "street", "label": "Street Address", "placeholder": "Queen's Road Central" },
+      { "key": "city", "label": "District", "placeholder": "Central" },
+      { "key": "state", "label": "Region", "placeholder": "Hong Kong Island" }
     ]
   },
   "postalCode": {

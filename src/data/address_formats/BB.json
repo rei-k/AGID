@@ -1,0 +1,28 @@
+{
+  "countryCode": "BB",
+  "name": "Barbados",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}\n{{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+      { "key": "street", "label": "Street", "placeholder": "Broad Street" },
+      { "key": "city", "label": "Town", "placeholder": "Bridgetown" },
+      { "key": "state", "label": "Parish", "placeholder": "St. Michael" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "BB11000" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\n{{postcode}}\nBARBADOS",
+    "ordering": "small-to-big",
+    "fields": []
+  },
+  "postalCode": {
+    "format": "BBNNNNN",
+    "regex": "^BB\\d{5}$",
+    "source": "Barbados Postal Service"
+  }
+}

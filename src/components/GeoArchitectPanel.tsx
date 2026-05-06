@@ -119,12 +119,12 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-x-4 bottom-4 top-20 bg-white rounded-3xl shadow-2xl z-[90] overflow-hidden flex flex-col border border-slate-200 lg:left-auto lg:right-4 lg:w-[480px] lg:top-4"
+            className="fixed inset-x-4 bottom-4 top-20 bg-white rounded-none shadow-2xl z-[90] overflow-hidden flex flex-col border border-slate-200 lg:left-auto lg:right-4 lg:w-[480px] lg:top-4"
           >
             {/* Header */}
             <div className="p-6 bg-purple-600 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                <div className="bg-white/20 p-2 rounded-none backdrop-blur-sm">
                   <Globe className="w-6 h-6" />
                 </div>
                 <div>
@@ -134,7 +134,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
               </div>
               <button 
                 onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-2 hover:bg-white/10 rounded-none transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -150,7 +150,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
               ) : proposal && (
                 <>
                   {/* Proposal Summary */}
-                  <div className="bg-purple-50 rounded-2xl border border-purple-100 p-5 space-y-4">
+                  <div className="bg-purple-50 rounded-none border border-purple-100 p-5 space-y-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Sparkles className="w-4 h-4 text-purple-600" />
                       <h3 className="text-xs font-black text-purple-900 uppercase tracking-widest">AI Strategy Proposal</h3>
@@ -195,7 +195,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
                             handleApplyHighlight(opt.id + " in " + currentCountry);
                           }}
                           className={cn(
-                            "px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center gap-2",
+                            "px-3 py-2 rounded-none text-[10px] font-black uppercase tracking-widest transition-all border flex items-center gap-2",
                             selectedHierarchy.includes(opt.id) 
                               ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100" 
                               : "bg-white border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-500"
@@ -215,7 +215,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
                       Postcode Protocol Designer
                     </h3>
                     
-                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-6">
+                    <div className="bg-slate-50 rounded-none p-5 border border-slate-100 space-y-6">
                       <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digit Complexity ({customDigitCount} chars)</label>
                         <input 
@@ -224,16 +224,16 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
                           max="10"
                           value={customDigitCount}
                           onChange={(e) => setCustomDigitCount(parseInt(e.target.value))}
-                          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                          className="w-full h-2 bg-slate-200 rounded-none appearance-none cursor-pointer accent-purple-600"
                         />
                       </div>
 
                       <div className="grid grid-cols-1 gap-3">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Suggested Types</p>
                         {proposal.postcodeTypes.map(type => (
-                          <div key={type} className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                          <div key={type} className="flex items-center justify-between bg-white p-3 rounded-none border border-slate-200">
                              <div className="flex items-center gap-3">
-                               <div className="bg-emerald-50 p-1.5 rounded-lg">
+                               <div className="bg-emerald-50 p-1.5 rounded-none">
                                  <Zap className="w-3.5 h-3.5 text-emerald-600" />
                                </div>
                                <span className="text-xs font-bold text-slate-700">{type}</span>
@@ -254,7 +254,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
             <div className="p-6 border-t border-slate-100 flex gap-3">
               <button 
                 onClick={onClose}
-                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
+                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-none font-black text-xs uppercase tracking-widest transition-all"
               >
                 Draft Only
               </button>
@@ -269,7 +269,7 @@ export const GeoArchitectPanel: React.FC<GeoArchitectPanelProps> = ({
                   }
                   onClose();
                 }}
-                className="flex-[2] py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-purple-100 flex items-center justify-center gap-2"
+                className="flex-[2] py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-none font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-purple-100 flex items-center justify-center gap-2"
               >
                 Deploy Configuration
                 <ChevronRight className="w-4 h-4" />

@@ -276,7 +276,6 @@ export const COUNTRIES: CountryInfo[] = [
   { code: 'AQ', name: 'Antarctica', nativeName: 'Antarctica', region: 'Antarctica', flag: '🇦🇶', type: 'Special' },
 
   // Disputed & Special Territories
-  { code: 'EH', name: 'Western Sahara', nativeName: 'الصحراء الغربية', region: 'Africa', flag: '🇪🇭', type: 'Disputed' },
   { code: 'XK', name: 'Kosovo', nativeName: 'Kosovë', region: 'Europe', flag: '🇽🇰', type: 'Disputed' },
   { code: 'BT_T', name: 'Bir Tawil', nativeName: 'بير طويل', region: 'Africa', flag: '🏳️', type: 'Disputed' },
   { code: 'CRIM', name: 'Crimea', nativeName: 'Крим', region: 'Europe', flag: '🇷🇺/🇺🇦', type: 'Disputed' },

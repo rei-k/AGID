@@ -12,6 +12,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Trust proxy for rate limiting in Cloud Run environment (Setting to 1 for security)
+  app.set('trust proxy', 1);
+
   // REMOVED HELMET FOR COMPATIBILITY TESTING
   
   // Extra Security Headers / Compatibility Headers
@@ -57,6 +60,16 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     console.log('[API] Health check');
     res.json({ status: 'ok' });
+  });
+
+  // AI Data Quality Analysis Route (Stub)
+  app.get('/api/data-quality/report', async (req, res) => {
+    res.json({ 
+      timestamp: Date.now(),
+      report: "Backend AI analysis is disabled. Please trigger this check from the frontend.",
+      stats: qualityStats,
+      continentQuality: continentQuality
+    });
   });
 
   app.get('/api/postal-code/nearest', async (req, res) => {
@@ -109,6 +122,101 @@ async function startServer() {
   const apiCache = new Map<string, { data: any, timestamp: number }>();
   const API_CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
 
+  // Data Quality Stats Tracker
+  interface QualityStats {
+    totalRequests: number;
+    successRequests: number;
+    failRequests: number;
+    avgResponseTime: number;
+    byRegion: Record<string, {
+      success: number;
+      fail: number;
+      avgTime: number;
+    }>;
+  }
+
+  const qualityStats: Record<string, QualityStats> = {
+    elevation: { totalRequests: 0, successRequests: 0, failRequests: 0, avgResponseTime: 0, byRegion: {} },
+    overpass: { totalRequests: 0, successRequests: 0, failRequests: 0, avgResponseTime: 0, byRegion: {} },
+    address: { totalRequests: 0, successRequests: 0, failRequests: 0, avgResponseTime: 0, byRegion: {} }
+  };
+
+  const continentQuality: Record<string, { score: number, lastChecked: number, issues: string[] }> = {};
+
+  async function runGlobalQualitySweep() {
+    console.log('[Quality Monitor] Starting Daily Global Quality Sweep...');
+    const sweepPoints = [
+      { name: 'Europe-West', lat: 48.8566, lon: 2.3522, country: 'FR' }, // Paris
+      { name: 'Europe-Central', lat: 52.5200, lon: 13.4050, country: 'DE' }, // Berlin
+      { name: 'Europe-North', lat: 59.3293, lon: 18.0686, country: 'SE' }, // Stockholm
+      { name: 'Europe-South', lat: 41.9028, lon: 12.4964, country: 'IT' }, // Rome
+      { name: 'Europe-UK', lat: 51.5074, lon: -0.1278, country: 'GB' }, // London
+      { name: 'North America', lat: 40.7128, lon: -74.0060, country: 'US' },
+      { name: 'Asia-East', lat: 35.6762, lon: 139.6503, country: 'JP' },
+      { name: 'Asia-South', lat: 28.6139, lon: 77.2090, country: 'IN' },
+      { name: 'South America', lat: -23.5505, lon: -46.6333, country: 'BR' },
+      { name: 'Africa-North', lat: 30.0444, lon: 31.2357, country: 'EG' }, // Cairo
+      { name: 'Africa-West', lat: 6.5244, lon: 3.3792, country: 'NG' }, // Lagos
+      { name: 'Africa-South', lat: -26.2041, lon: 28.0473, country: 'ZA' }, // Johannesburg
+      { name: 'Oceania', lat: -33.8688, lon: 151.2093, country: 'AU' }
+    ];
+
+    for (const point of sweepPoints) {
+      const issues: string[] = [];
+      let successCount = 0;
+      
+      // Test Elevation
+      try {
+        const start = Date.now();
+        const res = await getElevationData(point.lat, point.lon);
+        if (res) successCount++; else issues.push('Elevation data missing');
+        updateQualityStats('elevation', !!res, Date.now() - start, point.name);
+      } catch (e) {
+        issues.push('Elevation API timeout/error');
+      }
+
+      // Test Address (OSM Reverse Fallback)
+      try {
+        const start = Date.now();
+        const res = await performOsmReverse(point.lat, point.lon, 'en', 18);
+        if (res) successCount++; else issues.push('Address API (OSM) failed');
+        updateQualityStats('address', !!res, Date.now() - start, point.name);
+      } catch (e) {
+        issues.push('Address API timeout/fail');
+      }
+
+      continentQuality[point.name] = {
+        score: Math.round((successCount / 2) * 100),
+        lastChecked: Date.now(),
+        issues
+      };
+    }
+    console.log('[Quality Monitor] Sweep Completed:', continentQuality);
+  }
+
+  // Schedule sweep every 24 hours (and once on startup)
+  setInterval(runGlobalQualitySweep, 1000 * 60 * 60 * 24);
+  setTimeout(runGlobalQualitySweep, 5000); // 5s after boot
+
+  function updateQualityStats(type: string, success: boolean, duration: number, region: string = 'Global') {
+    const stats = qualityStats[type] || { totalRequests: 0, successRequests: 0, failRequests: 0, avgResponseTime: 0, byRegion: {} };
+    stats.totalRequests++;
+    if (success) stats.successRequests++; else stats.failRequests++;
+    
+    // Update moving average
+    stats.avgResponseTime = (stats.avgResponseTime * (stats.totalRequests - 1) + duration) / stats.totalRequests;
+
+    if (!stats.byRegion[region]) {
+      stats.byRegion[region] = { success: 0, fail: 0, avgTime: 0 };
+    }
+    const rStats = stats.byRegion[region];
+    const rTotal = rStats.success + rStats.fail + 1;
+    if (success) rStats.success++; else rStats.fail++;
+    rStats.avgTime = (rStats.avgTime * (rTotal - 1) + duration) / rTotal;
+    
+    qualityStats[type] = stats;
+  }
+
   /**
    * Safe fetch with timeout and error handling for all proxy routes
    */
@@ -121,7 +229,11 @@ async function startServer() {
         ok: true,
         status: 200,
         json: async () => cached.data,
-        headers: new Headers({ 'x-cache': 'HIT' })
+        text: async () => JSON.stringify(cached.data),
+        headers: new Headers({ 
+          'x-cache': 'HIT',
+          'content-type': 'application/json'
+        })
       } as any;
     }
 
@@ -149,6 +261,15 @@ async function startServer() {
       clearTimeout(timeoutId);
       
       const duration = Date.now() - start;
+      
+      // Track quality based on URL pattern
+      let qType = 'other';
+      if (url.includes('elevation') || url.includes('met-no')) qType = 'elevation';
+      else if (url.includes('nominatim') || url.includes('address') || url.includes('zippopotam')) qType = 'address';
+      else if (url.includes('overpass')) qType = 'overpass';
+      
+      updateQualityStats(qType, response.ok, duration);
+
       if (duration > 10000) {
         console.warn(`[API] Slow response (${duration}ms): ${url}`);
       }
@@ -166,8 +287,15 @@ async function startServer() {
     } catch (error) {
       clearTimeout(timeoutId);
       const duration = Date.now() - start;
+      
+      // Reduce log noise for common mirrors as the high-level code handles retries
+      const isMirrorUrl = url.includes('nominatim') || url.includes('overpass') || url.includes('photon');
+      
       if (error instanceof Error && error.name === 'AbortError') {
         console.error(`[API] Timeout after ${duration}ms: ${url}`);
+      } else if (isMirrorUrl) {
+        // Just log a warning for mirrors since we have fallbacks
+        console.warn(`[API] Mirror Fetch Failed (${duration}ms): ${url} - ${error instanceof Error ? error.message : error}`);
       } else {
         console.error(`[API] Fetch Error for ${url}:`, error);
       }
@@ -175,9 +303,131 @@ async function startServer() {
     }
   }
 
+  // --- Nominatim Geocoding Mirrors ---
+  const NOMINATIM_MIRRORS = [
+    'https://nominatim.openstreetmap.org/reverse',      // Official
+    'https://nominatim.qwant.com/reverse',              // Qwant (Privacy-focused/Stable)
+    'https://photon.komoot.io/reverse',                 // Photon (Fallback)
+  ];
+
+  const nominatimBlacklist = new Map<string, number>();
+  const NOMINATIM_BLACKLIST_DURATION = 1000 * 60 * 30; // 30 mins
+  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 60 * 2; // 2 hours for resolution failures
+
+  /**
+   * Robust reverse geocoding using multiple mirrors
+   */
+  async function performOsmReverse(lat: number, lon: number, lang: string = 'en', zoom: number = 18) {
+    const now = Date.now();
+    let mirrors = NOMINATIM_MIRRORS.filter(m => {
+      const until = nominatimBlacklist.get(m);
+      return !until || now > until;
+    });
+
+    if (mirrors.length === 0) {
+      nominatimBlacklist.clear();
+      mirrors = [...NOMINATIM_MIRRORS];
+    }
+
+    // Sort: Official first, then stable regional, then Photon
+    mirrors.sort((a, b) => {
+      const aOfficial = a.includes('openstreetmap.org/reverse');
+      const bOfficial = b.includes('openstreetmap.org/reverse');
+      const aPhoton = a.includes('photon');
+      const bPhoton = b.includes('photon');
+      
+      if (aOfficial && !bOfficial) return -1;
+      if (!aOfficial && bOfficial) return 1;
+      if (aPhoton && !bPhoton) return 1;
+      if (!aPhoton && bPhoton) return -1;
+      return 0;
+    });
+
+    const errors: string[] = [];
+    for (const mirror of mirrors) {
+      try {
+        const isPhoton = mirror.includes('photon');
+        const url = isPhoton 
+          ? `${mirror}?lat=${lat}&lon=${lon}`
+          : `${mirror}?format=json&lat=${lat}&lon=${lon}&addressdetails=1&zoom=${zoom}&accept-language=${lang}`;
+
+        // Add User-Agent as some mirrors require it
+        const res = await safeFetch(url, {
+          headers: { 'User-Agent': 'AGID-Geogrid-Explorer/2.4.0' }
+        }, isPhoton ? 10000 : 12000);
+        
+        const contentType = res.headers.get('content-type') || '';
+        
+        // Accept common JSON/GeoJSON content types
+        if (res.ok && (contentType.includes('json') || contentType.includes('geojson'))) {
+          const text = await res.text();
+          
+          // Verify it's actually JSON and not HTML or plain text error
+          const trimmed = text.trim();
+          if (trimmed.startsWith('<!DOCTYPE html>') || trimmed.startsWith('<html') || !trimmed.startsWith('{')) {
+             nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+             errors.push(`${mirror} (Returned invalid format: ${trimmed.substring(0, 20)}...)`);
+             continue;
+          }
+
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (jsonErr) {
+            nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+            errors.push(`${mirror} (JSON parse error)`);
+            continue;
+          }
+
+          if (isPhoton) {
+            if (data.features?.length > 0) {
+              const feat = data.features[0];
+              const p = feat.properties;
+              return {
+                place_id: Math.floor(Math.random() * 1000000),
+                display_name: p.name ? `${p.name}, ${p.city || ''}, ${p.country || ''}` : (p.city || 'Unknown point'),
+                address: {
+                  road: p.street || p.name,
+                  city: p.city,
+                  state: p.state,
+                  postcode: p.postcode,
+                  country: p.country,
+                  country_code: p.countrycode?.toLowerCase()
+                }
+              };
+            }
+            continue; 
+          }
+          return data;
+        } else {
+          // If not OK or not JSON, blacklist
+          const isRateLimit = res.status === 429;
+          const isServerError = res.status >= 500;
+          const isNotJson = res.ok && !(contentType.includes('json') || contentType.includes('geojson'));
+          
+          if (isRateLimit || isServerError || isNotJson) {
+            nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+          }
+          errors.push(`${mirror} (${res.status}${isNotJson ? ' Non-JSON' : ''})`);
+        }
+      } catch (e: any) {
+        // Blacklist immediately on DNS/Network failure
+        const isDnsError = e.message?.includes('getaddrinfo') || e.message?.includes('ENOTFOUND');
+        nominatimBlacklist.set(mirror, now + (isDnsError ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
+        const msg = e.message || 'Fetch failed';
+        errors.push(`${mirror} [${msg}]`);
+        console.warn(`[API] Mirror Failed: ${mirror} - ${msg}`);
+      }
+    }
+    
+    throw new Error(`All geocoding mirrors failed: ${errors.join(' | ')}`);
+  }
+
   // Elevation Cache (Small in-memory cache)
   const elevationCache = new Map<string, { val: number, timestamp: number }>();
   const ELEVATION_CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+  const elevationMirrorBlacklist = new Map<string, number>();
+  const ELEVATION_BLACKLIST_DURATION = 1000 * 60 * 15; // 15 mins
 
   /**
    * Internal helper for robust elevation lookup with multiple fallbacks
@@ -189,26 +439,50 @@ async function startServer() {
       return { elevation: cached.val, source: 'cache' };
     }
 
+    const now = Date.now();
+
     // Try multiple sources in order of reliability
     const sources = [
       { 
-        name: 'opentopodata-srtm30m', 
-        url: `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`,
-        timeout: 25000 
+        name: 'open-meteo-europe',
+        url: `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`,
+        timeout: 10000,
+        parser: (data: any) => data?.elevation?.[0],
+        regionBias: 'EU'
       },
       { 
-        name: 'open-elevation', 
+        name: 'opentopodata-srtm30m', 
+        url: `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`,
+        timeout: 15000,
+        parser: (data: any) => data?.results?.[0]?.elevation,
+        regionBias: 'Global'
+      },
+      { 
+        name: 'met-no-nordics', 
+        url: `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
+        timeout: 12000,
+        parser: (data: any) => data?.properties?.timeseries?.[0]?.data?.instant?.details?.altitude,
+        regionBias: 'Nordics'
+      },
+      {
+        name: 'open-elevation',
         url: `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`,
-        timeout: 30000 
+        timeout: 5000,
+        parser: (data: any) => data?.results?.[0]?.elevation,
+        regionBias: 'Global-Low-Res'
       }
     ];
 
     for (const source of sources) {
+      // Check blacklist
+      const blacklistUntil = elevationMirrorBlacklist.get(source.name);
+      if (blacklistUntil && now < blacklistUntil) continue;
+
       try {
         const res = await safeFetch(source.url, {}, source.timeout);
         if (res.ok) {
           const data = await res.json();
-          const elev = data?.results?.[0]?.elevation;
+          const elev = source.parser(data);
           if (typeof elev === 'number') {
             elevationCache.set(cacheKey, { val: elev, timestamp: Date.now() });
             // Clean up cache if too large
@@ -218,12 +492,17 @@ async function startServer() {
             }
             return { elevation: elev, source: source.name };
           }
+        } else {
+          // Blacklist on HTTP error
+          elevationMirrorBlacklist.set(source.name, now + ELEVATION_BLACKLIST_DURATION);
         }
       } catch (e: any) {
-        // Silently log only if it's not an abort/timeout to keep logs clean
+        // Blacklist on timeout/network error
+        elevationMirrorBlacklist.set(source.name, now + ELEVATION_BLACKLIST_DURATION);
+        
         const isAbort = e instanceof Error && (e.name === 'AbortError' || e.message?.includes('aborted'));
         if (!isAbort) {
-          console.warn(`[Elevation Proxy] Source ${source.name} failed:`, e.message || e);
+          console.warn(`[Elevation Proxy] Source ${source.name} failed (blacklisted for 15m):`, e.message || e);
         }
       }
     }
@@ -255,15 +534,15 @@ async function startServer() {
   // --- Overpass API Proxy with Mirror Support ---
   const OVERPASS_MIRRORS = [
     'https://overpass.osm.ch/api/interpreter',          // Switzerland (Highly Reliable)
+    'https://overpass.osm.viarezo.fr/api/interpreter',  // France (Stable)
     'https://overpass.kumi.systems/api/interpreter',    // Kumi (Global)
     'https://overpass.private.coffee/api/interpreter',  // Coffee (German)
-    'https://overpass-api.de/api/interpreter',          // Germany (Main - Demoted due to recent instability)
+    'https://overpass-api.de/api/interpreter',          // Germany (Main)
     'https://overpass.osm.ie/api/interpreter',          // Ireland
     'https://overpass.osmosur.org/api/interpreter',     // South America
     'https://overpass.be/api/interpreter',              // Belgium
     'https://overpass.nchc.org.tw/api/interpreter',     // Taiwan
     'https://overpass.smartmaps.by/api/interpreter',    // Belarus
-    // Removed failing/unstable: lz4, z, openstreetmap.fr, hotosm.org
   ];
 
   const mirrorBlacklist = new Map<string, number>();
@@ -291,39 +570,31 @@ async function startServer() {
     });
 
     if (mirrorsToTry.length < 3) {
-      console.warn('[Overpass Proxy] Critical: Mirror pool exhausted. Refreshing.');
       mirrorBlacklist.clear();
       mirrorsToTry = [...OVERPASS_MIRRORS];
     }
 
     // Dynamic prioritization
     mirrorsToTry.sort((a, b) => {
-      // Tier 1: Swiss (Highly Reliable)
-      const t1 = ['osm.ch'];
+      // Tier 1: Swiss & France (Highly Reliable)
+      const t1 = ['osm.ch', 'viarezo.fr'];
       const aT1 = t1.some(p => a.includes(p));
       const bT1 = t1.some(p => b.includes(p));
       if (aT1 && !bT1) return -1;
       if (!aT1 && bT1) return 1;
 
-      // Tier 2: Private Coffee (Usually stable)
-      const t2 = ['private.coffee'];
+      // Tier 2: Kumi & Private Coffee
+      const t2 = ['kumi.systems', 'private.coffee'];
       const aT2 = t2.some(p => a.includes(p));
       const bT2 = t2.some(p => b.includes(p));
       if (aT2 && !bT2) return -1;
       if (!aT2 && bT2) return 1;
 
-      // Tier 3: Main DE and Kumi (Global fallbacks)
-      const t3 = ['overpass-api.de', 'kumi.systems'];
-      const aT3 = t3.some(p => a.includes(p));
-      const bT3 = t3.some(p => b.includes(p));
-      if (aT3 && !bT3) return -1;
-      if (!aT3 && bT3) return 1;
-      
       return Math.random() - 0.5;
     });
 
     const errors: string[] = [];
-    const maxAttempts = Math.min(mirrorsToTry.length, 12);
+    const maxAttempts = Math.min(mirrorsToTry.length, 6); // Reduced from 12 to 6 to prevent frontend timeouts
     
     for (let i = 0; i < maxAttempts; i++) {
       const mirror = mirrorsToTry[i];
@@ -331,8 +602,8 @@ async function startServer() {
         console.log(`[Overpass Proxy] Attempt ${i + 1}/${maxAttempts} @ ${mirror}`);
         
         const controller = new AbortController();
-        // Give reliable mirrors enough time but failover if they are totally unresponsive
-        const timeoutDuration = i < 3 ? 50000 : 85000;
+        // Individual mirror timeout reduced to failover faster
+        const timeoutDuration = i < 2 ? 30000 : 15000; 
         const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
         const response = await fetch(mirror, {
@@ -340,7 +611,7 @@ async function startServer() {
           body: new URLSearchParams({ data: query }).toString(),
           headers: { 
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 AGID/2.6'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 AGID/2.7'
           },
           signal: controller.signal
         });
@@ -361,34 +632,29 @@ async function startServer() {
             overpassCache.set(cacheKey, { data, timestamp: Date.now() });
             return data;
           } catch (jsonErr) {
-            console.error(`[Overpass Proxy] Invalid JSON from ${mirror}. Snippet: ${text.substring(0, 100)}`);
             throw new Error('Invalid JSON');
           }
         }
         
         if (response.status === 429) {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_RATE_LIMIT);
-          errors.push(`${mirror}: 429 Rate Limit`);
         } else if (response.status === 406) {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_406);
-          errors.push(`${mirror}: 406 Not Acceptable`);
         } else {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_ERROR);
-          errors.push(`${mirror}: HTTP ${response.status}`);
         }
+        errors.push(`${mirror}: HTTP ${response.status}`);
       } catch (e: any) {
-        const isTimeout = e.name === 'AbortError' || e.code === 'UND_ERR_CONNECT_TIMEOUT' || (e.message && e.message.includes('Timeout'));
-        const isDNS = e.code === 'ENOTFOUND' || e.code === 'EAI_AGAIN' || (e.message && e.message.includes('getaddrinfo'));
-        const errorDetail = isTimeout ? 'Timeout' : (isDNS ? 'DNS/Connection Failure' : e.message);
+        const isTimeout = e.name === 'AbortError' || e.code === 'UND_ERR_CONNECT_TIMEOUT';
+        const isDNS = e.code === 'ENOTFOUND' || e.code === 'EAI_AGAIN';
+        const errorDetail = isTimeout ? 'Timeout' : (isDNS ? 'DNS Failure' : e.message);
         
-        console.error(`[Overpass Proxy] Mirror Connection Error: ${mirror} - ${errorDetail}`);
-        const blacklistDuration = isDNS ? BLACKLIST_DURATION_DNS : (isTimeout ? BLACKLIST_DURATION_TIMEOUT : BLACKLIST_DURATION_ERROR);
-        mirrorBlacklist.set(mirror, Date.now() + blacklistDuration);
+        mirrorBlacklist.set(mirror, Date.now() + (isDNS ? BLACKLIST_DURATION_DNS : (isTimeout ? BLACKLIST_DURATION_TIMEOUT : BLACKLIST_DURATION_ERROR)));
         errors.push(`${mirror}: ${errorDetail}`);
       }
     }
 
-    throw new Error(`Overpass service unavailable (tried ${maxAttempts} mirrors): ${errors.join(' | ')}`);
+    throw new Error(`Overpass service unavailable: ${errors.join(' | ')}`);
   }
 
   /**
@@ -442,18 +708,20 @@ async function startServer() {
       // 3. Fallback: Nominatim reverse with zoom to find water body names
       async () => {
         console.log('[Marine Proxy] Falling back to Nominatim for sea name');
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=5&addressdetails=1`;
-        const response = await safeFetch(url, {}, 10000);
-        if (response.ok) {
-          const data = await response.json();
-          const addr = data.address || {};
-          const seaName = addr.sea || addr.ocean || addr.bay || addr.gulf || addr.strait || addr.water;
-          if (seaName) {
-            return [{
-              preferredGazetteerName: seaName,
-              placeType: addr.ocean ? 'Ocean' : 'Sea'
-            }];
+        try {
+          const data = await performOsmReverse(lat, lon, 'en', 5);
+          if (data) {
+            const addr = data.address || {};
+            const seaName = addr.sea || addr.ocean || addr.bay || addr.gulf || addr.strait || addr.water;
+            if (seaName) {
+              return [{
+                preferredGazetteerName: seaName,
+                placeType: addr.ocean ? 'Ocean' : 'Sea'
+              }];
+            }
           }
+        } catch (err) {
+          console.warn('[Marine Proxy] Nominatim fallback failed:', err);
         }
         throw new Error('Nominatim sea fallback failed');
       }
@@ -544,6 +812,109 @@ async function startServer() {
     } catch (error) {
       console.error('GEBCO Proxy Error:', error);
       res.status(500).send('GEBCO Proxy Internal Error');
+    }
+  });
+
+  // Brazil ViaCEP Proxy (Free, No Key)
+  app.get('/api/br-viacep/:cep', async (req, res) => {
+    const { cep } = req.params;
+    try {
+      const response = await safeFetch(`https://viacep.com.br/ws/${cep}/json/`);
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'CEP not found' });
+    } catch (error) {
+      console.error('ViaCEP API Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // India Postal Pincode Proxy (Free, No Key)
+  app.get('/api/in-pincode/:pincode', async (req, res) => {
+    const { pincode } = req.params;
+    try {
+      const response = await safeFetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'Pincode not found' });
+    } catch (error) {
+      console.error('Pincode API Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Zippopotam.us Proxy (Free, No Key)
+  app.get('/api/zippopotam/:country/:postcode', async (req, res) => {
+    const { country, postcode } = req.params;
+    try {
+      const response = await safeFetch(`https://api.zippopotam.us/${country}/${postcode}`);
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'Postcode not found' });
+    } catch (error) {
+      console.error('Zippopotam API Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Hong Kong OGCIO Address Lookup Service (Free, Public)
+  // Essential for HK which has no postal codes
+  app.get('/api/hk-als/lookup', async (req, res) => {
+    const { q, lat, lon } = req.query;
+    try {
+      let url = 'https://www.als.ogcio.gov.hk/lookup';
+      if (q) {
+        url += `?q=${encodeURIComponent(q as string)}`;
+      } else if (lat && lon) {
+        url += `?lat=${lat}&long=${lon}`;
+      } else {
+        return res.status(400).json({ error: 'Missing q or lat/lon' });
+      }
+
+      const response = await safeFetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'HK ALS lookup failed' });
+    } catch (error) {
+      console.error('HK ALS Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Global Plus Code (Open Location Code) API
+  // Universal addressing system for countries without postal codes
+  app.get('/api/plusmode/:action', async (req, res) => {
+    const { action } = req.params;
+    const { lat, lon, code } = req.query;
+    
+    try {
+      const { OpenLocationCode } = await import('open-location-code');
+      const olc = new OpenLocationCode();
+
+      if (action === 'encode') {
+        if (!lat || !lon) return res.status(400).json({ error: 'Missing lat/lon' });
+        const plusCode = olc.encode(parseFloat(lat as string), parseFloat(lon as string));
+        return res.json({ plusCode });
+      } else if (action === 'decode') {
+        if (!code) return res.status(400).json({ error: 'Missing code' });
+        const area = olc.decode(code as string);
+        return res.json(area);
+      }
+      res.status(404).json({ error: 'Action not found' });
+    } catch (error) {
+      console.error('PlusCode API Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -702,14 +1073,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=de`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'German address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'de', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'German address not found' });
     }
   });
 
@@ -718,14 +1085,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=nl,fr,de`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Belgian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'nl,fr,de', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Belgian address not found' });
     }
   });
 
@@ -750,14 +1113,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=de-AT`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Austrian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'de-AT', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Austrian address not found' });
     }
   });
 
@@ -766,14 +1125,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=sv`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Swedish address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'sv', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Swedish address not found' });
     }
   });
 
@@ -782,14 +1137,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=et`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Estonian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'et', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Estonian address not found' });
     }
   });
 
@@ -798,14 +1149,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=lv`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Latvian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'lv', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Latvian address not found' });
     }
   });
 
@@ -814,14 +1161,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=lt`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Lithuanian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'lt', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Lithuanian address not found' });
     }
   });
 
@@ -830,14 +1173,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=is`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Icelandic address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'is', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Icelandic address not found' });
     }
   });
 
@@ -846,30 +1185,34 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=it`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Italian address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'it', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Italian address not found' });
     }
   });
 
-  // Spain Proxy
+  // Spain CartoCiudad API Proxy (Free, Open Data - Instituto Geográfico Nacional)
   app.get('/api/es-address', async (req, res) => {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      return res.status(400).json({ error: 'Invalid coordinates' });
+    }
+
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=es`);
+      const response = await safeFetch(`https://www.cartociudad.es/CartoCiudad-webservices/api/reverGeocoding/getAddres?lat=${lat}&lon=${lon}`);
       if (response.ok) {
         const data = await response.json();
         return res.json(data);
       }
-      res.status(response.status).json({ error: 'Spanish address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      // Fallback
+      const data = await performOsmReverse(lat, lon, 'es', 18);
+      return res.json(data);
+    } catch (error: any) {
+      console.error('Spain CartoCiudad API Error:', error);
+      res.status(502).json({ error: error.message || 'Spanish address not found' });
     }
   });
 
@@ -878,14 +1221,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=pt`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Portuguese address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'pt', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Portuguese address not found' });
     }
   });
 
@@ -894,14 +1233,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=el`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Greek address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'el', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Greek address not found' });
     }
   });
 
@@ -910,14 +1245,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=mt,en`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Maltese address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'mt,en', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Maltese address not found' });
     }
   });
 
@@ -926,14 +1257,10 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=el,tr,en`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Cypriot address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, 'el,tr,en', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Cypriot address not found' });
     }
   });
 
@@ -948,14 +1275,10 @@ async function startServer() {
     if (cc === 'ad') lang = 'ca,es,fr';
 
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=${lang}`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Microstate address not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, lang, 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Microstate address not found' });
     }
   });
 
@@ -991,14 +1314,117 @@ async function startServer() {
     }
 
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=${lang}`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: `Address not found for ${cc}` });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmReverse(lat, lon, lang, 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || `Address not found for ${cc}` });
+    }
+  });
+
+  // UK Ordnance Survey / Postcode Focused Proxy
+  app.get('/api/uk-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+    if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+
+    try {
+      const data = await performOsmReverse(lat, lon, 'en-GB', 18);
+      res.json(data);
+    } catch (error: any) {
+      console.error('UK API Error:', error);
+      res.status(502).json({ error: error.message || 'UK address not found' });
+    }
+  });
+
+  // Germany BKG-style Proxy (Bund - Open Data focus)
+  app.get('/api/de-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+    if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+
+    try {
+      const data = await performOsmReverse(lat, lon, 'de', 18);
+      res.json(data);
+    } catch (error: any) {
+      console.error('Germany API Error:', error);
+      res.status(502).json({ error: error.message || 'German address not found' });
+    }
+  });
+
+  // Italy ISTAT Region Focused Proxy
+  app.get('/api/it-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+    if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+
+    try {
+      const data = await performOsmReverse(lat, lon, 'it', 18);
+      res.json(data);
+    } catch (error: any) {
+      console.error('Italy API Error:', error);
+      res.status(502).json({ error: error.message || 'Italian address not found' });
+    }
+  });
+
+  // Ireland GeoHive API Proxy (OSi - Ordnance Survey Ireland)
+  app.get('/api/ie-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      return res.status(400).json({ error: 'Invalid coordinates' });
+    }
+
+    try {
+      const data = await performOsmReverse(lat, lon, 'en,ga', 18);
+      res.json(data);
+    } catch (error: any) {
+      console.error('Ireland API Error:', error);
+      res.status(502).json({ error: error.message || 'Irish address not found' });
+    }
+  });
+
+  // Luxembourg Geoportail API Proxy
+  app.get('/api/lu-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      return res.status(400).json({ error: 'Invalid coordinates' });
+    }
+
+    try {
+      const data = await performOsmReverse(lat, lon, 'lb,fr,de', 18);
+      res.json(data);
+    } catch (error: any) {
+      console.error('Luxembourg API Error:', error);
+      res.status(502).json({ error: error.message || 'Luxembourg address not found' });
+    }
+  });
+
+  // South Africa Address Proxy (OSM Focus)
+  app.get('/api/za-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+    if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+    try {
+      const data = await performOsmReverse(lat, lon, 'en,af,zu,xh', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'South African address not found' });
+    }
+  });
+
+  // Egypt Address Proxy (Multilingual Arabic/English)
+  app.get('/api/eg-address', async (req, res) => {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+    if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+    try {
+      const data = await performOsmReverse(lat, lon, 'ar,en', 18);
+      res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Egyptian address not found' });
     }
   });
 
@@ -1041,18 +1467,16 @@ async function startServer() {
   app.get('/api/nominatim/reverse', async (req, res) => {
     const { lat, lon, zoom, addressdetails, lang } = req.query;
     try {
-      // Prefer target lang, fallback to English then local
-      const acceptLang = lang ? `${lang},en;q=0.9` : 'en';
-      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=${zoom || 18}&addressdetails=${addressdetails || 1}&accept-language=${acceptLang}`;
-      const response = await safeFetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Nominatim reverse geocode failed' });
-    } catch (error) {
+      const l = parseFloat(lat as string);
+      const n = parseFloat(lon as string);
+      const z = zoom ? parseInt(zoom as string) : 18;
+      const ln = lang ? (lang as string) : 'en';
+
+      const data = await performOsmReverse(l, n, ln, z);
+      res.json(data);
+    } catch (error: any) {
       console.error('[API] Nominatim Reverse Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Nominatim reverse geocode failed' });
     }
   });
 
@@ -1242,6 +1666,77 @@ async function startServer() {
     }
   });
 
+  // --- Nominatim Search Mirrors ---
+  const NOMINATIM_SEARCH_MIRRORS = [
+    'https://nominatim.openstreetmap.org/search',
+    'https://nominatim.qwant.com/search',
+  ];
+
+  /**
+   * Robust search using multiple mirrors
+   */
+  async function performOsmSearch(q: string, options: any = {}) {
+    const now = Date.now();
+    const mirrors = NOMINATIM_SEARCH_MIRRORS.filter(m => {
+      const until = nominatimBlacklist.get(m);
+      return !until || now > until;
+    });
+
+    const { limit, addressdetails, polygon_geojson, country, countrycodes, viewbox, bounded, accept_language } = options;
+    
+    const params = new URLSearchParams();
+    params.append('format', 'json');
+    params.append('q', q);
+    if (limit) params.append('limit', limit.toString());
+    if (addressdetails) params.append('addressdetails', addressdetails.toString());
+    if (polygon_geojson) params.append('polygon_geojson', polygon_geojson.toString());
+    if (country) params.append('country', country.toString());
+    if (countrycodes) params.append('countrycodes', countrycodes.toString());
+    if (viewbox) params.append('viewbox', viewbox.toString());
+    if (bounded) params.append('bounded', bounded.toString());
+    if (accept_language) params.append('accept-language', accept_language.toString());
+
+    const errors: string[] = [];
+    const mirrorsToTry = mirrors.length > 0 ? mirrors : [...NOMINATIM_SEARCH_MIRRORS];
+
+    for (const mirror of mirrorsToTry) {
+      try {
+        const url = `${mirror}?${params.toString()}`;
+        const res = await safeFetch(url, {
+          headers: { 'User-Agent': 'AGID-Geogrid-Explorer/2.4.0' }
+        }, 15000);
+        
+        const contentType = res.headers.get('content-type') || '';
+        
+        if (res.ok && contentType.includes('json')) {
+          const text = await res.text();
+          const trimmed = text.trim();
+          if (trimmed.startsWith('<!DOCTYPE html>') || trimmed.startsWith('<html') || !trimmed.startsWith('[')) {
+            nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+            continue;
+          }
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+            continue;
+          }
+        } else {
+          if (res.status === 429 || res.status >= 500) {
+            nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
+          }
+          errors.push(`${mirror} (${res.status})`);
+        }
+      } catch (e: any) {
+        const isDns = e.message?.includes('getaddrinfo') || e.message?.includes('ENOTFOUND');
+        nominatimBlacklist.set(mirror, now + (isDns ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
+        errors.push(`${mirror} [${e.message || 'Error'}]`);
+      }
+    }
+    
+    throw new Error(`All search mirrors failed: ${errors.join(' | ')}`);
+  }
+
   // Spain Catastro Proxy
   app.get('/api/es-catastro-address', async (req, res) => {
     const lat = parseFloat(req.query.lat as string);
@@ -1264,14 +1759,10 @@ async function startServer() {
   app.get('/api/cn-postcode', async (req, res) => {
     const pc = req.query.pc as string;
     try {
-      const response = await safeFetch(`https://nominatim.openstreetmap.org/search?postalcode=${pc}&countrycodes=cn&format=json&addressdetails=1&accept-language=zh`);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'China postcode not found' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      const data = await performOsmSearch('', { postalcode: pc, countrycodes: 'cn', addressdetails: 1, accept_language: 'zh' });
+      return res.json(data);
+    } catch (error: any) {
+      res.status(502).json({ error: error.message || 'Geocoding failed' });
     }
   });
 
@@ -1330,99 +1821,12 @@ async function startServer() {
     }
 
     try {
-      // EAST ASIA SPECIALIZED FALLBACKS
-      if (['jp', 'kr', 'tw', 'hk', 'mo', 'cn'].includes(cc)) {
-        try {
-          console.log(`[Proxy Fallback] Using Photon/Komoot as fallback for ${cc}...`);
-          const photonUrl = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
-          const pRes = await safeFetch(photonUrl, {}, 10000);
-          if (pRes.ok) {
-            const pData = await pRes.json();
-            if (pData.features?.length > 0) {
-              const feat = pData.features[0];
-              const p = feat.properties;
-              // Map Photon to Nominatim-like structure
-              const mapped = {
-                place_id: Math.floor(Math.random() * 1000000),
-                licence: "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
-                osm_type: "node",
-                osm_id: 0,
-                lat: lat.toString(),
-                lon: lon.toString(),
-                display_name: p.name ? `${p.name}, ${p.city || ''}, ${p.state || ''}, ${p.country || ''}` : p.city,
-                address: {
-                  road: p.street || p.name,
-                  city: p.city,
-                  state: p.state,
-                  postcode: p.postcode,
-                  country: p.country,
-                  country_code: p.countrycode?.toLowerCase()
-                }
-              };
-              setRegionalCache(cacheKey, mapped);
-              return res.json(mapped);
-            }
-          }
-        } catch (e) {
-          console.error(`[Proxy Fallback] Photon fallback failed for ${cc}:`, e);
-        }
-      }
-
-      // Increased timeout slightly for Nominatim and added retry
-      const fetchWithRetry = async (retries = 3): Promise<any> => {
-        try {
-          const response = await safeFetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=${lang}`, {}, 20000);
-          if (response.ok) {
-            const contentType = response.headers.get('content-type');
-            if (contentType?.includes('application/json')) {
-              return await response.json();
-            }
-            throw new Error(`Nominatim returned non-JSON: ${contentType}`);
-          }
-          
-          if (response.status === 429) {
-             console.warn(`[API] Nominatim Rate Limited (429) for ${cc}. Attempting long backoff...`);
-             await new Promise(r => setTimeout(r, 3000 + Math.random() * 2000));
-          }
-
-          if (retries > 0) {
-            console.log(`[API] Nominatim retry ${4 - retries} for ${cc}...`);
-            return fetchWithRetry(retries - 1);
-          }
-          
-          // Emergency fallback to secondary Photon mirror if primary failed
-          console.log(`[Proxy Fallback] Nominatim failed, trying secondary Photon mirror for ${cc}...`);
-          const photonUrl = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
-          const pRes = await safeFetch(photonUrl, {}, 12000);
-          if (pRes.ok) {
-             const pData = await pRes.json();
-             if (pData.features?.length > 0) {
-               const feat = pData.features[0];
-               const p = feat.properties;
-               return {
-                 place_id: 0,
-                 display_name: p.name ? `${p.name}, ${p.city || ''}, ${p.country || ''}` : p.city,
-                 address: { city: p.city, country: p.country, country_code: p.countrycode?.toLowerCase() }
-               };
-             }
-          }
-
-          throw new Error(`Nominatim failed with status: ${response.status}`);
-        } catch (e) {
-          if (retries > 0) {
-             await new Promise(r => setTimeout(r, 1000));
-             return fetchWithRetry(retries - 1);
-          }
-          throw e;
-        }
-      };
-
-      const data = await fetchWithRetry();
+      const data = await performOsmReverse(lat, lon, lang);
       setRegionalCache(cacheKey, data);
       return res.json(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`[API] Asia/Oceania Proxy Error (${cc}):`, error);
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Geocoding failed' });
     }
   });
 
@@ -1673,16 +2077,31 @@ async function startServer() {
     if (cached) return res.json(cached);
 
     try {
-      const response = await safeFetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=${lon}&y=${lat}`, {}, 15000);
+      const response = await safeFetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=${lon}&y=${lat}`, {}, 25000);
+      
       if (response.ok) {
         const data = await response.json();
         setRegionalCache(cacheKey, data);
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
         return res.json(data);
       }
-      res.status(response.status).json({ error: 'HeartRails data not found' });
-    } catch (error) {
-      console.error('[API] HeartRails Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      
+      // Retry for certain failures
+      if (response.status >= 500 || response.status === 408 || response.status === 429) {
+        console.log(`[API] Retrying HeartRails (${response.status})...`);
+        const retryRes = await safeFetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=${lon}&y=${lat}`, {}, 30000);
+        if (retryRes.ok) {
+          const data = await retryRes.json();
+          setRegionalCache(cacheKey, data);
+          return res.json(data);
+        }
+        return res.status(retryRes.status).json({ error: `HeartRails failed after retry: ${retryRes.status}` });
+      }
+      
+      res.status(response.status).json({ error: `HeartRails returned ${response.status}` });
+    } catch (error: any) {
+      console.error('[API] HeartRails Proxy Critical Error:', error.message || error);
+      res.status(503).json({ error: 'HeartRails temporary unavailable' });
     }
   });
 
@@ -1708,39 +2127,35 @@ async function startServer() {
     if (!q) return res.status(400).json({ error: 'Missing query' });
     
     try {
-      const polygonParam = polygon_geojson === '1' ? '&polygon_geojson=1' : '';
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q as string)}&addressdetails=1&limit=${limit || 10}${bias || ''}${polygonParam}`;
-      const response = await safeFetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Search failed' });
-    } catch (error) {
+      const data = await performOsmSearch(q as string, { 
+        limit: limit || 10, 
+        addressdetails: 1, 
+        polygon_geojson: polygon_geojson === '1' ? 1 : 0,
+        viewbox: bias // handle viewbox bias if present
+      });
+      return res.json(data);
+    } catch (error: any) {
       console.error('[API] OSM Search Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Search failed' });
     }
   });
 
   // Nominatim Reverse Proxy (Global Fallback)
   app.get('/api/osm-reverse', async (req, res) => {
-    const { lat, lon, lang } = req.query;
+    const { lat, lon, lang, zoom } = req.query;
     if (!lat || !lon) return res.status(400).json({ error: 'Missing coordinates' });
     
     try {
-      // Logic: Prefer target language, always include English as second choice
-      // Nominatim supports comma-separated preferences
-      const acceptLang = lang ? `${lang},en;q=0.9` : 'en';
-      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=${acceptLang}`;
-      const response = await safeFetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Reverse geocode failed' });
-    } catch (error) {
+      const l = parseFloat(lat as string);
+      const n = parseFloat(lon as string);
+      const z = zoom ? parseInt(zoom as string) : 18;
+      const ln = lang ? (lang as string) : 'en';
+
+      const data = await performOsmReverse(l, n, ln, z);
+      res.json(data);
+    } catch (error: any) {
       console.error('[API] OSM Reverse Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Geocoding failed' });
     }
   });
 
@@ -1769,18 +2184,14 @@ async function startServer() {
     if (!cc) return res.status(400).json({ error: 'Missing country code' });
     
     try {
-      const url = `https://nominatim.openstreetmap.org/search?country=${cc}&polygon_geojson=1&format=json&limit=1`;
-      const response = await safeFetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data[0] && data[0].geojson) {
-          return res.json(data[0].geojson);
-        }
+      const data = await performOsmSearch('', { country: cc, polygon_geojson: 1, limit: 1 });
+      if (data && data[0] && data[0].geojson) {
+        return res.json(data[0].geojson);
       }
       res.status(404).json({ error: 'Boundary not found' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[API] Country Boundary Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(502).json({ error: error.message || 'Fetch failed' });
     }
   });
 
@@ -1894,6 +2305,56 @@ async function startServer() {
       res.status(response.status).send('Label tile fail');
     } catch (e) {
       res.status(503).send('Label service unavailable');
+    }
+  });
+
+  // Denmark DAWA Address Service (Official, Free)
+  app.get('/api/dk-address', async (req, res) => {
+    const { lat, lon } = req.query;
+    try {
+      const response = await safeFetch(`https://dawa.aws.dk/adgangsadresser/reverse?x=${lon}&y=${lat}&format=json`);
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'DAWA lookup failed' });
+    } catch (error) {
+      console.error('DAWA Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Norway Kartverket Address Service (Official, Free)
+  app.get('/api/no-address', async (req, res) => {
+    const { lat, lon } = req.query;
+    try {
+      const response = await safeFetch(`https://ws.geonorge.no/adresser/v1/punktsok?lon=${lon}&lat=${lat}&radius=50`);
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      res.status(response.status).json({ error: 'Kartverket lookup failed' });
+    } catch (error) {
+      console.error('Kartverket Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Poland GUGiK Address Service (Official, Free)
+  app.get('/api/pl-address', async (req, res) => {
+    const { lat, lon } = req.query;
+    try {
+      // GUGiK UISL reverse search
+      const response = await safeFetch(`https://services.gugik.gov.pl/uisl/?request=getaddressbyxy&x=${lon}&y=${lat}`);
+      if (response.ok) {
+        const text = await response.text();
+        // GUGiK often returns plain text or simple formatted strings
+        return res.json({ result: text });
+      }
+      res.status(response.status).json({ error: 'GUGiK lookup failed' });
+    } catch (error) {
+      console.error('GUGiK Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

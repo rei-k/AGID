@@ -92,6 +92,37 @@ export async function fetchBrazilOfficialAddress(lat: number, lon: number): Prom
 }
 
 /**
+ * Fetches detailed Brazil address using ViaCEP API via server proxy.
+ */
+export async function fetchBrazilViaCEP(cep: string): Promise<any | null> {
+  if (!cep) return null;
+  const cleanCep = cep.replace(/\D/g, '');
+  if (cleanCep.length !== 8) return null;
+
+  try {
+    const response = await fetch(`/api/br-viacep/${cleanCep}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && !data.erro) {
+        return {
+          label: `${data.logradouro}, ${data.bairro}, ${data.localidade} - ${data.uf}`,
+          road: data.logradouro,
+          suburb: data.bairro,
+          city: data.localidade,
+          state: data.uf,
+          postcode: data.cep,
+          source: 'ViaCEP (Brazil)'
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching ViaCEP data:", error);
+    return null;
+  }
+}
+
+/**
  * Fetches South America specific official address details if available.
  */
 export async function fetchSouthAmericaOfficialAddress(lat: number, lon: number, cc: string): Promise<any | null> {

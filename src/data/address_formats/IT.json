@@ -15,16 +15,32 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}} ({{state}})\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}} ({{state}})\nITALY",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Square", "placeholder": "Via Roma", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "00100", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Rome", "required": true, "type": "text" },
-      { "key": "state", "label": "Province (Abbr.)", "placeholder": "RM", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Via Roma" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "00100" },
+      { "key": "city", "label": "City/Town", "placeholder": "Rome" },
+      { "key": "state", "label": "Prov. (Abbr.)", "placeholder": "RM" }
     ]
+  },
+  "international": {
+    "it": {
+      "name": "Italiano (Internazionale)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}} ({{state}})\nITALIA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "street", "label": "Via/Piazza (Latín)", "placeholder": "Via Roma" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "postcode", "label": "CAP", "placeholder": "00100" },
+        { "key": "city", "label": "Città", "placeholder": "Roma" },
+        { "key": "state", "label": "Prov. (Sigla)", "placeholder": "RM" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNN",

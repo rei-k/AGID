@@ -1,0 +1,53 @@
+{
+  "countryCode": "CL",
+  "name": "Chile",
+  "native": {
+    "name": "Español",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Calle", "placeholder": "Avenida Providencia", "required": true },
+      { "key": "houseNumber", "label": "Número/Depto", "placeholder": "123", "required": true },
+      { "key": "subdistrict", "label": "Comuna", "placeholder": "Providencia", "required": true },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "7500000", "required": true },
+      { "key": "city", "label": "Ciudad", "placeholder": "Santiago", "required": true },
+      { "key": "state", "label": "Región", "placeholder": "Región Metropolitana", "required": true }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}\nCHILE",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Av. Providencia", "required": true },
+      { "key": "houseNumber", "label": "No./Unit", "placeholder": "123", "required": true },
+      { "key": "subdistrict", "label": "District", "placeholder": "Providencia", "required": true },
+      { "key": "postcode", "label": "Postcode", "placeholder": "7500000", "required": true },
+      { "key": "city", "label": "City", "placeholder": "Santiago", "required": true },
+      { "key": "state", "label": "Region", "placeholder": "Metropolitan Region", "required": true }
+    ]
+  },
+  "international": {
+    "es": {
+      "name": "Español (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}\nCHILE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latín)", "placeholder": "" },
+        { "key": "street", "label": "Calle/Via (Latín)", "placeholder": "Av. Providencia", "required": true },
+        { "key": "houseNumber", "label": "Nº/Depto", "placeholder": "123", "required": true },
+        { "key": "subdistrict", "label": "Comuna", "placeholder": "Providencia", "required": true },
+        { "key": "postcode", "label": "C.P. (Latin)", "placeholder": "7500000", "required": true },
+        { "key": "city", "label": "Ciudad", "placeholder": "Santiago", "required": true },
+        { "key": "state", "label": "Región (Sigla)", "placeholder": "Metropolitana", "required": true }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "NNNNNNN",
+    "regex": "^\\d{7}$",
+    "source": "CorreosChile"
+  }
+}

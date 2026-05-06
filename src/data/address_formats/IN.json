@@ -2,30 +2,47 @@
   "countryCode": "IN",
   "name": "India",
   "native": {
-    "name": "भारत",
+    "name": "हिन्दी",
     "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "भवन/कंपनी", "placeholder": "ताज महल पैलेस", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "मकान/फ्लैट नंबर", "placeholder": "123", "required": true, "type": "text" },
-      { "key": "street", "label": "सड़क/गली", "placeholder": "एमजी रोड", "required": true, "type": "text" },
-      { "key": "suburb", "label": "इलाका/क्षेत्र", "placeholder": "इंदिरानगर", "required": false, "type": "text" },
-      { "key": "city", "label": "शहर", "placeholder": "बेंगलुरु", "required": true, "type": "text" },
-      { "key": "state", "label": "राज्य", "placeholder": "कर्नाटक", "required": true, "type": "text" },
-      { "key": "postcode", "label": "पिन कोड", "placeholder": "560038", "required": true, "type": "text" }
+      { "key": "organization", "label": "भवन/कंपनी", "placeholder": "ताज महल पैलेस" },
+      { "key": "houseNumber", "label": "मकान/फ्लैट नंबर", "placeholder": "123" },
+      { "key": "street", "label": "सड़क/गली", "placeholder": "एमजी रोड" },
+      { "key": "suburb", "label": "इलाका/क्षेत्र", "placeholder": "इंदिरानगर" },
+      { "key": "city", "label": "शहर", "placeholder": "बेंगलुरु" },
+      { "key": "state", "label": "राज्य", "placeholder": "कर्नाटक" },
+      { "key": "postcode", "label": "पिन कोड", "placeholder": "560038" }
     ]
   },
+  "domestic": {
+    "en": {
+      "name": "English",
+      "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Building/Company", "placeholder": "Taj Mahal Palace" },
+        { "key": "houseNumber", "label": "House/Flat No.", "placeholder": "123" },
+        { "key": "street", "label": "Street/Road", "placeholder": "MG Road" },
+        { "key": "suburb", "label": "Locality/Area", "placeholder": "Indiranagar" },
+        { "key": "city", "label": "City/Town", "placeholder": "Bengaluru" },
+        { "key": "state", "label": "State", "placeholder": "Karnataka" },
+        { "key": "postcode", "label": "PIN Code", "placeholder": "560038" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}}, {{street}}\n{{suburb}}\n{{city}}, {{state}} {{postcode}}\nINDIA",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company", "placeholder": "Taj Mahal Palace", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Flat No.", "placeholder": "123", "required": true, "type": "text" },
-      { "key": "street", "label": "Street/Road", "placeholder": "MG Road", "required": true, "type": "text" },
-      { "key": "suburb", "label": "Locality/Area", "placeholder": "Indiranagar", "required": false, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Bengaluru", "required": true, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "Karnataka", "required": true, "type": "text" },
-      { "key": "postcode", "label": "PIN Code", "placeholder": "560038", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Bldg", "placeholder": "e.g. Taj Mahal Palace" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "123" },
+      { "key": "street", "label": "St./Rd. (Latin)", "placeholder": "MG Road" },
+      { "key": "suburb", "label": "Area/Loc.", "placeholder": "Indiranagar" },
+      { "key": "city", "label": "City/Town", "placeholder": "Bengaluru" },
+      { "key": "state", "label": "State Code", "placeholder": "e.g. KA" },
+      { "key": "postcode", "label": "PIN Code", "placeholder": "560038" }
     ]
   },
   "postalCode": {

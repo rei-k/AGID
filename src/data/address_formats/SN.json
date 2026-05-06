@@ -13,14 +13,28 @@
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{postcode}} {{city}}\nSenegal",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}}\n{{postcode}} {{city}}\nSENEGAL",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Moussa Diop", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "12 Dakar St", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "12500", "required": false, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Dakar", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company/Organization", "placeholder": "" },
+      { "key": "street", "label": "Street Address", "placeholder": "12 Rue de Dakar" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "12500" },
+      { "key": "city", "label": "City/Town", "placeholder": "Dakar" }
     ]
+  },
+  "international": {
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{street}}\n{{postcode}} {{city}}\nSÉNÉGAL",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Société/Organisation", "placeholder": "" },
+        { "key": "street", "label": "Adresse", "placeholder": "12 Rue de Dakar" },
+        { "key": "postcode", "label": "Code Postal", "placeholder": "12500" },
+        { "key": "city", "label": "Ville", "placeholder": "Dakar" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNN",

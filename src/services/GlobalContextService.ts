@@ -82,3 +82,40 @@ function getWeatherCondition(code: number): string {
   if (code >= 95) return "Thunderstorm";
   return "Cloudy";
 }
+
+/**
+ * Fetches enriched postcode details globally using Zippopotam.us via proxy.
+ */
+export async function fetchGlobalPostcodeDetails(country: string, postcode: string): Promise<any | null> {
+  if (!country || !postcode) return null;
+  
+  try {
+    const response = await fetch(`/api/zippopotam/${country}/${encodeURIComponent(postcode.replace(/\s/g, ''))}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching global postcode details:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetches Plus Code (Open Location Code) for coordinates.
+ * Vital for addressing in areas without postal codes.
+ */
+export async function fetchPlusCode(lat: number, lon: number): Promise<string | null> {
+  try {
+    const response = await fetch(`/api/plusmode/encode?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.plusCode || null;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error encoding Plus Code:", error);
+    return null;
+  }
+}

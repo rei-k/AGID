@@ -15,17 +15,48 @@
       { "key": "postcode", "label": "Poskod", "placeholder": "50088", "required": true, "type": "text" }
     ]
   },
+  "domestic": {
+    "en": {
+      "name": "English",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Building/Company", "placeholder": "Petronas Twin Towers" },
+        { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Level 4" },
+        { "key": "street", "label": "Street Name", "placeholder": "Persiaran Petronas" },
+        { "key": "subdistrict", "label": "Area/Neighborhood", "placeholder": "KLCC" },
+        { "key": "city", "label": "City/Town", "placeholder": "Kuala Lumpur" },
+        { "key": "state", "label": "State", "placeholder": "Federal Territory" },
+        { "key": "postcode", "label": "Postcode", "placeholder": "50088" }
+      ]
+    },
+    "zh": {
+      "name": "简体中文",
+      "addressFormat": "马来西亚 {{postcode}}\n{{state}} {{city}}\n{{subdistrict}}\n{{street}} {{houseNumber}}\n{{organization}}",
+      "ordering": "big-to-small",
+      "fields": [
+        { "key": "organization", "label": "大厦/公司", "placeholder": "双峰塔" },
+        { "key": "houseNumber", "label": "门牌/楼层", "placeholder": "4层" },
+        { "key": "street", "label": "街道名称", "placeholder": "双峰塔路" },
+        { "key": "subdistrict", "label": "地区", "placeholder": "KLCC" },
+        { "key": "city", "label": "城市", "placeholder": "吉隆坡" },
+        { "key": "state", "label": "州属", "placeholder": "联邦直辖区" },
+        { "key": "postcode", "label": "邮政编码", "placeholder": "50088" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{postcode}} {{city}}\n{{state}}\nMALAYSIA",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company", "placeholder": "Petronas Twin Towers", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Level 4", "required": false, "type": "text" },
-      { "key": "street", "label": "Street Name", "placeholder": "Persiaran Petronas", "required": true, "type": "text" },
-      { "key": "subdistrict", "label": "Area/Taman", "placeholder": "KLCC", "required": false, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Kuala Lumpur", "required": true, "type": "text" },
-      { "key": "state", "label": "State", "placeholder": "Federal Territory", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "50088", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "Petronas Twin Towers" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Level 4" },
+      { "key": "street", "label": "Street Address", "placeholder": "Persiaran Petronas" },
+      { "key": "subdistrict", "label": "Neighborhood/Area", "placeholder": "KLCC" },
+      { "key": "city", "label": "City/Town", "placeholder": "Kuala Lumpur" },
+      { "key": "state", "label": "State/Territory", "placeholder": "Federal Territory" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "50088" }
     ]
   },
   "postalCode": {

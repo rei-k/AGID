@@ -14,15 +14,42 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nBELGIUM",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Rue de la Loi", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "1000", "required": true, "type": "text" },
-      { "key": "city", "label": "City", "placeholder": "Brussels", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street Address (Latin)", "placeholder": "Rue de la Loi" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "1000" },
+      { "key": "city", "label": "City", "placeholder": "Brussels" }
     ]
+  },
+  "international": {
+    "de": {
+      "name": "Deutsch (International)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nBELGIEN",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Firma/Org. (Latein)", "placeholder": "" },
+        { "key": "street", "label": "Strasse (Latein)", "placeholder": "Rue de la Loi" },
+        { "key": "houseNumber", "label": "Nr.", "placeholder": "1" },
+        { "key": "postcode", "label": "PLZ", "placeholder": "1000" },
+        { "key": "city", "label": "Stadt", "placeholder": "Brüssel" }
+      ]
+    },
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nBELGIQUE",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "street", "label": "Rue (Latín)", "placeholder": "Rue de la Loi" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "postcode", "label": "Code Postal", "placeholder": "1000" },
+        { "key": "city", "label": "Ville", "placeholder": "Bruxelles" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNN",

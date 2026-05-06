@@ -2,26 +2,44 @@
   "countryCode": "VU",
   "name": "Vanuatu",
   "native": {
-    "name": "Vanuatu",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nVanuatu",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "John Doe", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Town", "placeholder": "Port Vila", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+      { "key": "street", "label": "Street/PO Box", "placeholder": "Lini Highway" },
+      { "key": "city", "label": "Town/City", "placeholder": "Port Vila" }
     ]
+  },
+  "domestic": {
+    "bi": {
+      "name": "Bislama",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Kampani", "placeholder": "" },
+        { "key": "houseNumber", "label": "Namba blong haos", "placeholder": "1" },
+        { "key": "street", "label": "Rod blong masta", "placeholder": "Lini Highway" },
+        { "key": "city", "label": "Taon", "placeholder": "Port Vila" }
+      ]
+    },
+    "fr": {
+      "name": "Français",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Organisation", "placeholder": "" },
+        { "key": "houseNumber", "label": "No. de maison", "placeholder": "1" },
+        { "key": "street", "label": "Rue", "placeholder": "Lini Highway" },
+        { "key": "city", "label": "Ville", "placeholder": "Port Vila" }
+      ]
+    }
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nVanuatu",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\nVANUATU",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Name", "placeholder": "Full Name", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / PO Box", "placeholder": "PO Box 123", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Town", "placeholder": "Port Vila", "required": true, "type": "text" }
-    ]
-  },
-  "postalCode": {
-    "format": null,
-    "regex": null
+    "fields": []
   }
 }

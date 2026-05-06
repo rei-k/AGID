@@ -1,0 +1,66 @@
+{
+  "countryCode": "CA",
+  "name": "Canada",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{state}}  {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "", "required": false },
+      { "key": "houseNumber", "label": "Civic No.", "placeholder": "100", "required": true },
+      { "key": "street", "label": "Street Name", "placeholder": "Wellington St", "required": true },
+      { "key": "city", "label": "Municipality", "placeholder": "Ottawa", "required": true },
+      { "key": "state", "label": "Province", "placeholder": "ON", "required": true },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "K1A 0A6", "required": true }
+    ]
+  },
+  "domestic": {
+    "fr": {
+      "name": "Français",
+      "addressFormat": "{{houseNumber}} {{street}}\n{{city}} {{state}}  {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Organisation", "placeholder": "" },
+        { "key": "houseNumber", "label": "No. civique", "placeholder": "100" },
+        { "key": "street", "label": "Nom de la rue", "placeholder": "Wellington St" },
+        { "key": "city", "label": "Municipalité", "placeholder": "Ottawa" },
+        { "key": "state", "label": "Province", "placeholder": "ON" },
+        { "key": "postcode", "label": "Code postal", "placeholder": "K1A 0A6" }
+      ]
+    }
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{state}}  {{postcode}}\nCANADA",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "100" },
+      { "key": "street", "label": "St./Ave. (Latin)", "placeholder": "Wellington St" },
+      { "key": "city", "label": "City", "placeholder": "Ottawa" },
+      { "key": "state", "label": "Prov. Code", "placeholder": "ON" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "K1A 0A6" }
+    ]
+  },
+  "international": {
+    "fr": {
+      "name": "Français (International)",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{state}}  {{postcode}}\nCANADA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "houseNumber", "label": "Nº civique", "placeholder": "100" },
+        { "key": "street", "label": "Rue (Latín)", "placeholder": "Wellington St" },
+        { "key": "city", "label": "Ville", "placeholder": "Ottawa" },
+        { "key": "state", "label": "Prov. (Sigla)", "placeholder": "ON" },
+        { "key": "postcode", "label": "Code postal", "placeholder": "K1A 0A6" }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "ANA NAN",
+    "regex": "^[A-Z]\\d[A-Z]\\s?\\d[A-Z]\\d$",
+    "api": "https://www.canadapost.ca/cpc/en/tools/find-a-postal-code.page",
+    "source": "Canada Post"
+  }
+}

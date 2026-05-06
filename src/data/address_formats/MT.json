@@ -2,27 +2,36 @@
   "countryCode": "MT",
   "name": "Malta",
   "native": {
-    "name": "Malta",
+    "name": "Malti",
     "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Kumpanija/Organizzazzjoni", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "Numru tad-dar", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "street", "label": "Triq", "placeholder": "Triq ir-Repubblika", "required": true, "type": "text" },
-      { "key": "city", "label": "Belt/Lokalità", "placeholder": "Valletta", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Kodiċi Postali", "placeholder": "VLT 1117", "required": true, "type": "text" }
+      { "key": "organization", "label": "Kumpanija", "placeholder": "" },
+      { "key": "houseNumber", "label": "Numru tad-dar", "placeholder": "1" },
+      { "key": "street", "label": "Triq", "placeholder": "Triq ir-Repubblika" },
+      { "key": "city", "label": "Belt/Lokalità", "placeholder": "Valletta" },
+      { "key": "postcode", "label": "Kodiċi Postali", "placeholder": "VLT 1117" }
     ]
   },
+  "domestic": {
+    "en": {
+      "name": "English",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Company", "placeholder": "" },
+        { "key": "houseNumber", "label": "House No.", "placeholder": "1" },
+        { "key": "street", "label": "Street", "placeholder": "Republic St" },
+        { "key": "city", "label": "City/Locality", "placeholder": "Valletta" },
+        { "key": "postcode", "label": "Postal Code", "placeholder": "VLT 1117" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}} {{postcode}}\nMALTA",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Republic St", "required": true, "type": "text" },
-      { "key": "city", "label": "City/Locality", "placeholder": "Valletta", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "VLT 1117", "required": true, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "AAA NNNN",

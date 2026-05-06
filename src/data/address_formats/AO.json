@@ -3,7 +3,7 @@
   "name": "Angola",
   "native": {
     "name": "Angola",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nAngola",
+    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}",
     "ordering": "small-to-big",
     "fields": [
       { "key": "recipient", "label": "Nome Completo", "placeholder": "Manuel dos Santos", "required": true, "type": "text" },
@@ -12,13 +12,26 @@
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{city}}\nAngola",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}}\n{{city}}\nANGOLA",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Manuel dos Santos", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address", "placeholder": "123 Liberty St", "required": true, "type": "text" },
-      { "key": "city", "label": "City / Province", "placeholder": "Luanda", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street (Latin)", "placeholder": "Rua da Liberdade, 123" },
+      { "key": "city", "label": "City", "placeholder": "Luanda" }
     ]
+  },
+  "international": {
+    "pt": {
+      "name": "Português (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}}\n{{city}}\nANGOLA",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latim)", "placeholder": "" },
+        { "key": "street", "label": "Endereço (Latim)", "placeholder": "Rua da Liberdade, 123" },
+        { "key": "city", "label": "Cidade", "placeholder": "Luanda" }
+      ]
+    }
   },
   "postalCode": {
     "format": null,

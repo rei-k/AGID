@@ -2,26 +2,53 @@
   "countryCode": "SG",
   "name": "Singapore",
   "native": {
-    "name": "Singapore",
+    "name": "English",
     "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\nSINGAPORE {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company", "placeholder": "Marina Bay Sands", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "10", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave", "required": true, "type": "text" },
-      { "key": "subdistrict", "label": "Unit No. (Optional)", "placeholder": "#01-01", "required": false, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "018956", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building", "placeholder": "Marina Bay Sands" },
+      { "key": "houseNumber", "label": "Block/House No.", "placeholder": "10" },
+      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave" },
+      { "key": "subdistrict", "label": "Unit No.", "placeholder": "#01-01" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "018956" }
     ]
   },
+  "domestic": {
+    "ms": {
+      "name": "Bahasa Melayu",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\nSINGAPURA {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Bangunan", "placeholder": "Marina Bay Sands" },
+        { "key": "houseNumber", "label": "No. Blok/Rumah", "placeholder": "10" },
+        { "key": "street", "label": "Nama Jalan", "placeholder": "Bayfront Ave" },
+        { "key": "subdistrict", "label": "No. Unit", "placeholder": "#01-01" },
+        { "key": "postcode", "label": "Poskod", "placeholder": "018956" }
+      ]
+    },
+    "zh": {
+      "name": "简体中文",
+      "addressFormat": "新加坡 {{postcode}}\n{{subdistrict}}\n{{street}} {{houseNumber}}\n{{organization}}",
+      "ordering": "big-to-small",
+      "fields": [
+        { "key": "organization", "label": "大厦/公司", "placeholder": "滨海湾金沙" },
+        { "key": "houseNumber", "label": "门牌/楼层", "placeholder": "10" },
+        { "key": "street", "label": "街道名称", "placeholder": "海湾道" },
+        { "key": "subdistrict", "label": "单元号", "placeholder": "#01-01" },
+        { "key": "postcode", "label": "邮政编码", "placeholder": "018956" }
+      ]
+    }
+  },
   "english": {
+    "name": "International English",
     "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\nSINGAPORE {{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company", "placeholder": "Marina Bay Sands", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Block No.", "placeholder": "10", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave", "required": true, "type": "text" },
-      { "key": "subdistrict", "label": "Unit No.", "placeholder": "#01-01", "required": false, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "018956", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "Marina Bay Sands" },
+      { "key": "houseNumber", "label": "Block/House No.", "placeholder": "10" },
+      { "key": "street", "label": "Street Name", "placeholder": "Bayfront Ave" },
+      { "key": "subdistrict", "label": "Unit/Level Info", "placeholder": "#01-01" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "018956" }
     ]
   },
   "postalCode": {

@@ -21,112 +21,91 @@ import { calculateDistance, calculateBearing, formatDistance } from './lib/nav';
 import legalData from './data/legal.json';
 import disputedTerritories from './data/disputed_territories.json';
 import { 
-  MapPin, 
-  Map as MapIcon,
-  Info, 
-  Layers, 
+  X, 
+  Menu, 
   Search, 
-  BookOpen, 
+  History, 
+  Settings, 
+  Info, 
+  ChevronRight, 
+  MapPin, 
+  Share2, 
+  Layers, 
+  Target, 
+  ArrowUpRight, 
+  Truck, 
+  User, 
+  Zap, 
+  LocateFixed, 
+  ChevronDown, 
+  Check, 
+  Copy, 
+  Maximize2, 
+  Key, 
+  QrCode, 
   ExternalLink, 
-  Globe, 
-  Grid3X3, 
-  Navigation, 
-  Compass, 
-  RotateCcw,
+  ArrowLeft, 
+  Clock, 
+  Sparkles, 
+  Flag, 
+  MountainSnow, 
+  Camera, 
+  Upload, 
+  BarChart3, 
+  Landmark, 
+  Anchor, 
   Waves, 
-  Filter, 
+  AlertOctagon, 
+  Globe, 
+  Map as MapIcon, 
+  Grid3X3, 
+  RotateCcw, 
+  Plus, 
+  Minus, 
+  Smartphone, 
+  ShieldCheck, 
+  Download, 
+  FileDown, 
+  FileText, 
   Bookmark, 
+  Database, 
   Trash2, 
-  X,
-  Check,
-  Flag,
-  Copy,
-  History,
-  Menu,
-  Settings,
-  Mic,
-  Share2,
-  Mail,
-  Eye,
-  EyeOff,
-  Ruler,
-  Anchor,
-  Plane,
-  Wind,
+  BookOpen, 
+  ArrowRight, 
+  Scale, 
+  Activity, 
   Box,
-  Database,
-  Download,
-  ChevronRight,
-  Home,
-  Utensils,
-  Plus,
-  Minus,
-  Smartphone,
-  ShieldCheck,
-  ShieldCheck as ShieldIcon,
-  FileText,
-  FileDown,
-  ArrowLeft,
-  ArrowRight,
-  Mountain,
-  MountainSnow,
-  Scale,
-  Truck,
-  AlertTriangle,
-  Zap,
-  Leaf,
-  TreeDeciduous,
-  Maximize2,
-  Target,
-  AlertOctagon,
-  LifeBuoy,
-  Flame,
-  Stethoscope,
-  Activity,
-  Droplets,
-  CloudRain,
-  Thermometer,
-  BarChart3,
-  PieChart,
-  TrendingUp,
-  Book,
-  Landmark,
-  Fish,
-  Camera,
-  QrCode,
-  Upload,
-  Clock,
-  CloudSun,
   ChevronUp,
-  ChevronDown,
-  ChevronDown as ChevronDownIcon,
+  HelpCircle,
   RefreshCw,
-  Sparkles,
-  ArrowUpRight,
   ArrowUpDown,
-  LocateFixed,
+  Compass,
+  Ruler,
   Coffee,
   Train,
   ShoppingBag,
-  Key,
-  User, 
-  Phone, 
-  Home as HomeIcon, 
-  Snowflake, 
-  Waves as WavesIcon, 
-  Bookmark as BookmarkIcon, 
-  Trees, 
-  Palmtree, 
-  Ship, 
-  Sun, 
-  Building2, 
-  AlertCircle, 
-  CheckCircle2, 
-  MapIcon as MapIconIcon,
-  Beaker,
+  Phone,
+  Home as HomeIcon,
+  Snowflake,
+  Trees,
+  Palmtree,
+  Ship,
+  Sun,
+  Building2,
+  AlertCircle,
+  CheckCircle2,
   Settings2,
   ShieldAlert
 } from 'lucide-react';
+
+// Extracted Components
+import { MapControls } from './components/MapControls';
+import { MapLayersMenu } from './components/MapLayersMenu';
+import { GridDetailPanel } from './components/GridDetailPanel';
+import { SettingsPanel } from './components/SettingsPanel';
+import { SideMenu } from './components/SideMenu';
+import { SearchSidebar } from './components/SearchSidebar';
+
 import { QRCodeCanvas } from 'qrcode.react';
 import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
 import { motion, AnimatePresence } from 'motion/react';
@@ -134,6 +113,7 @@ import { cn } from './lib/utils';
 import { 
   LANGUAGES,
   COUNTRY_LANGUAGES,
+  BIG_TO_SMALL_COUNTRIES,
   formatAddress,
   translateAddressOpenSource,
   normalizeAddressText,
@@ -180,7 +160,11 @@ const getMajorCategory = (c: CountryInfo) => {
 };
 
 import { FullSeaRegistryView, FullCountryRegistryView } from './components/RegistryViews';
-import { LicensesOverlay, LegalOverlay, ConfirmModal } from './components/Overlays';
+import { LicensesOverlay, LegalOverlay, ConfirmModal, CustomAlert, CenterActionButton } from './components/Overlays';
+import { QualityReportModal } from './components/modals/QualityReportModal';
+import { QrScannerModal } from './components/modals/QrScannerModal';
+import { ResourcesSideMenu } from './components/modals/ResourcesSideMenu';
+import { SavedLocations } from './components/SavedLocations';
 import { ExportService, ExportData } from './services/ExportService';
 import { saveAs } from 'file-saver';
 
@@ -190,6 +174,7 @@ export default function App() {
   const gridUpdateTimer = useRef<any>(null);
   const gridWorker = useRef<Worker | null>(null);
   const isSelectingResult = useRef(false);
+  const lastPropsRef = useRef<Record<string, any>>({});
 
   useEffect(() => {
     gridWorker.current = new Worker(new URL('./lib/gridWorker.ts', import.meta.url), { type: 'module' });
@@ -200,15 +185,15 @@ export default function App() {
     // Error Handling for Grid Worker
     gridWorker.current.onerror = (e) => {
       console.error("Grid Worker Error:", e);
-      showAlert("計算エンジンのエラー", "高精度グリッド計算エンジンでエラーが発生しました。安定性の向上のため、ページを再読み込みすることをお勧めします。");
+      showAlert(t('engine_error_title'), t('engine_error_body'));
     };
 
     // Network Status Lifecycle
     const handleOffline = () => {
-      showAlert("オフラインモード", "インターネット接続が切断されました。一部の地図タイルや検索機能が制限される可能性があります。");
+      showAlert(t('offline_mode_title'), t('offline_mode_body'));
     };
     const handleOnline = () => {
-      showAlert("オンライン復旧", "インターネット接続が回復しました。地図データを再読み込みします。");
+      showAlert(t('online_mode_title'), t('online_mode_body'));
     };
 
     window.addEventListener('offline', handleOffline);
@@ -240,19 +225,33 @@ export default function App() {
   const [zoom, setZoom] = useState(initialZoom);
   const [mapBearing, setMapBearing] = useState(0);
   const [mapPitch, setMapPitch] = useState(() => {
-    const saved = localStorage.getItem('agid_map_pitch');
-    return saved !== null ? parseInt(saved, 10) : 0;
+    try {
+      const saved = localStorage.getItem('agid_map_pitch');
+      return saved !== null ? parseInt(saved, 10) : 0;
+    } catch { return 0; }
   });
   const [gridOpacityLevel, setGridOpacityLevel] = useState(() => {
-    const saved = localStorage.getItem('agid_grid_opacity_level');
-    return saved !== null ? parseInt(saved, 10) : 3; // 1 to 5
+    try {
+      const saved = localStorage.getItem('agid_grid_opacity_level');
+      return saved !== null ? parseInt(saved, 10) : 3; // Range: 0 to 5
+    } catch { return 3; }
   });
   const [showResources, setShowResources] = useState(false);
   const [resourceSearch, setResourceSearch] = useState("");
   const [isGridVisible, setIsGridVisible] = useState(true);
   const [isManualSelection, setIsManualSelection] = useState(false);
-  const [isNauticalMode, setIsNauticalMode] = useState(false);
-  const [isSeaTypeMode, setIsSeaTypeMode] = useState(false);
+  const [isNauticalMode, setIsNauticalMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agid_nautical_mode');
+      return saved !== null ? JSON.parse(saved) : true; 
+    } catch { return true; }
+  });
+  const [isSeaTypeMode, setIsSeaTypeMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agid_sea_type_mode');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch { return true; }
+  });
   const [navigationTarget, setNavigationTarget] = useState<{ lat: number, lng: number } | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isGuidanceActive, setIsGuidanceActive] = useState(false);
@@ -285,7 +284,6 @@ export default function App() {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isGridRegenerating, setIsGridRegenerating] = useState(false);
   const [isStyleLoading, setIsStyleLoading] = useState(false);
-  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
 
   const [nearbyPlaces, setNearbyPlaces] = useState<any[]>([]);
   const [showSettings, setShowSettings] = useState(false);
@@ -305,7 +303,9 @@ export default function App() {
     } catch { return []; }
   });
   const [homeAgid, setHomeAgid] = useState<string>(() => {
-    return localStorage.getItem('agid_home_agid') || "";
+    try {
+      return localStorage.getItem('agid_home_agid') || "";
+    } catch { return ""; }
   });
   const [isShippingMode, setIsShippingMode] = useState(() => {
     try {
@@ -316,7 +316,6 @@ export default function App() {
 
   // QR Scanning States
   const [isQrScanning, setIsQrScanning] = useState(false);
-  const [showQrOptions, setShowQrOptions] = useState(false);
   const [isQrVisible, setIsQrVisible] = useState(false);
   const [showLocationAnalysis, setShowLocationAnalysis] = useState(false);
   const [isAgidPanelCollapsed, setIsAgidPanelCollapsed] = useState(false);
@@ -325,6 +324,9 @@ export default function App() {
   const [showSaved, setShowSaved] = useState(false);
   const [savedTab, setSavedTab] = useState<'agid' | 'aoid'>('agid');
   const [showAddressRegistration, setShowAddressRegistration] = useState(false);
+  const [showQualityReport, setShowQualityReport] = useState(false);
+  const [qualityReport, setQualityReport] = useState<{ report: string, stats: any, continentQuality: any } | null>(null);
+  const [isQualityLoading, setIsQualityLoading] = useState(false);
   const [aoidModeForced, setAoidModeForced] = useState(false);
   const [showPostalCodeLab, setShowPostalCodeLab] = useState(false);
   const [isTerritoryLabOpen, setIsTerritoryLabOpen] = useState(false);
@@ -440,16 +442,24 @@ export default function App() {
   const [savedSearch, setSavedSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [coordFormat, setCoordFormat] = useState<'decimal' | 'dms'>(() => {
-    return (localStorage.getItem('agid_coord_format') as 'decimal' | 'dms') || 'decimal';
+    try {
+      return (localStorage.getItem('agid_coord_format') as 'decimal' | 'dms') || 'decimal';
+    } catch { return 'decimal'; }
   });
   const [defaultAddrTab, setDefaultAddrTab] = useState<'local' | 'en'>(() => {
-    return (localStorage.getItem('agid_default_addr_tab') as 'local' | 'en') || 'local';
+    try {
+      return (localStorage.getItem('agid_default_addr_tab') as 'local' | 'en') || 'local';
+    } catch { return 'local'; }
   });
   const [appLanguage, setAppLanguage] = useState<string>(() => {
-    return localStorage.getItem('agid_app_language') || 'ja';
+    try {
+      return localStorage.getItem('agid_app_language') || 'ja';
+    } catch { return 'ja'; }
   });
   const [addressLanguage, setAddressLanguage] = useState<string>(() => {
-    return localStorage.getItem('agid_address_language') || 'en';
+    try {
+      return localStorage.getItem('agid_address_language') || 'en';
+    } catch { return 'en'; }
   });
 
   const t = React.useCallback((key: TranslationKey) => {
@@ -461,10 +471,14 @@ export default function App() {
   const fullCountryRegistry = useMemo(() => generateFullCountryRegistry(), []);
 
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
-    return (localStorage.getItem('agid_theme_mode') as 'light' | 'dark' | 'system') || 'system';
+    try {
+      return (localStorage.getItem('agid_theme_mode') as 'light' | 'dark' | 'system') || 'system';
+    } catch { return 'system'; }
   });
   const [distanceUnit, setDistanceUnit] = useState<'automatic' | 'kilometers' | 'miles' | 'nautical'>(() => {
-    return (localStorage.getItem('agid_distance_unit') as 'automatic' | 'kilometers' | 'miles' | 'nautical') || 'automatic';
+    try {
+      return (localStorage.getItem('agid_distance_unit') as 'automatic' | 'kilometers' | 'miles' | 'nautical') || 'automatic';
+    } catch { return 'automatic'; }
   });
   const [is3DEnabled, setIs3DEnabled] = useState(() => {
     try {
@@ -619,42 +633,59 @@ export default function App() {
     } catch { return false; }
   });
   const [gisLayer, setGisLayer] = useState<'population' | 'landuse' | 'soil'>(() => {
-    return (localStorage.getItem('agid_gis_layer') as any) || 'population';
+    try {
+      return (localStorage.getItem('agid_gis_layer') as any) || 'population';
+    } catch { return 'population'; }
   });
   const [isSystematicMode, setIsSystematicMode] = useState(() => {
     try {
       const saved = localStorage.getItem('agid_systematic_mode');
-      return saved !== null ? JSON.parse(saved) : false;
-    } catch { return false; }
+      return saved !== null ? JSON.parse(saved) : true; 
+    } catch { return true; }
   });
   const [systematicCategory, setSystematicCategory] = useState<'physical' | 'human'>(() => {
-    return (localStorage.getItem('agid_systematic_category') as any) || 'physical';
+    try {
+      return (localStorage.getItem('agid_systematic_category') as any) || 'physical';
+    } catch { return 'physical'; }
   });
   const [systematicSubCategory, setSystematicSubCategory] = useState<string>(() => {
-    return localStorage.getItem('agid_systematic_subcategory') || 'climatology';
+    try {
+      return localStorage.getItem('agid_systematic_subcategory') || 'climatology';
+    } catch { return 'climatology'; }
   });
   const [systematicTheme, setSystematicTheme] = useState<string>(() => {
-    return localStorage.getItem('agid_systematic_theme') || 'all';
+    try {
+      return localStorage.getItem('agid_systematic_theme') || 'all';
+    } catch { return 'all'; }
   });
   const [isRegionalMode, setIsRegionalMode] = useState(() => {
     try {
       const saved = localStorage.getItem('agid_regional_mode');
-      return saved !== null ? JSON.parse(saved) : false;
-    } catch { return false; }
+      return saved !== null ? JSON.parse(saved) : true; 
+    } catch { return true; }
   });
   const [regionalType, setRegionalType] = useState<'static' | 'dynamic'>(() => {
-    return (localStorage.getItem('agid_regional_type') as any) || 'static';
+    try {
+      return (localStorage.getItem('agid_regional_type') as any) || 'static';
+    } catch { return 'static'; }
   });
   const [regionalTheme, setRegionalTheme] = useState<string>(() => {
-    return localStorage.getItem('agid_regional_theme') || 'all';
+    try {
+      return localStorage.getItem('agid_regional_theme') || 'all';
+    } catch { return 'all'; }
   });
   const [mapStyle, setMapStyle] = useState(() => {
-    return localStorage.getItem('agid_map_style') || 'https://tiles.openfreemap.org/styles/liberty';
+    try {
+      return localStorage.getItem('agid_map_style') || 'https://tiles.openfreemap.org/styles/liberty';
+    } catch { return 'https://tiles.openfreemap.org/styles/liberty'; }
   });
   const [projection, setProjection] = useState<'mercator' | 'globe'>(() => {
-    return (localStorage.getItem('agid_projection') as 'mercator' | 'globe') || 'mercator';
+    try {
+      return (localStorage.getItem('agid_projection') as 'mercator' | 'globe') || 'mercator';
+    } catch { return 'mercator'; }
   });
   const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Custom UI for alerts and confirms
   const [alertConfig, setAlertConfig] = useState<{ show: boolean, title: string, message: string } | null>(null);
@@ -746,81 +777,6 @@ export default function App() {
     showAlert('Saved Card', `High-quality AGID Location Card has been saved.`);
   };
 
-  const handleQrResult = React.useCallback((text: string) => {
-    let agid = text;
-    let latHint: number | null = null;
-    let lonHint: number | null = null;
-    let regHint: string | null = null;
-
-    try {
-      if (text.startsWith('http')) {
-        const url = new URL(text);
-        const params = new URLSearchParams(url.search);
-        agid = params.get('agid') || text;
-        
-        // Extract meta hints
-        const la = params.get('lat');
-        const lo = params.get('lon');
-        const rg = params.get('reg');
-        if (la && lo) {
-          latHint = parseFloat(la);
-          lonHint = parseFloat(lo);
-        }
-        if (rg) regHint = decodeURIComponent(rg);
-      }
-    } catch (e) {}
-
-    if (agid.includes(':')) {
-      agid = agid.split(':').pop() || agid;
-    }
-
-    const agidMatch = agid.trim().toUpperCase().match(/^[A-Z]{2,4}[A-Z2-9]{8,10}$/);
-    if (agidMatch) {
-      if (latHint !== null && lonHint !== null) {
-        // Instant Jump using hints
-        map.current?.flyTo({ center: [lonHint, latHint], zoom: 19 });
-      }
-      jumpToAgid(agidMatch[0]);
-      setIsQrScanning(false);
-    } else {
-      showAlert('Invalid QR', 'The scanned QR code does not contain a valid AGID.');
-    }
-  }, [jumpToAgid]);
-
-  const startQrScanner = () => {
-    setIsQrScanning(true);
-    setTimeout(() => {
-      const scanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
-      const onScanSuccess = (decodedText: string) => {
-        scanner.clear().then(() => {
-          handleQrResult(decodedText);
-        });
-      };
-      scanner.render(onScanSuccess, () => {});
-      qrScannerRef.current = scanner;
-    }, 100);
-  };
-
-  const handleQrFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const html5QrCode = new Html5Qrcode("qr-reader-hidden");
-    html5QrCode.scanFile(file, true)
-      .then(decodedText => {
-        handleQrResult(decodedText);
-      })
-      .catch(() => {
-        showAlert('Scan Error', 'Could not find a QR code in the selected image.');
-      })
-      .finally(() => {
-        if (qrFileRef.current) qrFileRef.current.value = '';
-      });
-  };
-
   const SATELLITE_STYLE = {
     version: 8,
     sources: {
@@ -880,6 +836,24 @@ export default function App() {
     localStorage.setItem('saved_agids', JSON.stringify(newSaved));
   };
 
+  const handleShare = async () => {
+    try {
+      const shareData = {
+        title: 'Geogrid Explorer',
+        text: `Check out this location on Geogrid Explorer: ${clickedAgid?.id || 'Global Grid'}`,
+        url: window.location.href,
+      };
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        showAlert("Link Copied", "Share link has been copied to your clipboard.");
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
   const openInOsmAnd = () => {
     if (!navigationTarget) return;
     const url = `osmand://go?lat=${navigationTarget.lat}&lon=${navigationTarget.lng}&z=15`;
@@ -908,7 +882,8 @@ export default function App() {
   }, [regionalType]);
 
   // Persistence Effects
-  useEffect(() => { localStorage.setItem('agid_grid_visible', JSON.stringify(isGridVisible)); }, [isGridVisible]);
+  useEffect(() => { localStorage.setItem('agid_nautical_mode', JSON.stringify(isNauticalMode)); }, [isNauticalMode]);
+  useEffect(() => { localStorage.setItem('agid_sea_type_mode', JSON.stringify(isSeaTypeMode)); }, [isSeaTypeMode]);
   useEffect(() => { localStorage.setItem('agid_coord_format', coordFormat); }, [coordFormat]);
   useEffect(() => { localStorage.setItem('agid_default_addr_tab', defaultAddrTab); }, [defaultAddrTab]);
   useEffect(() => { localStorage.setItem('agid_app_language', appLanguage); }, [appLanguage]);
@@ -984,7 +959,7 @@ export default function App() {
             status.addEventListener('change', handlePermissionChange);
             
             if (status.state === 'denied') {
-              showAlert("GPS設定の提案", "位置情報の利用がブロックされています。地図を現在地に合わせるにはブラウザの設定から位置情報のアクセスを許可してください。");
+              showAlert(t('gps_blocked_title'), t('gps_blocked_body'));
             } else {
               getGeo();
             }
@@ -1442,6 +1417,24 @@ export default function App() {
           shipping: isShippingMode,
           isHighPrecision 
         });
+
+        // Special handling for dual formats (Domestic vs International)
+        const countryLangs = COUNTRY_LANGUAGES[data.address.country_code?.toLowerCase()] || [];
+        const isNativeLang = countryLangs.includes(langCode);
+        const isBigToSmall = BIG_TO_SMALL_COUNTRIES.includes(data.address.country_code?.toLowerCase());
+
+        if ((langCode === 'en' && isBigToSmall) || isNativeLang) {
+          const domesticVersion = await formatAddress(data.address, langCode, {
+            shipping: isShippingMode,
+            isHighPrecision,
+            forceDomestic: true
+          });
+          
+          if (isClicked && domesticVersion !== formatted) {
+            setClickedAddressMap(prev => ({ ...prev, [`${langCode}_domestic`]: domesticVersion }));
+          }
+        }
+
         if (isClicked) {
           if (langCode === addressLanguage) {
             setClickedAddressTranslated(prev => prev !== formatted ? formatted : prev);
@@ -1530,6 +1523,7 @@ export default function App() {
           ...data.address,
           elevation: data.elevation,
           delivery_difficulty: data.delivery_difficulty,
+          plus_code: data.plus_code,
           flood_risk: data.flood_risk,
           mountain_name: data.mountain_name,
           landslide_risk: data.landslide_risk,
@@ -1844,8 +1838,97 @@ export default function App() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!searchQuery.trim()) return;
     performSearch(searchQuery);
   };
+
+  const handleQrResult = React.useCallback((text: string) => {
+    let result = text;
+    let latHint: number | null = null;
+    let lonHint: number | null = null;
+
+    try {
+      if (text.startsWith('http')) {
+        const url = new URL(text);
+        const params = new URLSearchParams(url.search);
+        result = params.get('agid') || params.get('q') || text;
+        
+        // Extract meta hints
+        const la = params.get('lat');
+        const lo = params.get('lon');
+        if (la && lo) {
+          latHint = parseFloat(la);
+          lonHint = parseFloat(lo);
+        }
+      }
+    } catch (e) {}
+
+    if (result.includes(':')) {
+      result = result.split(':').pop() || result;
+    }
+
+    const agidMatch = result.trim().toUpperCase().match(/^[A-Z]{2,4}[A-Z2-9]{8,10}$/);
+    if (agidMatch) {
+      if (latHint !== null && lonHint !== null) {
+        map.current?.flyTo({ center: [lonHint, latHint], zoom: 19 });
+      }
+      jumpToAgid(agidMatch[0]);
+    } else {
+      // General search
+      setSearchQuery(result);
+      performSearch(result);
+    }
+    setIsQrScanning(false);
+  }, [jumpToAgid, performSearch]);
+
+  const startQrScanner = () => {
+    setIsQrScanning(true);
+    setTimeout(() => {
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+      const onScanSuccess = (decodedText: string) => {
+        scanner.clear().then(() => {
+          handleQrResult(decodedText);
+        });
+      };
+      scanner.render(onScanSuccess, () => {});
+      qrScannerRef.current = scanner;
+    }, 100);
+  };
+
+  const handleQrFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const html5QrCode = new Html5Qrcode("qr-reader-hidden");
+    html5QrCode.scanFile(file, true)
+      .then(decodedText => {
+        handleQrResult(decodedText);
+      })
+      .catch(() => {
+        showAlert('Scan Error', 'Could not find a QR code in the selected image.');
+      })
+      .finally(() => {
+        if (qrFileRef.current) qrFileRef.current.value = '';
+      });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (qrScannerRef.current) {
+        qrScannerRef.current.clear().catch(e => console.error("QR Scanner Cleanup Error:", e));
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isQrScanning && qrScannerRef.current) {
+      qrScannerRef.current.clear().catch(() => {});
+      qrScannerRef.current = null;
+    }
+  }, [isQrScanning]);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('agid_search_history');
@@ -2012,7 +2095,11 @@ export default function App() {
       const newPitch = map.current.getPitch();
 
       const COORD_EPSILON = 0.000001; 
-      const newLng = center.lng;
+      let newLng = center.lng;
+      // Normalize longitude for world wrap
+      while (newLng > 180) newLng -= 360;
+      while (newLng < -180) newLng += 360;
+      
       const newLat = center.lat;
       const newZ = Number(newZoom.toFixed(2));
       const newB = Math.round(newBearing);
@@ -2024,14 +2111,16 @@ export default function App() {
       setMapBearing(prev => Math.abs(prev - newB) > 0.1 ? newB : prev);
       setMapPitch(prev => Math.abs(prev - newP) > 0.1 ? newP : prev);
 
+      const result = encodeAGID(newLat, newLng);
       if (!isManualSelection) {
-        const result = encodeAGID(newLat, newLng);
         setClickedAgid(prev => (prev?.id === result.id ? prev : result));
       }
+      updateGrid(result, isManualSelection ? clickedAgid || undefined : undefined, 4, false);
     });
 
     map.current.on('dragstart', () => {
       setIsTracking(false);
+      setIsManualSelection(false); // Returning to auto-center mode on drag
     });
 
     let lastHoverTime = 0;
@@ -2039,7 +2128,7 @@ export default function App() {
       if (!map.current) return;
       
       const now = performance.now();
-      if (now - lastHoverTime < 16) return; // ~60fps cap
+      if (now - lastHoverTime < 50) return; // 20fps cap for grid preview for stability
       lastHoverTime = now;
 
       const result = encodeAGID(e.lngLat.lat, e.lngLat.lng);
@@ -2118,8 +2207,11 @@ export default function App() {
       // If no manual selection exists, perform full geocode at final position
       if (!isManualSelection) {
         const center = map.current.getCenter();
-        const result = encodeAGID(center.lat, center.lng);
-        reverseGeocode(center.lat, center.lng, result.prefix, result.isSea, true);
+        let newLng = center.lng;
+        while (newLng > 180) newLng -= 360;
+        while (newLng < -180) newLng += 360;
+        const result = encodeAGID(center.lat, newLng);
+        reverseGeocode(center.lat, newLng, result.prefix, result.isSea, true);
       }
     });
 
@@ -2245,6 +2337,22 @@ export default function App() {
     setShowPostalCodeLab(false);
     setSelectedCountryBoundary(null);
   }, []);
+
+  const fetchQualityReport = async () => {
+    setIsQualityLoading(true);
+    try {
+      const res = await fetch('/api/data-quality/report');
+      if (res.ok) {
+        const data = await res.json();
+        setQualityReport(data);
+        setShowQualityReport(true);
+      }
+    } catch (e) {
+      console.error('Failed to fetch quality report:', e);
+    } finally {
+      setIsQualityLoading(false);
+    }
+  };
 
   // Disaster Mode Logic (Auto-enable layers and change style)
   useEffect(() => {
@@ -3457,8 +3565,8 @@ export default function App() {
     const isLargeGrid = effectiveGridSize >= 1000;
     const zoomThreshold = 1; // Lowered to 1 for persistent visibility
 
-    const shouldShow = true;
-    const shouldShowHighlight = true; // Always show highlight if possible
+    const shouldShow = isGridVisible && gridOpacityLevel > 0;
+    const shouldShowHighlight = true;
 
     // Use cell bounds for active/selected cell
     const activeBounds = activeResult?.bounds;
@@ -3470,43 +3578,63 @@ export default function App() {
 
     // Ensure sources exist, then update data
     const ensureSourceAndLayer = (id: string, type: string, data: any, paint: any, layout: any = {}, filter?: any, beforeId?: string) => {
-      if (!map.current) return;
+      if (!map.current || !map.current.isStyleLoaded()) return;
       const layerId = id + '-layer';
       const source = map.current.getSource(id) as maplibregl.GeoJSONSource;
       
+      const propKey = `${layerId}-props`;
+      const currentProps = { paint, layout, filter };
+      const prevProps = lastPropsRef.current[propKey];
+      const propsChanged = JSON.stringify(currentProps) !== JSON.stringify(prevProps);
+
       if (source) {
+        // Only update data if it changed (optimization: compare some ID or stringified data if necessary, 
+        // but setData itself is relatively optimized internally compared to property changes)
         source.setData(data);
-        // Update paint properties
-        Object.entries(paint).forEach(([key, value]) => {
-          map.current?.setPaintProperty(layerId, key, value);
-        });
-        // Update layout properties
-        Object.entries(layout).forEach(([key, value]) => {
-          map.current?.setLayoutProperty(layerId, key, value);
-        });
-        // Update filter if provided
-        if (filter !== undefined) {
-          map.current?.setFilter(layerId, filter);
+        
+        if (propsChanged) {
+          // Update paint properties only if they changed
+          Object.entries(paint).forEach(([key, value]) => {
+            if (!prevProps || JSON.stringify(prevProps.paint[key]) !== JSON.stringify(value)) {
+              map.current?.setPaintProperty(layerId, key, value);
+            }
+          });
+          // Update layout properties only if they changed
+          Object.entries(layout).forEach(([key, value]) => {
+            if (!prevProps || JSON.stringify(prevProps.layout?.[key]) !== JSON.stringify(value)) {
+              map.current?.setLayoutProperty(layerId, key, value);
+            }
+          });
+          // Update filter only if it changed
+          if (filter !== undefined && (!prevProps || JSON.stringify(prevProps.filter) !== JSON.stringify(filter))) {
+            map.current?.setFilter(layerId, filter);
+          }
+          lastPropsRef.current[propKey] = currentProps;
         }
       } else {
-        map.current.addSource(id, { type: 'geojson', data });
-        const layerConfig: any = {
-          id: layerId,
-          type: type as any,
-          source: id,
-          paint: paint,
-          layout: layout
-        };
-        
-        if (filter !== undefined) {
-          layerConfig.filter = filter;
-        }
+        // Fallback for missing source (map switching style)
+        try {
+          map.current.addSource(id, { type: 'geojson', data });
+          const layerConfig: any = {
+            id: layerId,
+            type: type as any,
+            source: id,
+            paint: paint,
+            layout: layout
+          };
+          
+          if (filter !== undefined) {
+            layerConfig.filter = filter;
+          }
 
-        map.current.addLayer(layerConfig, (beforeId && map.current.getLayer(beforeId)) ? beforeId : undefined);
-        
-        // Force selection to top ONLY on creation
-        if ((id.includes('selected') || id.includes('selection')) && map.current.getLayer(layerId)) {
-          map.current.moveLayer(layerId);
+          map.current.addLayer(layerConfig, (beforeId && map.current.getLayer(beforeId)) ? beforeId : undefined);
+          
+          if ((id.includes('selected') || id.includes('selection')) && map.current.getLayer(layerId)) {
+            map.current.moveLayer(layerId);
+          }
+          lastPropsRef.current[propKey] = currentProps;
+        } catch (e) {
+          console.warn("Failed to add source/layer during updateGrid", e);
         }
       }
     };
@@ -3521,10 +3649,11 @@ export default function App() {
       properties: {}
     } : { type: 'FeatureCollection', features: [] };
 
+    // Active Highlight (Red for Land, White/Cyan for Sea)
     ensureSourceAndLayer(activeSourceId, 'fill', activeData, {
-      'fill-color': isSeaGrid ? '#ffffff' : '#3b82f6', // Use blue highlight
-      'fill-opacity': isSeaGrid ? 0.35 : 0.3,
-      'fill-outline-color': isSeaGrid ? '#cbd5e1' : '#2563eb'
+      'fill-color': isSeaGrid ? '#ffffff' : '#ef4444', 
+      'fill-opacity': isSeaGrid ? 0.35 : 0.4,
+      'fill-outline-color': isSeaGrid ? '#cbd5e1' : '#dc2626'
     });
 
     // 2) Update Selected Cell
@@ -3539,7 +3668,7 @@ export default function App() {
 
     // Selection Fill
     ensureSourceAndLayer(selectedSourceId, 'fill', selectedData, {
-      'fill-color': '#3b82f6',
+      'fill-color': '#ef4444',
       'fill-opacity': 0.45,
     });
 
@@ -3554,7 +3683,7 @@ export default function App() {
     } : { type: 'FeatureCollection', features: [] };
 
     ensureSourceAndLayer(selectedSourceId + '-outline', 'line', selectedOutlineData, {
-      'line-color': '#2563eb',
+      'line-color': '#dc2626',
       'line-width': 3,
       'line-opacity': 0.9
     });
@@ -3575,14 +3704,14 @@ export default function App() {
         15, 4,
         20, 12
       ],
-      'circle-color': '#3b82f6',
-      'circle-opacity': 0.4,
+      'circle-color': '#ef4444',
+      'circle-opacity': 0.5,
       'circle-blur': 0.8
     });
 
     ensureSourceAndLayer('selection-label', 'symbol', selectionPointData, {
-      'text-color': '#1e40af',
-      'text-halo-color': 'rgba(255, 255, 255, 0.8)',
+      'text-color': '#dc2626',
+      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
       'text-halo-width': 2
     }, {
       'text-field': ['get', 'title'],
@@ -3598,7 +3727,7 @@ export default function App() {
     });
 
     const opacityMultiplier = gridOpacityLevel / 3; 
-    const gridColor = isSatellite || isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(203, 213, 225, 0.8)'; // Subtle white-grey (slate-300ish)
+    const gridColor = isSatellite || isDark ? '#94a3b8' : '#475569'; // Slate-400 or Slate-600 (Blue-gray)
     
     // Smooth interpolation for grid width and opacity based on zoom
     // Refined for a professional and subtle look across all zoom levels
@@ -3606,22 +3735,22 @@ export default function App() {
       'interpolate',
       ['linear'],
       ['zoom'],
-      1, 0.05 * opacityMultiplier, 
-      8, 0.1 * opacityMultiplier,
-      14, 0.25 * opacityMultiplier,
-      18, 0.45 * opacityMultiplier,
-      20, 0.6 * opacityMultiplier
+      1, 0.3 * opacityMultiplier, 
+      8, 0.4 * opacityMultiplier,
+      14, 0.5 * opacityMultiplier,
+      18, 0.7 * opacityMultiplier,
+      20, 0.8 * opacityMultiplier
     ];
 
     const dynamicGridWidth = [
       'interpolate',
       ['linear'],
       ['zoom'],
-      1, 0.02,
-      10, 0.08,
-      15, 0.15,
-      18, 0.35,
-      20, 0.5
+      1, 0.1,
+      10, 0.2,
+      15, 0.3,
+      18, 0.5,
+      20, 0.7
     ];
 
     if (shouldShow && refreshGrid) {
@@ -3655,24 +3784,25 @@ export default function App() {
             'line-opacity': dynamicGridOpacity
           });
 
-          // General Grid Cells (non-focus area)
+          // General Grid Cells (non-focus area) - Filled with Blue-Gray
           ensureSourceAndLayer('grid-cells', 'fill', cellsData, {
-            'fill-color': isSatellite || isDark ? '#ffffff' : '#94a3b8',
+            'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569', 
             'fill-opacity': [
               'interpolate',
               ['linear'],
               ['zoom'],
-              1, 0,
-              14, 0.05 * opacityMultiplier,
-              17, 0.12 * opacityMultiplier,
-              20, 0.2 * opacityMultiplier
+              1, 0.15 * opacityMultiplier,
+              10, 0.25 * opacityMultiplier,
+              14, 0.35 * opacityMultiplier,
+              17, 0.55 * opacityMultiplier,
+              20, 0.75 * opacityMultiplier
             ]
           }, {}, ['!=', ['get', 'isFocus'], true], activeSourceId + '-layer');
 
-          // Focus Grid Cells (300m radius, always visible)
+          // Focus Grid Cells (Surrounding red highlight)
           ensureSourceAndLayer('grid-cells-focus', 'fill', cellsData, {
-            'fill-color': isSatellite || isDark ? '#ffffff' : '#94a3b8',
-            'fill-opacity': 0.15 * opacityMultiplier
+            'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569',
+            'fill-opacity': 0.4 * opacityMultiplier
           }, {}, ['==', ['get', 'isFocus'], true], activeSourceId + '-layer');
           
           const labelLayerId = 'grid-labels-layer';
@@ -3698,14 +3828,14 @@ export default function App() {
 
         let bounds = map.current?.getBounds().toArray();
         
-        // Expand bounds significantly for tilted views to cover horizon
+        // Expand bounds for tilted views to cover horizon, but keep it stable
         if (bounds && mapPitch > 30) {
           const sw = bounds[0];
           const ne = bounds[1];
-          const lngPad = (ne[0] - sw[0]) * 0.8; 
-          const latPad = (ne[1] - sw[1]) * 3.5; 
+          const lngPad = (ne[0] - sw[0]) * 0.5; 
+          const latPad = (ne[1] - sw[1]) * 1.5; 
           bounds = [
-            [sw[0] - lngPad, sw[1] - latPad * 0.4], 
+            [sw[0] - lngPad, sw[1] - latPad * 0.2], 
             [ne[0] + lngPad, ne[1] + latPad]      
           ];
         }
@@ -4156,7 +4286,7 @@ export default function App() {
         <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100]">
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin" />
+              <div className="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-none animate-spin" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <Globe className="w-6 h-6 text-blue-600 animate-pulse" />
               </div>
@@ -4178,8 +4308,8 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-4 left-1/2 -translate-x-1/2 z-[80] pointer-events-none"
           >
-            <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-2xl border border-slate-100 flex items-center gap-3">
-              <div className="w-4 h-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+            <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-none shadow-2xl border border-slate-100 flex items-center gap-3">
+              <div className="w-4 h-4 border-2 border-blue-500/20 border-t-blue-500 rounded-none animate-spin" />
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
                 {t('loading_style')}
               </span>
@@ -4191,8 +4321,8 @@ export default function App() {
       {/* Crosshair */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="relative">
-          <div className="w-8 h-8 border-2 border-blue-500 rounded-full opacity-50 animate-pulse" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-blue-600 rounded-full" />
+          <div className="w-8 h-8 border-2 border-red-500/50 rounded-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-red-600 rounded-none shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
         </div>
       </div>
 
@@ -4214,2010 +4344,167 @@ export default function App() {
       </div>
 
       {/* Unified Search Sidebar */}
-      <div className={cn(
-        "absolute z-40 transition-all duration-300 pointer-events-none flex flex-col gap-3",
-        // Mobile focused state: takes over the screen
-        isSearchFocused ? "inset-0 w-full h-full md:inset-auto md:top-6 md:left-3 md:w-80 md:h-[calc(100vh-48px)] p-0 md:p-0" : "top-2 left-3 right-3 md:top-6 md:left-3 md:w-80 md:h-auto p-0",
-        "max-w-md"
-      )}>
-        <AnimatePresence mode="wait">
-          {!isRoutePlanning || isGuidanceActive ? (
-            <motion.div 
-              key="search-box"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={cn(
-                "bg-white shadow-xl border-slate-200 pointer-events-auto flex flex-col transition-all duration-300 ease-in-out max-h-full overflow-hidden",
-                isSearchFocused ? "h-full rounded-none md:rounded-2xl" : "h-[48px] md:h-[56px] rounded-full md:rounded-2xl shadow-md border"
-              )}
-            >
-              {/* Search Bar Header */}
-              <div className="flex items-center p-1 md:p-1.5 gap-0.5 md:gap-1.5 shrink-0">
-                <button 
-                  onClick={() => {
-                    if (isSearchFocused) {
-                      setIsSearchFocused(false);
-                      setSearchResults([]);
-                    } else {
-                      setShowMenu(true);
-                    }
-                  }}
-                  className="p-2 md:p-2.5 hover:bg-slate-100 rounded-full transition-colors text-slate-600"
-                >
-                  {isSearchFocused ? (
-                    <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
-                  ) : (
-                    <Menu className="w-5 h-5 md:w-6 md:h-6" />
-                  )}
-                </button>
-                
-                <form onSubmit={handleSearch} className="flex-1 flex items-center pr-1">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    placeholder={t('search_here')}
-                    className="flex-1 bg-transparent px-2 md:px-3 py-2 md:py-2.5 focus:outline-none text-slate-800 placeholder-slate-400 font-medium text-sm md:text-base min-w-0"
-                  />
-                  
-                  {searchQuery && (
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSearchResults([]);
-                        if (!searchResults.length) setIsSearchFocused(false);
-                      }}
-                      className="p-1.5 md:p-2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                  
-                  <div className="hidden md:block w-[1px] h-6 bg-slate-200 mx-1" />
-                  
-                  {!isSearchFocused && !searchQuery ? null : (
-                    <button 
-                      type="submit"
-                      disabled={isSearching}
-                      className="p-2 md:p-2.5 text-blue-500 hover:bg-blue-50 rounded-full disabled:opacity-50 transition-all active:scale-95"
-                    >
-                      {isSearching ? (
-                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Search className="w-5 h-5" />
-                      )}
-                    </button>
-                  )}
-                </form>
-              </div>
-
-                    {/* Collapsible Search Content */}
-                    <AnimatePresence>
-                      {(isSearchFocused || searchResults.length > 0) && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="flex flex-col flex-1 overflow-hidden"
-                        >
-                          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-slate-50">
-                      {/* Search Results (Highest Priority) */}
-                      {searchResults.length > 0 && (
-                        <div className="flex flex-col">
-                          <div className="px-5 py-3 bg-slate-50/40 border-b border-slate-100 flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Search Results</span>
-                            <span className="text-[10px] font-bold text-blue-500">{searchResults.length} found</span>
-                          </div>
-                          {searchResults.map((result, idx) => (
-                            <div key={idx} className="flex items-center hover:bg-blue-50/50 transition-all border-b border-slate-50 last:border-0 group">
-                              <button
-                                type="button"
-                                onClick={() => selectSearchResult(result)}
-                                className="flex-1 px-5 py-3 text-left flex flex-col gap-1"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                                    <MapPin className="w-4 h-4" />
-                                  </div>
-                                  <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-bold text-slate-800 truncate">
-                                      {result.display_name.split(',')[0]}
-                                    </span>
-                                    <span className="text-[10px] text-slate-400 truncate leading-tight">
-                                      {result.display_name.split(',').slice(1).join(',').trim() || result.type}
-                                    </span>
-                                  </div>
-                                  {result.source === 'local_db' && (
-                                    <span className="text-[8px] font-black bg-emerald-100 text-emerald-600 px-1.5 rounded-full uppercase tracking-tighter shrink-0">Native</span>
-                                  )}
-                                </div>
-                              </button>
-                              <div className="flex items-center gap-1 pr-3 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const lat = parseFloat(result.lat);
-                                    const lng = parseFloat(result.lon);
-                                    const name = result.display_name.split(',')[0];
-                                    
-                                    // Set destination and auto-route from current location if available
-                                    setDestination({ lat, lng, name });
-                                    setDestinationQuery(name);
-                                    setIsRoutePlanning(true);
-                                    setIsNavigating(true);
-                                    setSearchResults([]);
-                                    setIsSearchFocused(false);
-                                    
-                                    if (userLocation) {
-                                      setOrigin({ lat: userLocation.lat, lng: userLocation.lng, name: "My Location" });
-                                      setOriginQuery("My Location");
-                                    }
-                                  }}
-                                  className="p-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all shadow-md shadow-blue-200 flex items-center gap-2"
-                                  title="Get Directions"
-                                >
-                                  <ArrowUpRight className="w-5 h-5" />
-                                  <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">経路</span>
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* History (Medium Priority) */}
-                      {searchHistory.length > 0 && (
-                        <div className="flex flex-col">
-                          <div className="flex items-center justify-between px-5 py-2 bg-white">
-                            <div className="flex items-center gap-2">
-                              <History className="w-3.5 h-3.5 text-blue-500" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recent Activity</span>
-                            </div>
-                            <button 
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clearHistory();
-                              }}
-                              className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors px-2 py-0.5 rounded-lg hover:bg-red-50"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                          {searchHistory.map((query, idx) => (
-                            <div key={idx} className="flex items-center hover:bg-slate-50 transition-colors group/history px-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSearchQuery(query);
-                                  performSearch(query);
-                                }}
-                                className="flex-1 px-3 py-1.5 text-left flex items-center gap-3"
-                              >
-                                <div className="p-1 bg-slate-100 rounded-lg text-slate-400 group-hover/history:bg-blue-100 group-hover/history:text-blue-600 transition-all">
-                                  <Clock className="w-3 h-3" />
-                                </div>
-                                <span className="text-sm font-medium text-slate-600 truncate">{query}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  removeFromHistory(query);
-                                }}
-                                className="p-2 text-slate-300 hover:text-red-500 opacity-0 group-hover/history:opacity-100 transition-all"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Discover (Low Priority) */}
-                      {searchResults.length === 0 && searchHistory.length === 0 && (
-                        <div className="flex flex-col">
-                          <div className="px-5 py-4 flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-amber-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Explore Nearby</span>
-                          </div>
-                          <div className="grid grid-cols-1 gap-1 px-3 pb-4">
-                            {[
-                              { name: "Tokyo, Japan", icon: <Flag className="w-4 h-4" />, color: "bg-red-50 text-red-600" },
-                              { name: "New York City", icon: <Navigation className="w-4 h-4" />, color: "bg-blue-50 text-blue-600" },
-                              { name: "London, UK", icon: <Flag className="w-4 h-4" />, color: "bg-indigo-50 text-indigo-600" },
-                              { name: "Paris, France", icon: <Flag className="w-4 h-4" />, color: "bg-blue-100 text-blue-800" },
-                              { name: "Mount Everest", icon: <MountainSnow className="w-4 h-4" />, color: "bg-emerald-50 text-emerald-600" }
-                            ].map((place, idx) => (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => {
-                                  setSearchQuery(place.name);
-                                  performSearch(place.name);
-                                }}
-                                className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-slate-50 transition-all rounded-2xl group border border-transparent hover:border-slate-100"
-                              >
-                                <div className={cn("p-2.5 rounded-xl transition-all shadow-sm group-hover:scale-110", place.color)}>
-                                  {place.icon}
-                                </div>
-                                <div className="flex flex-col items-start">
-                                  <span className="text-sm font-bold text-slate-700">{place.name}</span>
-                                  <span className="text-[10px] text-slate-400 font-medium">Quick Discovery</span>
-                                </div>
-                                <ChevronRight className="w-4 h-4 ml-auto text-slate-200 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Utility shortcuts (Always visible when in sidebar but not focused) */}
-              {!(isSearchFocused || searchResults.length > 0) && (
-                <div className="flex items-center gap-0.5 ml-auto pr-1.5 shrink-0">
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      if (destinationQuery) {
-                        setIsRoutePlanning(true);
-                      } else {
-                        setIsRoutePlanning(true);
-                        if (userLocation) {
-                          setOrigin({ ...userLocation, name: "My Location" });
-                          setOriginQuery("My Location");
-                        }
-                      }
-                    }}
-                    className="p-2.5 text-blue-500 hover:bg-blue-50 rounded-xl transition-all active:scale-95"
-                    title="Directions"
-                  >
-                    <ArrowUpRight className="w-5 h-5" />
-                  </button>
-
-                  <div className="w-[1px] h-6 bg-slate-200 mx-1" />
-
-                  <button 
-                    type="button"
-                    onClick={() => setShowQrOptions(!showQrOptions)}
-                    className={cn(
-                      "p-2.5 transition-all rounded-xl active:scale-95",
-                      showQrOptions ? "text-blue-600 bg-blue-50" : "text-slate-400 hover:bg-slate-50 hover:text-blue-600"
-                    )}
-                    title="QR Scan Options"
-                  >
-                    <QrCode className="w-5 h-5" />
-                  </button>
-
-                  <div className="w-[1px] h-6 bg-slate-200 mx-1" />
-                  
-                  <button 
-                    type="button"
-                    onClick={toggleTracking}
-                    className={cn(
-                      "p-2.5 transition-all rounded-xl active:scale-95 relative group",
-                      isTracking ? "text-blue-600 bg-blue-50" : "text-slate-400 hover:bg-slate-50 hover:text-blue-600"
-                    )}
-                    title={isTracking ? "Stop Tracking" : "Use Current Location"}
-                  >
-                    <Navigation className={cn("w-5 h-5", (isLocating || isTracking) && "animate-pulse text-blue-600")} />
-                  </button>
-                </div>
-              )}
-
-              {/* QR Options Overlay */}
-              <AnimatePresence>
-                {showQrOptions && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute right-0 top-full mt-2 bg-white rounded-3xl shadow-2xl border border-slate-100 p-2 z-[100] min-w-[160px]"
-                  >
-                    {[
-                      { icon: <Camera className="w-4 h-4" />, label: "Camera", action: () => { setShowQrOptions(false); startQrScanner(); } },
-                      { icon: <Upload className="w-4 h-4" />, label: "Upload", action: () => { setShowQrOptions(false); qrFileRef.current?.click(); } }
-                    ].map((opt) => (
-                      <button 
-                        key={opt.label}
-                        type="button"
-                        onClick={opt.action}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-2xl transition-colors text-left group"
-                      >
-                        <div className="p-1.5 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
-                          {opt.icon}
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-blue-700">{opt.label}</span>
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <input 
-                type="file" 
-                ref={qrFileRef} 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleQrFileUpload}
-              />
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="route-panel"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 pointer-events-auto p-4 flex flex-col gap-4 w-full"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
-                    <Navigation className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Directions</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => openExternalMap(defaultNavApp)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-95"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    ナビ開始
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setIsRoutePlanning(false);
-                      setIsNavigating(false);
-                      setRouteData(null);
-                    }}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                {/* Visual Connector */}
-                <div className="flex flex-col items-center py-2 gap-1 translate-y-3">
-                  <div className="w-3 h-3 rounded-full border-2 border-slate-300 bg-white" />
-                  <div className="w-0.5 flex-1 border-l-2 border-dotted border-slate-300" />
-                  <div className="w-3 h-3 rounded-full bg-blue-600" />
-                </div>
-
-                <div className="flex-1 flex flex-col gap-3">
-                  <div className="flex items-center justify-between mb-2 gap-4 overflow-x-auto pb-1 scrollbar-hide">
-                    <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg shrink-0">
-                      <button 
-                        onClick={() => setRoutingMode('driving')}
-                        className={cn(
-                          "flex items-center gap-1.5 px-3 py-1 rounded-md transition-all",
-                          routingMode === 'driving' ? "bg-white text-blue-600 shadow-sm font-black" : "text-slate-500 hover:text-slate-700 font-bold"
-                        )}
-                      >
-                        <Truck className="w-3 h-3" />
-                        <span className="text-[10px] uppercase tracking-widest">車</span>
-                      </button>
-                      <button 
-                        onClick={() => setRoutingMode('walking')}
-                        className={cn(
-                          "flex items-center gap-1.5 px-3 py-1 rounded-md transition-all",
-                          routingMode === 'walking' ? "bg-white text-blue-600 shadow-sm font-black" : "text-slate-500 hover:text-slate-700 font-bold"
-                        )}
-                      >
-                        <User className="w-3 h-3" />
-                        <span className="text-[10px] uppercase tracking-widest">徒歩</span>
-                      </button>
-                    </div>
-
-                    <button 
-                      onClick={() => setUseBidirectionalDijkstra(!useBidirectionalDijkstra)}
-                      className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all border shrink-0 ml-auto",
-                        useBidirectionalDijkstra 
-                          ? "bg-blue-50 border-blue-200 text-blue-700 shadow-sm" 
-                          : "bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100"
-                      )}
-                    >
-                      <Zap className={cn("w-3.5 h-3.5", useBidirectionalDijkstra && "fill-current text-blue-500")} />
-                      <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
-                        {useBidirectionalDijkstra ? "BD ON" : "ADV"}
-                      </span>
-                    </button>
-                    
-                    {isRoutingLoading && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-
-                  <motion.div 
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="relative"
-                  >
-                    <input
-                      type="text"
-                      value={originQuery}
-                      onChange={(e) => setOriginQuery(e.target.value)}
-                      placeholder={t('starting_point')}
-                      className="w-full bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
-                    />
-                    {originQuery && (
-                      <button 
-                        onClick={() => { setOriginQuery(""); setOrigin(null); }}
-                        className="absolute right-8 top-1/2 -translate-y-1/2 p-1 text-slate-300 hover:text-slate-500"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => {
-                         if (userLocation) {
-                           setOrigin({ ...userLocation, name: "My Location" });
-                           setOriginQuery("My Location");
-                         }
-                      }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-blue-600"
-                    >
-                      <LocateFixed className="w-4 h-4" />
-                    </button>
-                    
-                    {/* Origin Results */}
-                    <AnimatePresence>
-                      {originResults.length > 0 && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-[60]"
-                        >
-                          {originResults.map((f, i) => (
-                            <button key={i} onClick={() => selectOrigin(f)} className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 border-b border-slate-50 last:border-0">
-                              <span className="font-bold block truncate">{f.properties.name}</span>
-                              <span className="text-slate-400 truncate block">{f.properties.city}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-
-                  <motion.div 
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="relative"
-                  >
-                    <input
-                      type="text"
-                      value={destinationQuery}
-                      onChange={(e) => setDestinationQuery(e.target.value)}
-                      placeholder={t('destination')}
-                      className="w-full bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
-                    />
-                    {destinationQuery && (
-                      <button 
-                        onClick={() => { setDestinationQuery(""); setDestination(null); }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-300 hover:text-slate-500"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
-                    
-                    {/* Destination Results */}
-                    <AnimatePresence>
-                      {destinationResults.length > 0 && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-[60]"
-                        >
-                          {destinationResults.map((f, i) => (
-                            <button key={i} onClick={() => selectDestination(f)} className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 border-b border-slate-50 last:border-0">
-                              <span className="font-bold block truncate">{f.properties.name}</span>
-                              <span className="text-slate-400 truncate block">{f.properties.city}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                </div>
-
-                <div className="flex flex-col justify-center gap-2">
-                </div>
-              </div>
-
-              <div className="flex gap-2 mt-1">
-                <button 
-                  onClick={() => {
-                    const start = origin || userLocation;
-                    if (start && destination) {
-                      setIsNavigating(true);
-                      if (map.current) {
-                        const bounds = new maplibregl.LngLatBounds()
-                          .extend([start.lng, start.lat])
-                          .extend([destination.lng, destination.lat]);
-                        map.current.fitBounds(bounds, { padding: 100 });
-                      }
-                    }
-                  }}
-                  disabled={!(origin || userLocation) || !destination}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-200 active:scale-95"
-                >
-                  {routeData ? 'Update Route' : 'Show Route'}
-                </button>
-                {routeData && (
-                  <button 
-                    onClick={() => setIsGuidanceActive(true)}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-200 active:scale-95"
-                  >
-                    Start Guidance
-                  </button>
-                )}
-              </div>
-
-              {/* External Guidance Section */}
-              {(origin || userLocation) && destination && (
-                <div className="mt-2 pt-4 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <ExternalLink className="w-3 h-3 text-slate-400" />
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Guide with External Map</span>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
-                    <button 
-                      onClick={() => openExternalMap('google')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-blue-200 group active:scale-[0.98]"
-                    >
-                      <img src="https://www.google.com/s2/favicons?domain=google.com" className="w-4 h-4 grayscale group-hover:grayscale-0 transition-all" referrerPolicy="no-referrer" />
-                      <span className="text-[10px] font-bold text-slate-600">Google Maps</span>
-                    </button>
-                    <button 
-                      onClick={() => openExternalMap('apple')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-slate-400 group active:scale-[0.98]"
-                    >
-                      <img src="https://www.google.com/s2/favicons?domain=apple.com" className="w-4 h-4 grayscale group-hover:grayscale-0 transition-all" referrerPolicy="no-referrer" />
-                      <span className="text-[10px] font-bold text-slate-600">Apple Maps</span>
-                    </button>
-                    <button 
-                      onClick={() => openExternalMap('amap')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-blue-200 active:scale-[0.98]"
-                    >
-                      <MapIcon className="w-4 h-4 text-blue-500" />
-                      <span className="text-[10px] font-bold text-slate-600">Amap (高徳)</span>
-                    </button>
-                    <button 
-                      onClick={() => openExternalMap('baidu')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-blue-200 active:scale-[0.98]"
-                    >
-                      <Globe className="w-4 h-4 text-blue-600" />
-                      <span className="text-[10px] font-bold text-slate-600">Baidu (百度)</span>
-                    </button>
-                    <button 
-                      onClick={() => openExternalMap('osmand')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-orange-200 active:scale-[0.98]"
-                    >
-                      <Navigation className="w-4 h-4 text-orange-500" />
-                      <span className="text-[10px] font-bold text-slate-600">OsmAnd</span>
-                    </button>
-                    <button 
-                      onClick={() => openExternalMap('organic_maps')}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all hover:border-emerald-200 active:scale-[0.98]"
-                    >
-                      <MapIcon className="w-4 h-4 text-emerald-500" />
-                      <span className="text-[10px] font-bold text-slate-600">Organic Maps</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <SearchSidebar 
+        t={t}
+        isSearchFocused={isSearchFocused}
+        setIsSearchFocused={setIsSearchFocused}
+        isRoutePlanning={isRoutePlanning}
+        setIsRoutePlanning={setIsRoutePlanning}
+        isGuidanceActive={isGuidanceActive}
+        setIsGuidanceActive={setIsGuidanceActive}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchResults={searchResults}
+        setSearchResults={setSearchResults}
+        isSearching={isSearching}
+        searchHistory={searchHistory}
+        clearHistory={clearHistory}
+        removeFromHistory={removeFromHistory}
+        performSearch={performSearch}
+        handleSearch={handleSearch}
+        selectSearchResult={selectSearchResult}
+        startQrScanner={startQrScanner}
+        setShowMenu={setShowMenu}
+        qrFileRef={qrFileRef}
+        handleQrFileUpload={handleQrFileUpload}
+        toggleTracking={toggleTracking}
+        isTracking={isTracking}
+        isLocating={isLocating}
+        userLocation={userLocation}
+        destination={destination}
+        setDestination={setDestination}
+        destinationQuery={destinationQuery}
+        setDestinationQuery={setDestinationQuery}
+        origin={origin}
+        setOrigin={setOrigin}
+        originQuery={originQuery}
+        setOriginQuery={setOriginQuery}
+        routeData={routeData}
+        setRouteData={setRouteData}
+        isNavigating={isNavigating}
+        setIsNavigating={setIsNavigating}
+        routingMode={routingMode}
+        setRoutingMode={setRoutingMode}
+        useBidirectionalDijkstra={useBidirectionalDijkstra}
+        setUseBidirectionalDijkstra={setUseBidirectionalDijkstra}
+        isRoutingLoading={isRoutingLoading}
+        openExternalMap={openExternalMap}
+        defaultNavApp={defaultNavApp}
+        originResults={originResults}
+        destinationResults={destinationResults}
+        selectOrigin={selectOrigin}
+        selectDestination={selectDestination}
+        mapRef={map}
+      />
 
       {/* Settings Screen (Full-screen transition) */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div 
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-            className="fixed inset-0 bg-white z-[200] flex flex-col pointer-events-auto"
-            style={{ 
-              paddingTop: 'env(safe-area-inset-top)',
-              paddingBottom: 'env(safe-area-inset-bottom)',
-              paddingLeft: 'env(safe-area-inset-left)',
-              paddingRight: 'env(safe-area-inset-right)'
-            }}
-          >
-            <div className="flex flex-col h-full overflow-hidden">
-              {/* Header */}
-              <div className="px-6 py-4 md:py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => {
-                      if (settingsTab === 'main') {
-                        setShowSettings(false);
-                      } else if (settingsTab === 'app-language' || settingsTab === 'address-language') {
-                        setSettingsTab('app');
-                      } else {
-                        setSettingsTab('main');
-                      }
-                    }}
-                    className="w-12 h-12 flex items-center justify-center hover:bg-slate-200 rounded-2xl transition-colors text-slate-600 active:scale-90"
-                    title="Back"
-                  >
-                    <ArrowLeft className="w-6 h-6" />
-                  </button>
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 line-clamp-1">
-                      {settingsTab === 'main' && t('settings')}
-                      {settingsTab === 'home' && t('home')}
-                      {settingsTab === 'app' && t('app_display')}
-                      {settingsTab === 'location' && t('location_privacy')}
-                      {settingsTab === 'offline' && t('offline_maps')}
-                      {settingsTab === 'about' && t('about_terms')}
-                      {settingsTab === 'help' && 'Help & Guides'}
-                      {settingsTab === 'export' && t('export_center')}
-                      {settingsTab === 'app-language' && t('app_language')}
-                      {settingsTab === 'address-language' && t('address_language')}
-                    </h2>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                      {settingsTab === 'main' && t('configure_experience')}
-                      {settingsTab === 'home' && t('set_primary_location')}
-                      {settingsTab === 'app' && t('customize_interface')}
-                      {settingsTab === 'location' && t('manage_data_privacy')}
-                      {settingsTab === 'offline' && t('download_map_data')}
-                      {settingsTab === 'about' && t('info_legal')}
-                      {settingsTab === 'help' && 'How to use AGID'}
-                      {settingsTab === 'export' && t('pro_data_export')}
-                      {settingsTab === 'app-language' && t('app_language')}
-                      {settingsTab === 'address-language' && t('select_address_lang')}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <SettingsPanel 
+        show={showSettings}
+        onClose={() => setShowSettings(false)}
+        settingsTab={settingsTab}
+        setSettingsTab={(t) => setSettingsTab(t as any)}
+        homeAgid={homeAgid}
+        setHomeAgid={setHomeAgid}
+        appLanguage={appLanguage}
+        setAppLanguage={setAppLanguage}
+        addressLanguage={addressLanguage}
+        setAddressLanguage={setAddressLanguage}
+        themeMode={themeMode}
+        setThemeMode={setThemeMode}
+        distanceUnit={distanceUnit}
+        setDistanceUnit={setDistanceUnit}
+        defaultNavApp={defaultNavApp}
+        setDefaultNavApp={(a) => setDefaultNavApp(a as any)}
+        mapStyle={mapStyle}
+        changeStyle={changeStyle}
+        is3DEnabled={is3DEnabled}
+        setIs3DEnabled={setIs3DEnabled}
+        mapPitch={mapPitch}
+        setMapPitch={setMapPitch}
+        gridOpacityLevel={gridOpacityLevel}
+        setGridOpacityLevel={setGridOpacityLevel}
+        savedAgids={savedAgids}
+        setSavedAgids={setSavedAgids}
+        searchHistory={searchHistory}
+        clickedAgid={clickedAgid}
+        showConfirm={(title, message, onConfirm) => setConfirmConfig({ show: true, title, message, onConfirm })}
+        setActiveLegalDoc={setActiveLegalDoc}
+        isQualityLoading={isQualityLoading}
+        fetchQualityReport={fetchQualityReport}
+        registryStats={registryStats}
+        setShowResources={setShowResources}
+        setShowLicenses={setShowLicenses}
+        mapRef={map}
+        jumpToAgid={jumpToAgid}
+        t={t}
+      />
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar relative pb-12">
-                <div className="max-w-3xl mx-auto pb-safe">
-                  <AnimatePresence mode="wait">
-                    {settingsTab === 'main' && (
-                      <motion.div 
-                        key="main"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -20, opacity: 0 }}
-                        className="p-6 space-y-6"
-                      >
-                        {/* Settings Hero Section */}
-                        <div className="relative overflow-hidden bg-slate-900 rounded-[3rem] p-8 md:p-12 mb-8 group">
-                          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
-                          <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
-                          
-                          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                            <div className="w-24 h-24 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2rem] flex items-center justify-center text-white shadow-2xl shrink-0">
-                              <Settings className="w-10 h-10 animate-[spin_8s_linear_infinite]" />
-                            </div>
-                            <div className="text-center md:text-left">
-                              <h4 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2 underline decoration-blue-500/50 decoration-4 underline-offset-4">
-                                Preferences
-                              </h4>
-                              <p className="text-white/60 text-xs font-bold uppercase tracking-[0.2em] max-w-md mx-auto md:mx-0">
-                                Configure your AGID Global experience for maximum precision and usability.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <button 
-                          onClick={() => setSettingsTab('home')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <Home className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">Home</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Set home AGID</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('app')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <Smartphone className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">App & Display</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Map, Units, Theme</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('location')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <ShieldCheck className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">Location & Privacy</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Permissions & Data</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('offline')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <Download className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">Offline Maps</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage downloads</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('export')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <FileDown className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">{t('export_center')}</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GeoJSON, CSV, KML</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('about')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <FileText className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">About & Terms</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Version & Legal</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-
-                        <button 
-                          onClick={() => setSettingsTab('help')}
-                          className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 rounded-3xl transition-colors group active:bg-slate-100"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <Info className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-black text-sm md:text-base text-slate-900">Help Center</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">User Guide & FAQ</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                        </button>
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'export' && (
-                      <motion.div 
-                        key="export"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-10"
-                      >
-                        <div className="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
-                          <h4 className="text-sm font-black text-indigo-900 mb-2 uppercase tracking-widest">{t('pro_data_export')}</h4>
-                          <p className="text-xs text-indigo-800/70 leading-relaxed mb-6">
-                            Download your spatial data in industry-standard formats for GIS, analytics, or navigation.
-                          </p>
-
-                          <div className="space-y-4">
-                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                  <Bookmark className="w-4 h-4 text-indigo-600" />
-                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">
-                                    {t('saved_locations_count').replace('{{count}}', String(savedAgids.length))}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-1 gap-2">
-                                <button 
-                                  disabled={savedAgids.length === 0}
-                                  onClick={() => {
-                                    const data: ExportData[] = savedAgids.map(a => ({
-                                      id: a.id,
-                                      lat: a.lat,
-                                      lon: a.lng,
-                                      name: a.name || a.address,
-                                      type: 'Saved Point',
-                                      timestamp: new Date().toISOString()
-                                    }));
-                                    ExportService.exportToGeoJSON(data, `agid_saved_${new Date().getTime()}.geojson`);
-                                  }}
-                                  className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
-                                >
-                                  <FileDown className="w-3.5 h-3.5" /> {t('export_geojson')}
-                                </button>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <button 
-                                    disabled={savedAgids.length === 0}
-                                    onClick={() => {
-                                      const data: ExportData[] = savedAgids.map(a => ({
-                                        id: a.id,
-                                        lat: a.lat,
-                                        lon: a.lng,
-                                        name: a.name || a.address,
-                                        type: 'Saved Point',
-                                        timestamp: new Date().toISOString()
-                                      }));
-                                      ExportService.exportToCSV(data, `agid_saved_${new Date().getTime()}.csv`);
-                                    }}
-                                    className="py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
-                                  >
-                                    {t('export_csv')}
-                                  </button>
-                                  <button 
-                                    disabled={savedAgids.length === 0}
-                                    onClick={() => {
-                                      const data: ExportData[] = savedAgids.map(a => ({
-                                        id: a.id,
-                                        lat: a.lat,
-                                        lon: a.lng,
-                                        name: a.name || a.address,
-                                        type: 'Saved Point',
-                                        timestamp: new Date().toISOString()
-                                      }));
-                                      ExportService.exportToKML(data, `agid_saved_${new Date().getTime()}.kml`);
-                                    }}
-                                    className="py-3 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
-                                  >
-                                    {t('export_kml')}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                  <History className="w-4 h-4 text-indigo-600" />
-                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Search History ({searchHistory.length})</span>
-                                </div>
-                              </div>
-                              <button 
-                                disabled={searchHistory.length === 0}
-                                onClick={() => {
-                                  const csvContent = "Query\n" + searchHistory.join("\n");
-                                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                                  saveAs(blob, `agid_history_${new Date().getTime()}.csv`);
-                                }}
-                                className="w-full py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
-                              >
-                                <Download className="w-3.5 h-3.5" /> Download History CSV
-                              </button>
-                            </div>
-
-                            <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                  <MapPin className="w-4 h-4 text-indigo-600" />
-                                  <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{t('current_view')}</span>
-                                </div>
-                              </div>
-                              <button 
-                                onClick={() => {
-                                  if (!map.current) return;
-                                  const center = map.current.getCenter();
-                                  const zoom = map.current.getZoom();
-                                  const data = {
-                                    lat: center.lat,
-                                    lon: center.lng,
-                                    zoom: zoom,
-                                    timestamp: new Date().toISOString()
-                                  };
-                                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                                  saveAs(blob, `agid_view_${new Date().getTime()}.json`);
-                                }}
-                                className="w-full py-3 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
-                              >
-                                <Share2 className="w-3.5 h-3.5" /> Save Current Coordinates
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                    {settingsTab === 'home' && (
-                      <motion.div 
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-8"
-                      >
-                        <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100">
-                          <p className="text-sm font-bold text-blue-900 mb-2">Home AGID</p>
-                          <p className="text-xs text-blue-700/70 mb-4 leading-relaxed">
-                            Set your home location to quickly jump back or use it as a reference point.
-                          </p>
-                          <div className="flex gap-2">
-                            <input 
-                              type="text"
-                              value={homeAgid}
-                              onChange={(e) => setHomeAgid(e.target.value.toUpperCase())}
-                              placeholder="Enter AGID (e.g. JP12345678)"
-                              className="flex-1 bg-white border border-blue-200 rounded-2xl px-4 py-3 text-sm font-black font-mono focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                            />
-                            <button 
-                              onClick={() => {
-                                if (clickedAgid) setHomeAgid(clickedAgid.id);
-                              }}
-                              className="px-4 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/20 active:scale-95 transition-all"
-                            >
-                              Use Current
-                            </button>
-                          </div>
-                        </div>
-
-                        {homeAgid && (
-                          <button 
-                            onClick={() => jumpToAgid(homeAgid)}
-                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all active:scale-95"
-                          >
-                            Jump to Home
-                          </button>
-                        )}
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'app' && (
-                      <motion.div 
-                        key="app"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-10"
-                      >
-                        {/* Language Selection */}
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-blue-600">
-                            <Globe className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">言語設定</h3>
-                          </div>
-                          <div className="grid gap-3">
-                            <button 
-                              onClick={() => setSettingsTab('app-language')}
-                              className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-blue-50/50 hover:border-blue-200 transition-all group"
-                            >
-                              <div className="text-left">
-                                <p className="text-sm font-bold text-slate-700">アプリの言語</p>
-                                <p className="text-[10px] text-slate-400 font-medium">UIの表示言語を選択します</p>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                                  {LANGUAGES.find(l => l.code === appLanguage)?.name || appLanguage}
-                                </span>
-                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-400 transition-colors" />
-                              </div>
-                            </button>
-
-                            <button 
-                              onClick={() => setSettingsTab('address-language')}
-                              className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-blue-50/50 hover:border-blue-200 transition-all group"
-                            >
-                              <div className="text-left">
-                                <p className="text-sm font-bold text-slate-700">住所の言語</p>
-                                <p className="text-[10px] text-slate-400 font-medium">住所表示の優先言語を選択します</p>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                                  {LANGUAGES.find(l => l.code === addressLanguage)?.name || addressLanguage}
-                                </span>
-                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-400 transition-colors" />
-                              </div>
-                            </button>
-                          </div>
-                        </section>
-
-                        {/* Mode */}
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-purple-600">
-                            <Smartphone className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">モード</h3>
-                          </div>
-                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-bold text-slate-700">テーマ</p>
-                              <p className="text-[10px] text-slate-400 font-medium">ライト、ダーク、またはシステム設定</p>
-                            </div>
-                            <div className="flex bg-white p-1.5 rounded-2xl border border-slate-200">
-                              <button 
-                                onClick={() => setThemeMode('light')}
-                                className={cn(
-                                  "flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                  themeMode === 'light' ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
-                                )}
-                              >
-                                ライト
-                              </button>
-                              <button 
-                                onClick={() => setThemeMode('dark')}
-                                className={cn(
-                                  "flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                  themeMode === 'dark' ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
-                                )}
-                              >
-                                ダーク
-                              </button>
-                              <button 
-                                onClick={() => setThemeMode('system')}
-                                className={cn(
-                                  "flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                  themeMode === 'system' ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
-                                )}
-                              >
-                                システム
-                              </button>
-                            </div>
-                          </div>
-                        </section>
-
-                        {/* Distance Units & Navigation */}
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-amber-600">
-                            <Ruler className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">距離の単位とナビゲーション</h3>
-                          </div>
-                          <div className="grid gap-4">
-                            <div className="p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4 md:gap-0 md:flex-row md:items-center md:justify-between">
-                              <div>
-                                <p className="text-sm font-bold text-slate-700">単位</p>
-                                <p className="text-[10px] text-slate-400 font-medium">表示単位を選択します</p>
-                              </div>
-                              <div className="flex bg-white p-1.5 rounded-2xl border border-slate-200">
-                                {['automatic', 'kilometers', 'miles'].map((unit) => (
-                                  <button 
-                                    key={unit}
-                                    onClick={() => setDistanceUnit(unit as any)}
-                                    className={cn(
-                                      "flex-1 md:flex-none md:px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                      distanceUnit === unit ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
-                                    )}
-                                  >
-                                    {unit === 'automatic' ? '自動' : unit === 'kilometers' ? 'キロ' : 'マイル'}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Navigation className="w-4 h-4 text-blue-600" />
-                                  <p className="text-sm font-bold text-slate-700">デフォルトのナビアプリ</p>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {[
-                                  { id: 'google', name: 'Google' },
-                                  { id: 'apple', name: 'Apple' },
-                                  { id: 'amap', name: '高徳 (AMap)' },
-                                  { id: 'baidu', name: '百度 (Baidu)' },
-                                  { id: 'osmand', name: 'OsmAnd' },
-                                  { id: 'organic_maps', name: 'Organic' },
-                                  { id: 'waze', name: 'Waze' }
-                                ].map(app => (
-                                  <button
-                                    key={app.id}
-                                    onClick={() => setDefaultNavApp(app.id as any)}
-                                    className={cn(
-                                      "px-4 py-4 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-2 active:scale-95",
-                                      defaultNavApp === app.id 
-                                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200" 
-                                        : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
-                                    )}
-                                  >
-                                    <span className="truncate">{app.name}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </section>
-
-                        {/* Map Appearance (Keep as secondary) */}
-                        <section className="space-y-4 pt-6 border-t border-slate-100">
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <Layers className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">詳細設定</h3>
-                          </div>
-                          <div className="grid gap-4">
-                            <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center md:justify-between p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                              <div>
-                                <p className="text-sm font-bold text-slate-700">地図のスタイル</p>
-                                <p className="text-[10px] text-slate-400 font-medium md:hidden">ベースマップの背景を変更します</p>
-                              </div>
-                              <select 
-                                value={mapStyle}
-                                onChange={(e) => changeStyle(e.target.value)}
-                                className="w-full md:w-auto bg-white border border-slate-200 rounded-xl px-4 py-3 md:py-1.5 text-sm font-bold text-slate-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 appearance-none text-center"
-                              >
-                                <option value="https://tiles.openfreemap.org/styles/bright">Bright</option>
-                                <option value="https://tiles.openfreemap.org/styles/liberty">Liberty</option>
-                                <option value="https://tiles.openfreemap.org/styles/positron">Positron</option>
-                                <option value="https://tiles.openfreemap.org/styles/dark">Dark</option>
-                                <option value="satellite">Satellite</option>
-                              </select>
-                            </div>
-                            <div className="grid grid-cols-1 gap-4">
-                              <button 
-                                onClick={() => setIs3DEnabled(!is3DEnabled)}
-                                className={cn(
-                                  "flex items-center justify-between p-5 md:p-6 rounded-2xl border transition-all active:scale-[0.98]",
-                                  is3DEnabled ? "bg-blue-50 border-blue-200 shadow-sm" : "bg-slate-50 border-slate-100"
-                                )}
-                              >
-                                <div className="flex flex-col items-start gap-1">
-                                  <span className={cn("text-sm font-black uppercase tracking-widest", is3DEnabled ? "text-blue-700" : "text-slate-600")}>3D表示</span>
-                                  <span className="text-[10px] font-bold text-slate-400">地形の起伏を有効化</span>
-                                </div>
-                                <div className={cn("w-3 h-3 rounded-full", is3DEnabled ? "bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)]" : "bg-slate-300")} />
-                              </button>
-                            </div>
-
-                            <div className="p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <RotateCcw className="w-4 h-4 text-slate-500" />
-                                  <p className="text-sm font-bold text-slate-700">地図の斜度</p>
-                                </div>
-                                <div className="flex bg-white p-1 rounded-xl border border-slate-200">
-                                  {[0, 45, 60].map((p) => (
-                                    <button
-                                      key={p}
-                                      onClick={() => setMapPitch(p)}
-                                      className={cn(
-                                        "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                                        mapPitch === p ? "bg-slate-900 text-white shadow-md" : "text-slate-400 hover:text-slate-600"
-                                      )}
-                                    >
-                                      {p}°
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Layers className="w-4 h-4 text-slate-500" />
-                                    <p className="text-sm font-bold text-slate-700">グリッドの濃さ</p>
-                                  </div>
-                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Level {gridOpacityLevel}</span>
-                                </div>
-                                <div className="flex items-center justify-between gap-1">
-                                  {[1, 2, 3, 4, 5].map((lv) => (
-                                    <button
-                                      key={lv}
-                                      onClick={() => setGridOpacityLevel(lv)}
-                                      className={cn(
-                                        "flex-1 py-3 rounded-xl transition-all border-2 flex items-center justify-center",
-                                        gridOpacityLevel === lv 
-                                          ? "bg-blue-600 border-blue-600 shadow-lg shadow-blue-100" 
-                                          : "bg-white border-slate-100 hover:border-slate-200"
-                                      )}
-                                    >
-                                      <div 
-                                        className={cn(
-                                          "w-full h-1 rounded-full mx-2",
-                                          gridOpacityLevel === lv ? "bg-white/80" : "bg-slate-200"
-                                        )}
-                                        style={{ opacity: lv / 5 }}
-                                      />
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </section>
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'location' && (
-                      <motion.div 
-                        key="location"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-10"
-                      >
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-blue-600">
-                            <ShieldCheck className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">Permissions</h3>
-                          </div>
-                          <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm">
-                                  <MapPin className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-bold text-slate-700">Geolocation</span>
-                              </div>
-                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Enabled</span>
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
-                              AGID uses your location to encode the grid cell you are currently in and to provide navigation guidance. Your location data is processed locally and never stored on our servers.
-                            </p>
-                          </div>
-                        </section>
-
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-red-600">
-                            <Database className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">Data Management</h3>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <button 
-                              onClick={() => {
-                                showConfirm('Clear Data', 'Are you sure you want to clear all saved AGIDs?', () => {
-                                  setSavedAgids([]);
-                                  localStorage.removeItem('saved_agids');
-                                });
-                              }}
-                              className="flex flex-col items-center justify-center gap-2 p-6 bg-red-50 border border-red-100 rounded-3xl hover:bg-red-100 transition-colors group"
-                            >
-                              <Trash2 className="w-6 h-6 text-red-500 group-hover:scale-110 transition-transform" />
-                              <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Clear Saved</span>
-                            </button>
-                            <button 
-                              onClick={() => {
-                                showConfirm('Reset Settings', 'Reset all preferences to default?', () => {
-                                  localStorage.clear();
-                                  window.location.reload();
-                                });
-                              }}
-                              className="flex flex-col items-center justify-center gap-2 p-6 bg-slate-50 border border-slate-100 rounded-3xl hover:bg-slate-100 transition-colors group"
-                            >
-                              <History className="w-6 h-6 text-slate-500 group-hover:scale-110 transition-transform" />
-                              <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Reset All</span>
-                            </button>
-                          </div>
-                        </section>
-
-                        <section className="space-y-4">
-                          <div className="flex items-center gap-2 text-slate-900">
-                            <BookOpen className="w-4 h-4" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest">Legal & Privacy</h3>
-                          </div>
-                          <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
-                            <button 
-                              onClick={() => setActiveLegalDoc('privacy')}
-                              className="w-full flex items-center justify-between group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <ShieldCheck className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                                <span className="text-sm font-bold text-slate-700">Privacy Policy</span>
-                              </div>
-                              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <div className="h-px bg-slate-200" />
-                            <button 
-                              onClick={() => setActiveLegalDoc('terms')}
-                              className="w-full flex items-center justify-between group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Scale className="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-colors" />
-                                <span className="text-sm font-bold text-slate-700">Terms of Service</span>
-                              </div>
-                              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                          </div>
-                        </section>
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'offline' && (
-                      <motion.div 
-                        key="offline"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-8"
-                      >
-                        <div className="bg-amber-50 p-8 rounded-[2.5rem] border border-amber-100 text-center space-y-6">
-                          <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center mx-auto text-amber-600 shadow-xl shadow-amber-900/5">
-                            <Download className="w-10 h-10" />
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-black text-amber-900 mb-2">Offline Maps</h4>
-                            <p className="text-sm font-bold text-amber-700/60 leading-relaxed">
-                              Download map areas to use AGID without an internet connection.
-                            </p>
-                          </div>
-                          <div className="p-4 bg-white/50 rounded-2xl text-[10px] font-black text-amber-600 uppercase tracking-widest">
-                            Feature coming soon
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Current Cache</p>
-                          <div className="flex items-center justify-between p-5 bg-slate-50 rounded-3xl border border-slate-100">
-                            <div className="flex items-center gap-3">
-                              <Database className="w-5 h-5 text-slate-400" />
-                              <span className="text-sm font-bold text-slate-700">Tile Cache</span>
-                            </div>
-                            <span className="text-xs font-black text-slate-400">12.4 MB</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'about' && (
-                      <motion.div 
-                        key="about"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-10"
-                      >
-                        <div className="text-center space-y-4">
-                          <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center mx-auto text-white shadow-2xl">
-                            <Grid3X3 className="w-12 h-12" />
-                          </div>
-                          <div>
-                            <h4 className="text-2xl font-black text-slate-900 tracking-tighter">AGID Explorer</h4>
-                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Version 2.4.0-PRO</p>
-                          </div>
-                        </div>
-
-                        {/* Global Coverage (Moved here) */}
-                        <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-xl space-y-6">
-                          <div className="flex items-center justify-between">
-                            <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Global Coverage</h5>
-                            <BarChart3 className="w-4 h-4 text-white/40" />
-                          </div>
-                          <div className="space-y-5">
-                            {MAJOR_CATEGORIES.slice(0, 3).map(cat => {
-                              const stats = registryStats.regionStats[cat.id];
-                              if (!stats || stats.total === 0) return null;
-                              const percentage = Math.round((stats.total / registryStats.globalStats.total) * 100);
-                              return (
-                                <div key={cat.id} className="space-y-2">
-                                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                    <span>{cat.name}</span>
-                                    <span className="text-white/60">{percentage}%</span>
-                                  </div>
-                                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                    <motion.div 
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${percentage}%` }}
-                                      className="h-full bg-blue-500 rounded-full"
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            <button 
-                              onClick={() => setShowResources(true)}
-                              className="w-full mt-4 py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group"
-                            >
-                              Detailed Global Resources
-                              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div className="flex gap-4">
-                            <button 
-                              onClick={() => setShowLicenses(true)}
-                              className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors"
-                            >
-                              Licenses
-                            </button>
-                            <button 
-                              onClick={() => setActiveLegalDoc('privacy')}
-                              className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors"
-                            >
-                              Privacy
-                            </button>
-                            <button 
-                              onClick={() => setActiveLegalDoc('terms')}
-                              className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors"
-                            >
-                              Terms
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {settingsTab === 'help' && (
-                      <motion.div 
-                        key="help"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-8 space-y-10"
-                      >
-                         <section>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                              <div className="w-1 h-3 bg-blue-600 rounded-full" />
-                              What is AGID? (AGIDとは)
-                            </h3>
-                            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-sm leading-relaxed text-slate-600 font-medium">
-                              <p>
-                                <strong className="text-slate-900 font-bold">Absolute Global Identity (AGID)</strong> は、地球上のすべての場所（4m×4mのグリッド）に付与された不変で唯一のIDです。住所のない海の上や山奥でも、確定的な位置を特定することができます。
-                              </p>
-                            </div>
-                          </section>
-
-                          <section>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                               <div className="w-1 h-3 bg-blue-600 rounded-full" />
-                               Device View Standards (表示基準)
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              {[
-                                { icon: Smartphone, label: "Smartphone", detail: "直径 約60m" },
-                                { icon: Box, label: "Tablet", detail: "直径 約100m" },
-                                { icon: MapIcon, label: "PC", detail: "半径 80m (直径160m)" }
-                              ].map((device, idx) => (
-                                <div key={idx} className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col items-center text-center">
-                                  <device.icon className="w-5 h-5 text-slate-400 mb-2" />
-                                  <span className="text-[10px] font-black text-slate-900 uppercase mb-1">{device.label}</span>
-                                  <span className="text-[10px] font-bold text-blue-600">{device.detail}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </section>
-
-                          <section>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                              <div className="w-1 h-3 bg-blue-600 rounded-full" />
-                              Basic Navigation (基本操作)
-                            </h3>
-                            <ul className="grid grid-cols-1 gap-3">
-                              {[
-                                { icon: MapPin, label: "Click to Select", desc: "グリッドをクリックしてその場所のIDと住所を表示します。" },
-                                { icon: Search, label: "Smart Search", desc: "AGID、住所、地名などで直接検索できます。" },
-                                { icon: LocateFixed, label: "My Location", desc: "GPSを使用して現在地のAGIDを特定します。" },
-                                { icon: Layers, label: "Layers & Tilt", desc: "地形（3D）や航空写真、傾きを調整して視認性を高めます。" }
-                              ].map((item, idx) => (
-                                <li key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 group">
-                                  <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
-                                    <item.icon className="w-4 h-4 text-blue-500" />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-xs font-bold text-slate-900 mb-0.5">{item.label}</h4>
-                                    <p className="text-[10px] font-medium text-slate-500 leading-normal">{item.desc}</p>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </section>
-                      </motion.div>
-                    )}
-
-                    {(settingsTab === 'app-language' || settingsTab === 'address-language') && (
-                      <motion.div 
-                        key="language-selection"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 20, opacity: 0 }}
-                        className="p-6 space-y-4"
-                      >
-                        <div className="grid gap-2">
-                          {LANGUAGES.map((lang) => (
-                            <button
-                              key={lang.code}
-                              onClick={() => {
-                                if (settingsTab === 'app-language') {
-                                  setAppLanguage(lang.code);
-                                  localStorage.setItem('agid_app_language', lang.code);
-                                } else {
-                                  setAddressLanguage(lang.code);
-                                  localStorage.setItem('agid_address_language', lang.code);
-                                }
-                                setSettingsTab('app');
-                              }}
-                              className={cn(
-                                "w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left",
-                                (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code)
-                                  ? "bg-blue-50 border-blue-200 ring-2 ring-blue-500/10" 
-                                  : "bg-slate-50 border-slate-100 hover:bg-slate-100"
-                              )}
-                            >
-                              <div>
-                                <p className={cn("text-sm font-bold", (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) ? "text-blue-700" : "text-slate-700")}>
-                                  {lang.name}
-                                </p>
-                                <p className="text-[10px] text-slate-400 font-medium">{lang.country}</p>
-                              </div>
-                              {(settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) && (
-                                <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                                  <Check className="w-3 h-3 text-white" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div 
-                className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0"
-                style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
-              >
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:block">Version 2.4.0 (Stable)</p>
-                <button 
-                  onClick={() => setShowSettings(false)}
-                  className="w-full md:w-auto px-12 py-4 md:py-3 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all active:scale-95"
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Side Menu Drawer */}
-      <AnimatePresence mode="wait">
-        {showMenu && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMenu(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] pointer-events-auto"
-            />
-            <motion.div 
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 1 }}
-              className="fixed top-0 left-0 bottom-0 w-72 md:w-48 bg-white/95 backdrop-blur-xl shadow-2xl z-[101] pointer-events-auto flex flex-col border-r border-white/20"
-              style={{
-                paddingTop: 'env(safe-area-inset-top)',
-                paddingBottom: 'env(safe-area-inset-bottom)',
-                paddingLeft: 'env(safe-area-inset-left)',
-              }}
-            >
-              <div className="px-3 py-6 pb-2 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="text-slate-900 flex items-center justify-center">
-                    <Globe className="w-6 h-6 animate-pulse" />
-                  </div>
-                  <div>
-                    <span className="text-xl font-black tracking-tighter text-slate-900 uppercase block leading-none">AGID</span>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowMenu(false)}
-                  className="w-12 h-12 flex items-center justify-center hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-900 active:scale-90"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto px-3 py-6 space-y-8 custom-scrollbar">
-                {/* Personal Section */}
-                <section className="space-y-4">
-                  <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Personal Space</h3>
-                  <div className="grid grid-cols-1 gap-1">
-                    {[
-                      { icon: Bookmark, label: "Saved Locations", color: "blue", onClick: () => { setSavedTab('agid'); setShowSaved(true); } },
-                      { icon: ShieldIcon, label: "Verified AOIDs", color: "emerald", onClick: () => { setSavedTab('aoid'); setShowSaved(true); } },
-                      { icon: HomeIcon, label: "Register Address", color: "blue", onClick: () => { setAoidModeForced(false); setShowAddressRegistration(true); } },
-                    ].map((item, idx) => (
-                      <motion.button 
-                        key={idx}
-                        whileHover={{ x: 4 }}
-                        onClick={() => { item.onClick(); setShowMenu(false); }}
-                        className="w-full flex items-center gap-2 px-1.5 py-3 hover:bg-slate-50 rounded-2xl transition-all group"
-                      >
-                        <div className={cn(
-                          "transition-all",
-                          item.color === 'blue' ? "text-blue-600 group-hover:text-blue-700" :
-                          "text-emerald-600 group-hover:text-emerald-700"
-                        )}>
-                          <item.icon className="w-4 h-4" />
-                        </div>
-                        <span className="font-bold text-slate-700 text-sm group-hover:text-slate-900 transition-colors">{item.label}</span>
-                        <ChevronRight className="w-4 h-4 ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                      </motion.button>
-                    ))}
-                  </div>
-                </section>
-
-                {/* AOID Private List (Mini) */}
-                {aoids.length > 0 && (
-                  <section className="space-y-4">
-                    <div className="px-1.5 flex items-center justify-between">
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">My AOIDs</h3>
-                      <button 
-                        onClick={() => { setSavedTab('aoid'); setShowSaved(true); setShowMenu(false); }}
-                        className="text-[10px] font-black text-emerald-600 hover:underline"
-                      >
-                        All
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                       {aoids.slice(0, 2).map((aoid: AOIDData) => (
-                         <button 
-                           key={aoid.id}
-                           onClick={() => {
-                             setLat(aoid.lat);
-                             setLng(aoid.lng);
-                             setZoom(18);
-                             setShowMenu(false);
-                           }}
-                           className="w-full text-left p-1.5 hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-100 group"
-                         >
-                           <div className="flex items-center gap-2">
-                             <div className="bg-emerald-50 p-1.5 rounded-lg text-emerald-600 font-mono text-[9px] font-black">
-                               {aoid.id.slice(0, 4)}
-                             </div>
-                             <div className="min-w-0">
-                               <div className="text-xs font-bold text-slate-700 truncate">{aoid.name}</div>
-                               <div className="text-[9px] text-slate-400 truncate">{aoid.address}</div>
-                             </div>
-                           </div>
-                         </button>
-                       ))}
-                    </div>
-                  </section>
-                )}
-              </div>
-
-              <div className="px-3 py-6 border-t border-slate-100 space-y-4">
-                <div className="flex items-center justify-start gap-4 px-1.5">
-                  <button onClick={() => { setShowSettings(true); setShowMenu(false); }} className="p-2 text-slate-400 hover:text-slate-900 transition-colors"><Settings className="w-5 h-5" /></button>
-                  <button onClick={() => { 
-                    navigator.clipboard.writeText(window.location.href);
-                    setCopied('link');
-                    setTimeout(() => setCopied(null), 2000);
-                  }} className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
-                    {copied === 'link' ? <Check className="w-5 h-5 text-emerald-500" /> : <Share2 className="w-5 h-5" />}
-                  </button>
-                </div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">© 2026 AGID Global</p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SideMenu 
+        show={showMenu}
+        onClose={() => setShowMenu(false)}
+        setSavedTab={setSavedTab}
+        setShowSaved={setShowSaved}
+        setAoidModeForced={setAoidModeForced}
+        setShowAddressRegistration={setShowAddressRegistration}
+        setShowHistory={setShowHistory}
+        setShowSettings={setShowSettings}
+        setSettingsTab={(t) => setSettingsTab(t as any)}
+        handleShare={handleShare}
+        isSearchVisible={false} // Placeholder
+        setSearchVisible={() => {}} // Placeholder
+      />
 
       <div className={cn(
         "absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-[450px] px-4 flex flex-col gap-4 pointer-events-none transition-all duration-500",
         isAgidPanelCollapsed && "bottom-2"
       )}>
         {/* Selected Location Panel - Improved UX */}
-        <AnimatePresence mode="wait">
-          {!showPostalCodeLab && clickedAgid && (
-            <motion.div 
-              layout
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              className={cn(
-                "bg-slate-900/90 backdrop-blur-xl shadow-2xl border pointer-events-auto text-white transition-all duration-500 overflow-hidden mx-auto",
-                clickedAgid.id.startsWith('IN') ? "border-orange-500/30" : clickedAgid.id.startsWith('ZA') ? "border-green-500/30" : "border-slate-800",
-                isAgidPanelCollapsed 
-                   ? "w-14 h-14 rounded-full flex items-center justify-center p-0 cursor-pointer hover:bg-slate-800 hover:scale-110 active:scale-95 shadow-red-500/20 shadow-lg" 
-                   : "w-full rounded-[2rem] p-4"
-              )}
-              onClick={isAgidPanelCollapsed ? () => setIsAgidPanelCollapsed(false) : undefined}
-            >
-              <div className={cn("flex flex-col gap-2 w-full h-full", isAgidPanelCollapsed && "items-center justify-center")}>
-                {isAgidPanelCollapsed ? (
-                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center justify-center"
-                   >
-                       <div className="relative">
-                        <div className="w-4 h-4 bg-red-500 rounded-full shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
-                        <div className={cn(
-                          "absolute -top-1.5 -right-1.5 w-2.5 h-2.5 rounded-full animate-pulse",
-                          isAgidPinnedToGps ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                        )} />
-                       </div>
-                   </motion.div>
-                ) : (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <div className="p-1.5 bg-red-500/10 rounded-lg">
-                          <MapPin className="w-3.5 h-3.5 text-red-500" />
-                        </div>
-                        <span className="text-[9px] font-black uppercase tracking-[0.1em] text-red-400/90 truncate max-w-[150px]">
-                          {clickedAgid.isSea ? "Maritime" : (clickedAgid.id.startsWith('IN') ? "Bharat" : clickedAgid.id.startsWith('ZA') ? "SA" : "Selection")}
-                        </span>
-                        {isAgidPinnedToGps && (
-                          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded-full animate-pulse">
-                            <Target className="w-2 h-2 text-amber-500" />
-                            <span className="text-[7px] font-black uppercase text-amber-500 tracking-tighter">GPS Locked</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setIsAgidPanelCollapsed(true); }}
-                          className="p-1 hover:bg-white/10 rounded-full transition-colors text-slate-500 hover:text-white"
-                          title="Collapse"
-                        >
-                          <ChevronDown className="w-3.5 h-3.5" />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                             e.stopPropagation();
-                             setIsManualSelection(false);
-                             if (map.current) {
-                               const center = map.current.getCenter();
-                               const result = encodeAGID(center.lat, center.lng);
-                               setClickedAgid(null);
-                               setClickedAddress("");
-                             }
-                             setIsQrVisible(false);
-                             setIsAgidPanelCollapsed(false);
-                          }}
-                          className="p-1 hover:bg-white/10 rounded-full transition-colors text-slate-500 hover:text-white"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                       <div className="flex items-center justify-between gap-3 px-0.5">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <motion.div 
-                            layoutId="agid-text"
-                            className="font-black text-white tracking-widest font-mono truncate text-lg"
-                          >
-                            {clickedAgid.id}
-                          </motion.div>
-                          <button 
-                            onClick={() => {
-                               const addr = clickedAddressTab === 'translated' ? clickedAddressTranslated : clickedAddressMap[clickedAddressTab] || clickedAddress;
-                               const fullText = `${clickedAgid.id}${addr ? ` (${addr})` : ''}`;
-                               navigator.clipboard.writeText(fullText);
-                               setCopied('agid');
-                               setTimeout(() => setCopied(null), 2000);
-                            }}
-                            className="p-1 hover:bg-white/10 text-slate-400 rounded-lg transition-all active:scale-95"
-                            title="Copy ID & Address"
-                          >
-                            {copied === 'agid' ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5" />}
-                          </button>
-                        </div>
-                        
-                        <div className="flex items-center gap-0.5 font-mono">
-                          <button 
-                            onClick={() => {
-                               if (map.current && clickedAgid) {
-                                 map.current.flyTo({
-                                   center: [(clickedAgid.bounds.minLon + clickedAgid.bounds.maxLon) / 2, (clickedAgid.bounds.minLat + clickedAgid.bounds.maxLat) / 2],
-                                   zoom: getDeviceZoom(),
-                                   pitch: mapPitch,
-                                   essential: true
-                                 });
-                               }
-                            }}
-                            className="p-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md transition-all"
-                            title="Zoom to location"
-                          >
-                            <Maximize2 className="w-2.5 h-2.5" />
-                          </button>
-                          <button 
-                            onClick={(e) => {
-                               e.stopPropagation();
-                               const next = !isAgidPinnedToGps;
-                               setIsAgidPinnedToGps(next);
-                               if (next && userLocation) {
-                                 const result = encodeAGID(userLocation.lat, userLocation.lng);
-                                 setClickedAgid(result);
-                                 showAlert("AGID Locked", "Pinning current location...");
-                                 reverseGeocode(userLocation.lat, userLocation.lng, result.prefix, result.isSea, true);
-                               } else if (!next) {
-                                 showAlert("AGID Unlocked", "Selection unlocked.");
-                               }
-                            }}
-                            className={cn(
-                               "p-1 rounded-md transition-all border",
-                               isAgidPinnedToGps 
-                                ? "bg-amber-600/30 text-amber-400 border-amber-500/40 animate-pulse" 
-                                : "bg-white/5 hover:bg-white/10 text-slate-400 border-white/5"
-                            )}
-                            title={isAgidPinnedToGps ? "Unlock AGID" : "Lock to GPS"}
-                          >
-                            <Key className="w-2.5 h-2.5" />
-                          </button>
-                          <button 
-                            onClick={() => setIsQrVisible(!isQrVisible)}
-                            className={cn(
-                               "p-1 rounded-md transition-all border",
-                               isQrVisible 
-                                ? "bg-purple-600/30 text-purple-400 border-purple-500/40" 
-                                : "bg-white/5 hover:bg-white/10 text-slate-400 border-white/5"
-                            )}
-                            title="Show QR Code"
-                          >
-                            <QrCode className="w-2.5 h-2.5" />
-                          </button>
-                          <button 
-                            onClick={() => {
-                               const lat = (clickedAgid.bounds.minLat + clickedAgid.bounds.maxLat) / 2;
-                               const lng = (clickedAgid.bounds.minLon + clickedAgid.bounds.maxLon) / 2;
-                               const name = clickedAddress || clickedAgid.id;
-                               setDestination({ lat, lng, name });
-                               setDestinationQuery(name);
-                               setIsRoutePlanning(true);
-                               setIsNavigating(true);
-                               if (userLocation) {
-                                 setOrigin({ ...userLocation, name: "My Location" });
-                                 setOriginQuery("My Location");
-                               }
-                            }}
-                            className="p-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all flex items-center gap-1.5 shadow-lg shadow-blue-500/30 active:scale-95"
-                            title="Get Directions"
-                          >
-                            <ArrowUpRight className="w-3.5 h-3.5" />
-                            <span className="text-[10px] font-black uppercase tracking-tight">経路案内</span>
-                          </button>
-                        </div>
-                       </div>
-
-                       <motion.div 
-                        key="expanded-content"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-2"
-                       >
-                         {/* Territory Info */}
-                         {clickedAgid.isSea && clickedAgid.regionName && (
-                            <div className="flex items-center gap-2 px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg w-fit">
-                              <Waves className="w-2.5 h-2.5 text-blue-400" />
-                              <span className="text-[9px] font-black text-blue-200">{clickedAgid.regionName}</span>
-                            </div>
-                         )}
-
-                         {/* Address Area */}
-                         <div className="group relative bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/[0.08] transition-colors">
-                          <div className="flex flex-col gap-2">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-                                 {/* Native Language Tabs */}
-                                 {clickedActiveLangs.filter(l => l !== 'en').map((langCode) => (
-                                   <button
-                                     key={langCode}
-                                     onClick={() => {
-                                       const isAlreadyActive = clickedAddressTab === langCode;
-                                       setClickedAddressTab(langCode);
-                                       if (isAlreadyActive || !clickedAddressMap[langCode]) {
-                                         const l = (clickedAgid.bounds.minLat + clickedAgid.bounds.maxLat) / 2;
-                                         const n = (clickedAgid.bounds.minLon + clickedAgid.bounds.maxLon) / 2;
-                                         fetchAddressForLang(l, n, langCode, true, clickedAgid.id.slice(0, 2), isAlreadyActive);
-                                       }
-                                     }}
-                                     className={cn(
-                                       "px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-1.5",
-                                       clickedAddressTab === langCode 
-                                        ? "bg-slate-800 text-white shadow-lg" 
-                                        : "bg-white/5 text-slate-500 hover:bg-white/10"
-                                     )}
-                                   >
-                                     <Flag className="w-2.5 h-2.5" />
-                                     <span>{LANGUAGES.find(l => l.code === langCode)?.name || "Native"}</span>
-                                   </button>
-                                 ))}
-
-                                 <button
-                                   onClick={() => setClickedAddressTab('en')}
-                                   className={cn(
-                                     "px-2.5 py-1 rounded text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-1.5",
-                                     clickedAddressTab === 'en' 
-                                      ? "bg-slate-100 text-slate-900 shadow-lg" 
-                                      : "bg-white/5 text-slate-500 hover:bg-white/10"
-                                   )}
-                                 >
-                                   <Globe className="w-2.5 h-2.5" />
-                                   <span>English</span>
-                                 </button>
-                               </div>
-                             </div>
-
-                             <div className="text-[11px] font-medium text-slate-200 leading-snug min-h-[2.5em]">
-                                {clickedAddressMap[clickedAddressTab] || 
-                                 (clickedAddressTab === 'en' ? (fastJapaneseTransliterate(clickedAddress) || "Translating...") : clickedAddress) || 
-                                 "Resolving..."}
-                             </div>
-
-                             <div className="flex items-center gap-2.5 mt-2 pt-2 border-t border-white/5 overflow-x-auto no-scrollbar">
-                                <button onClick={() => saveAgid(clickedAgid)} className="p-1.5 bg-white/5 rounded-lg text-slate-500"><Bookmark className="w-3 h-3" /></button>
-                                <button onClick={() => setShowLocationAnalysis(!showLocationAnalysis)} className="p-1.5 bg-white/5 rounded-lg text-slate-500"><Zap className="w-3 h-3" /></button>
-                                <button onClick={() => setIsQrVisible(!isQrVisible)} className="p-1.5 bg-white/5 rounded-lg text-slate-500"><QrCode className="w-3 h-3" /></button>
-                             </div>
-                          </div>
-                         </div>
-
-                         <AnimatePresence>
-                          {isQrVisible && (
-                             <motion.div 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              className="bg-white rounded-[2rem] p-5 flex flex-col items-center gap-3 mt-3"
-                             >
-                                <div className="p-3 bg-slate-50 rounded-2xl shadow-inner">
-                                 <QRCodeCanvas value={clickedAgid.id} size={120} level="H" includeMargin={false} id="agid-qr-canvas" />
-                                </div>
-                                <button onClick={saveQrCode} className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-[9px] font-black uppercase flex items-center gap-1.5 border border-slate-200">
-                                 <Download className="w-2.5 h-2.5" /> Save QR
-                                </button>
-                             </motion.div>
-                          )}
-                         </AnimatePresence>
-                       </motion.div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <GridDetailPanel 
+          clickedAgid={clickedAgid}
+          setClickedAgid={setClickedAgid}
+          isAgidPanelCollapsed={isAgidPanelCollapsed}
+          setIsAgidPanelCollapsed={setIsAgidPanelCollapsed}
+          isManualSelection={isManualSelection}
+          setIsManualSelection={setIsManualSelection}
+          isAgidPinnedToGps={isAgidPinnedToGps}
+          setIsAgidPinnedToGps={setIsAgidPinnedToGps}
+          userLocation={userLocation}
+          reverseGeocode={reverseGeocode}
+          showAlert={showAlert}
+          setIsQrVisible={setIsQrVisible}
+          isQrVisible={isQrVisible}
+          clickedAddress={clickedAddress}
+          setDestination={setDestination}
+          setDestinationQuery={setDestinationQuery}
+          setIsRoutePlanning={setIsRoutePlanning}
+          setIsNavigating={setIsNavigating}
+          setOrigin={setOrigin}
+          setOriginQuery={setOriginQuery}
+          clickedAddressMap={clickedAddressMap}
+          clickedAddressTab={clickedAddressTab}
+          setClickedAddressTab={setClickedAddressTab}
+          clickedActiveLangs={clickedActiveLangs}
+          clickedAddressTranslated={clickedAddressTranslated}
+          setClickedAddress={setClickedAddress}
+          fetchAddressForLang={fetchAddressForLang}
+          fastJapaneseTransliterate={fastJapaneseTransliterate}
+          saveAgid={saveAgid}
+          setShowLocationAnalysis={setShowLocationAnalysis}
+          showLocationAnalysis={showLocationAnalysis}
+          saveQrCode={saveQrCode}
+          showPostalCodeLab={showPostalCodeLab}
+          setShowPostalCodeLab={setShowPostalCodeLab}
+          showGeoArchitect={showGeoArchitect}
+          setShowGeoArchitect={setShowGeoArchitect}
+          mapRef={map}
+          mapPitch={mapPitch}
+          getDeviceZoom={getDeviceZoom}
+          encodeAGID={encodeAGID}
+          copied={copied}
+          setCopied={setCopied}
+        />
       </div>
 
 
@@ -6229,10 +4516,10 @@ export default function App() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-amber-200 flex items-center gap-6 pointer-events-auto"
+            className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-xl p-4 rounded-none shadow-2xl border border-amber-200 flex items-center gap-6 pointer-events-auto"
           >
             <div className="flex items-center gap-3">
-              <div className="bg-amber-100 p-2 rounded-xl text-amber-600">
+              <div className="bg-amber-100 p-2 rounded-none text-amber-600">
                 <Ruler className="w-5 h-5" />
               </div>
               <div>
@@ -6247,7 +4534,7 @@ export default function App() {
 
             {rulerPoints.length === 2 && (
               <div className="flex items-center gap-3 border-l border-slate-100 pl-6">
-                <div className="bg-blue-100 p-2 rounded-xl text-blue-600">
+                <div className="bg-blue-100 p-2 rounded-none text-blue-600">
                   <Compass className="w-5 h-5" />
                 </div>
                 <div>
@@ -6261,7 +4548,7 @@ export default function App() {
 
             <button 
               onClick={() => setRulerPoints([])}
-              className="ml-4 p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-red-500 transition-colors"
+              className="ml-4 p-2 hover:bg-slate-100 rounded-none text-slate-400 hover:text-red-500 transition-colors"
               title="Clear Points"
             >
               <Trash2 className="w-5 h-5" />
@@ -6270,340 +4557,47 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Layers Bottom Sheet */}
-      <AnimatePresence>
-        {showStyleMenu && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowStyleMenu(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] pointer-events-auto"
-            />
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2rem] shadow-2xl z-[101] pointer-events-auto overflow-hidden"
-            >
-              <div className="max-w-4xl mx-auto p-4 md:p-6">
-                <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4" />
-                
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-blue-50 rounded-lg">
-                      <Layers className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Map Layers</h3>
-                  </div>
-                  <button 
-                    onClick={() => setShowStyleMenu(false)}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+      <MapLayersMenu 
+        show={showStyleMenu}
+        onClose={() => setShowStyleMenu(false)}
+        mapStyle={mapStyle}
+        changeStyle={changeStyle}
+        mapPitch={mapPitch}
+        setMapPitch={setMapPitch}
+        isSystematicMode={isSystematicMode}
+        setIsSystematicMode={setIsSystematicMode}
+        isRegionalMode={isRegionalMode}
+        setIsRegionalMode={setIsRegionalMode}
+        isNauticalMode={isNauticalMode}
+        setIsNauticalMode={setIsNauticalMode}
+        isSeaTypeMode={isSeaTypeMode}
+        setIsSeaTypeMode={setIsSeaTypeMode}
+        is3DEnabled={is3DEnabled}
+        setIs3DEnabled={setIs3DEnabled}
+        isDisasterMode={isDisasterMode}
+        setIsDisasterMode={setIsDisasterMode}
+        isMountainMode={isMountainMode}
+        setIsMountainMode={setIsMountainMode}
+        projection={projection}
+        setProjection={setProjection}
+        isGridVisible={isGridVisible}
+        setIsGridVisible={setIsGridVisible}
+        gridOpacityLevel={gridOpacityLevel}
+        setGridOpacityLevel={setGridOpacityLevel}
+        mapRef={map}
+      />
 
-                <div className="space-y-6">
-                  <section>
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Map Type (地図の種類)</h4>
-                    </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar snap-x">
-                      {MAP_STYLES.map((style) => (
-                        <button
-                          key={style.id}
-                          onClick={() => changeStyle(style.url)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all overflow-hidden relative shadow-sm",
-                            mapStyle === style.url ? "border-blue-500 ring-4 ring-blue-500/10 scale-105" : "border-slate-100 group-hover/item:border-blue-200"
-                          )}>
-                            <img 
-                              src={style.thumb} 
-                              alt={style.name}
-                              className="w-full h-full object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                            {mapStyle === style.url && (
-                              <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
-                                <Check className="w-3 h-3 text-blue-500" />
-                              </div>
-                            )}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center", mapStyle === style.url ? "text-blue-600" : "text-slate-500")}>
-                            {style.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </section>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <section>
-                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Map Tilt (傾き: {mapPitch}°)</h4>
-                      <div className="px-1 py-2">
-                        <input 
-                          type="range" 
-                          min="0" 
-                          max="85" 
-                          step="5"
-                          value={mapPitch} 
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value);
-                            setMapPitch(val);
-                            if (map.current) map.current.setPitch(val);
-                          }}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
-                        <div className="flex justify-between mt-1 px-0.5">
-                          <span className="text-[7px] font-bold text-slate-400">Flat (平坦)</span>
-                          <span className="text-[7px] font-bold text-slate-400">Low (低)</span>
-                          <span className="text-[7px] font-bold text-slate-400">Medium (中)</span>
-                          <span className="text-[7px] font-bold text-slate-400">High (高)</span>
-                        </div>
-                      </div>
-                    </section>
-
-                    <section>
-                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Geography (地理学)</h4>
-                      <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar snap-x">
-                        <button
-                          onClick={() => setIsSystematicMode(!isSystematicMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isSystematicMode ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
-                          )}>
-                            <BarChart3 className="w-5 h-5" />
-                            {isSystematicMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isSystematicMode ? "text-blue-600" : "text-slate-500")}>
-                            Systematic
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => setIsRegionalMode(!isRegionalMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isRegionalMode ? "border-emerald-500 bg-emerald-50 text-emerald-600 ring-4 ring-emerald-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-emerald-200"
-                          )}>
-                            <Landmark className="w-5 h-5" />
-                            {isRegionalMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isRegionalMode ? "text-emerald-600" : "text-slate-500")}>
-                            Regional
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => setIsNauticalMode(!isNauticalMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isNauticalMode ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
-                          )}>
-                            <Anchor className="w-5 h-5" />
-                            {isNauticalMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isNauticalMode ? "text-blue-600" : "text-slate-500")}>
-                            Nautical
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => setIsSeaTypeMode(!isSeaTypeMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isSeaTypeMode ? "border-cyan-500 bg-cyan-50 text-cyan-600 ring-4 ring-cyan-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-cyan-200"
-                          )}>
-                            <Waves className="w-5 h-5" />
-                            {isSeaTypeMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-cyan-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isSeaTypeMode ? "text-cyan-600" : "text-slate-500")}>
-                            Sea Type
-                          </span>
-                        </button>
-                      </div>
-                    </section>
-
-                    <section>
-                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Geoscience (地球科学)</h4>
-                      <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar snap-x">
-                        <button
-                          onClick={() => setIs3DEnabled(!is3DEnabled)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            is3DEnabled ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
-                          )}>
-                            <Layers className="w-5 h-5" />
-                            {is3DEnabled && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", is3DEnabled ? "text-blue-600" : "text-slate-500")}>
-                            3D Terrain
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => setIsDisasterMode(!isDisasterMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isDisasterMode ? "border-red-500 bg-red-50 text-red-600 ring-4 ring-red-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-red-200"
-                          )}>
-                            <AlertOctagon className={cn("w-5 h-5", isDisasterMode ? "animate-pulse" : "")} />
-                            {isDisasterMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isDisasterMode ? "text-red-600" : "text-slate-500")}>
-                            Disaster
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => setIsMountainMode(!isMountainMode)}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            isMountainMode ? "border-emerald-500 bg-emerald-50 text-emerald-600 ring-4 ring-emerald-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-emerald-200"
-                          )}>
-                            <MountainSnow className="w-5 h-5" />
-                            {isMountainMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isMountainMode ? "text-emerald-600" : "text-slate-500")}>
-                            Mountain
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setProjection(projection === 'globe' ? 'mercator' : 'globe');
-                          }}
-                          className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
-                        >
-                          <div className={cn(
-                            "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
-                            projection === 'globe' ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
-                          )}>
-                            {projection === 'globe' ? <Globe className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
-                            {projection === 'globe' && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-full" />}
-                          </div>
-                          <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", projection === 'globe' ? "text-blue-600" : "text-slate-500")}>
-                            {projection === 'globe' ? 'Globe' : 'Flat'}
-                          </span>
-                        </button>
-                      </div>
-                    </section>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Map Controls (Responsive Placement) */}
-      <div className={cn(
-        "absolute z-40 flex flex-col gap-2 md:gap-1.5 pointer-events-none transition-all duration-500 items-end",
-        // Position: Tight bottom right, moved lower for PC as requested
-        "right-2 md:right-3",
-        clickedAgid 
-          ? (isAgidPanelCollapsed ? "bottom-24" : "bottom-72 md:bottom-80") 
-          : "bottom-8 md:bottom-6"
-      )}>
-        {/* Upper Group: Compass (Only when tilted) */}
-        <div className="flex flex-col gap-2 md:gap-2 items-end">
-          <AnimatePresence>
-            {mapBearing !== 0 && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="pointer-events-auto"
-              >
-                <button 
-                  onClick={() => {
-                    map.current?.setBearing(0);
-                    setMapBearing(0);
-                  }}
-                  className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center relative overflow-hidden"
-                  title="コンパスをリセット"
-                >
-                  <div 
-                    className="relative w-6 h-6 md:w-5 md:h-5 transition-transform duration-300 ease-out"
-                    style={{ transform: `rotate(${-mapBearing}deg)` }}
-                  >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-red-500 rounded-full" />
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-slate-400 rounded-full" />
-                    <span className="absolute top-[-1px] left-1/2 -translate-x-1/2 text-[9px] font-black text-red-500 select-none">N</span>
-                  </div>
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Main Controls Group: Layers, Geocoding (Locate), Zoom */}
-        <div className="flex flex-col gap-2 md:gap-0 mt-auto items-end">
-          {/* Layer Button */}
-          <div className="pointer-events-auto mb-1.5 md:mb-1.5">
-            <button 
-              onClick={() => setShowStyleMenu(true)}
-              className="w-9 h-9 md:w-8 md:h-8 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center group hover:bg-slate-50 transition-all"
-              title="レイヤー"
-            >
-              <Layers className="w-4.5 h-4.5 md:w-4 md:h-4 text-slate-600" />
-            </button>
-          </div>
-
-          {/* Help Button Removed from here as it is moved to Settings */}
-
-          {/* Locate Button (Geocoding / My Location) */}
-          <div className="pointer-events-auto mb-1.5 md:mb-1.5 relative">
-            <button 
-              onClick={toggleTracking}
-              className={cn(
-                "w-9 h-9 md:w-8 md:h-8 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center transition-all active:scale-95 group relative",
-                isTracking ? "text-blue-600 border-blue-200" : "text-slate-600"
-              )}
-              title="現在地表示"
-            >
-              <LocateFixed className={cn("w-4.5 h-4.5 md:w-4 md:h-4", (isTracking || isLocating) && "animate-pulse")} />
-            </button>
-          </div>
-
-          {/* Zoom Controls (PC only - Request 4: Smaller) */}
-          <div className="hidden md:flex flex-col bg-white rounded-lg shadow-lg border border-slate-200 pointer-events-auto overflow-hidden">
-            <button 
-              onClick={() => map.current?.zoomIn()}
-              className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-600"
-              title="拡大"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={() => map.current?.zoomOut()}
-              className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 transition-colors text-slate-600"
-              title="縮小"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+       <MapControls 
+        clickedAgid={clickedAgid}
+        isAgidPanelCollapsed={isAgidPanelCollapsed}
+        mapBearing={mapBearing}
+        setMapBearing={setMapBearing}
+        setShowStyleMenu={setShowStyleMenu}
+        toggleTracking={toggleTracking}
+        isTracking={isTracking}
+        isLocating={isLocating}
+        mapRef={map}
+      />
 
       <React.Suspense fallback={null}>
         <GeoArchitectPanel
@@ -6660,441 +4654,76 @@ export default function App() {
       </React.Suspense>
 
       {/* Saved & AOID Panel */}
-      <AnimatePresence mode="wait">
-        {showSaved && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSaved(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[110]"
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 1 }}
-              className="fixed right-0 top-0 bottom-0 w-80 md:w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-[111] border-l border-white/20 flex flex-col"
-            >
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-2 rounded-xl text-white shadow-lg transition-colors",
-                    savedTab === 'agid' ? "bg-blue-600 shadow-blue-100" : "bg-emerald-600 shadow-emerald-100"
-                  )}>
-                    {savedTab === 'agid' ? <History className="w-5 h-5" /> : <ShieldIcon className="w-5 h-5" />}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight leading-none">
-                      {savedTab === 'agid' ? 'Favorites' : 'Verified IDs'}
-                    </h2>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                      {savedTab === 'agid' ? 'Public Location History' : 'Registered Private Addresses'}
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowSaved(false)}
-                  className="p-2 hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-900"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="p-1 px-1.5 bg-slate-100/50 m-4 rounded-xl border border-slate-200/50 flex">
-                <button 
-                  onClick={() => setSavedTab('agid')}
-                  className={cn(
-                    "flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all",
-                    savedTab === 'agid' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                  )}
-                >
-                  Locations
-                </button>
-                <button 
-                  onClick={() => setSavedTab('aoid')}
-                  className={cn(
-                    "flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all",
-                    savedTab === 'aoid' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                  )}
-                >
-                  AOID Registry
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {savedTab === 'agid' ? (
-                  <>
-                    <div className="sticky top-0 z-10 bg-white pb-2">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder={t('search_agid_placeholder')}
-                          value={savedSearch}
-                          onChange={(e) => setSavedSearch(e.target.value)}
-                          className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        />
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-
-                    {savedAgids.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
-                        <Bookmark className="w-12 h-12 text-slate-300" />
-                        <p className="text-sm font-medium text-slate-500">No saved AGIDs yet.<br/>Click the bookmark icon to save one.</p>
-                      </div>
-                    ) : (
-                      savedAgids
-                        .filter(saved => 
-                          saved.id.toLowerCase().includes(savedSearch.toLowerCase()) || 
-                          (saved.address && saved.address.toLowerCase().includes(savedSearch.toLowerCase()))
-                        )
-                        .map((saved) => (
-                          <div 
-                            key={saved.id}
-                            className="group bg-slate-50 rounded-2xl border border-slate-100 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all shadow-sm"
-                          >
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-xl font-black text-blue-600 font-mono">{saved.id.slice(0, 2)}</span>
-                              <span className="text-xl font-bold text-slate-700 font-mono">{saved.id.slice(2)}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button 
-                                onClick={() => copyToClipboard(saved.id, 'saved-list-' + saved.id)}
-                                className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-600 transition-all shadow-sm"
-                                title="Copy AGID"
-                              >
-                                <BookOpen className={cn("w-4 h-4", copied === ('saved-list-' + saved.id) ? "text-green-500" : "")} />
-                              </button>
-                              <button 
-                                onClick={() => deleteSavedAgid(saved.id)}
-                                className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-red-600 transition-all shadow-sm"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                          
-                          {saved.address && (
-                            <div className="flex items-start gap-2 mb-3">
-                              <MapPin className="w-3 h-3 text-slate-400 mt-0.5 shrink-0" />
-                              <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{saved.address}</p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-100/50">
-                            <span className="text-[9px] font-bold text-slate-300 uppercase">
-                              {new Date(saved.savedAt).toLocaleDateString()}
-                            </span>
-                            <button 
-                              onClick={() => jumpToSaved(saved)}
-                              className="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1 group/jump"
-                            >
-                              JUMP TO MAP
-                              <Navigation className="w-3 h-3 group-hover/jump:translate-x-0.5 transition-transform" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="sticky top-0 z-10 bg-white pb-2">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder={t('search_aoid_placeholder')}
-                          value={savedSearch}
-                          onChange={(e) => setSavedSearch(e.target.value)}
-                          className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                        />
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-
-                    {aoids.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40 py-12">
-                        <ShieldIcon className="w-12 h-12 text-slate-300" />
-                        <p className="text-sm font-medium text-slate-500">No AOIDs registered yet.<br/>Create private IDs for your locations.</p>
-                        <button 
-                          onClick={() => { setShowAddressRegistration(true); setShowSaved(false); }}
-                          className="px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-emerald-100"
-                        >
-                          Register First AOID
-                        </button>
-                      </div>
-                    ) : (
-                      aoids
-                        .filter(aoid => 
-                          aoid.id.toLowerCase().includes(savedSearch.toLowerCase()) || 
-                          aoid.name.toLowerCase().includes(savedSearch.toLowerCase()) ||
-                          aoid.address.toLowerCase().includes(savedSearch.toLowerCase())
-                        )
-                        .map((aoid) => (
-                          <div 
-                            key={aoid.id}
-                            className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
-                          >
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
-                                <span className="text-lg font-black text-emerald-700 font-mono tracking-tighter">{aoid.id}</span>
-                              </div>
-                              <button 
-                                onClick={() => setAoids(prev => prev.filter(a => a.id !== aoid.id))}
-                                className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <User className="w-3.5 h-3.5 text-slate-400" />
-                                <span className="text-xs font-black text-slate-800">{aoid.name}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Phone className="w-3.5 h-3.5 text-slate-400" />
-                                <span className="text-xs font-bold text-slate-500">{aoid.phone}</span>
-                              </div>
-                              <div className="pt-2 mt-2 border-t border-slate-50">
-                                <div className="flex items-start gap-2">
-                                  <HomeIcon className="w-3 h-3 text-emerald-400 mt-0.5" />
-                                  <p className="text-[10px] text-slate-400 leading-relaxed italic">
-                                    {aoid.address} {aoid.building} {aoid.room}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <button 
-                              onClick={() => {
-                                setLat(aoid.lat);
-                                setLng(aoid.lng);
-                                setZoom(20);
-                                setShowSaved(false);
-                                setShowMenu(false);
-                              }}
-                              className="w-full mt-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100 group-hover:border-emerald-200"
-                            >
-                              View on Map
-                            </button>
-                          </div>
-                        ))
-                    )}
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SavedLocations 
+        show={showSaved}
+        onClose={() => setShowSaved(false)}
+        savedAgids={savedAgids}
+        savedTab={savedTab}
+        setSavedTab={setSavedTab}
+        savedSearch={savedSearch}
+        setSavedSearch={setSavedSearch}
+        t={t}
+        copyToClipboard={copyToClipboard}
+        copied={copied}
+        deleteSavedAgid={deleteSavedAgid}
+        jumpToSaved={jumpToSaved}
+        aoids={aoids}
+        setAoids={setAoids}
+        setShowAddressRegistration={setShowAddressRegistration}
+        setLat={setLat}
+        setLng={setLng}
+        setZoom={setZoom}
+        setShowMenu={setShowMenu}
+      />
 
       {/* Side Menu (Resources) */}
-      <AnimatePresence>
-        {showResources && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[1000] bg-slate-900/40 backdrop-blur-sm pointer-events-auto"
-              onClick={() => setShowResources(false)}
-            />
-            <motion.div 
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-              className="fixed top-0 right-0 bottom-0 w-80 lg:w-64 bg-white shadow-2xl z-[1001] border-l border-slate-200 flex flex-col pointer-events-auto"
-            >
-              <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setShowResources(false)}
-                    className="p-1.5 hover:bg-slate-200 rounded-full transition-colors"
-                  >
-                    <ArrowRight className="w-4 h-4 text-slate-600" />
-                  </button>
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900 leading-none">Reference</h2>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Tools & GIS</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-8 custom-scrollbar">
-                {/* Information Sections with left-aligned icons */}
-                <section className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Database className="w-3.5 h-3.5 text-blue-600" />
-                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Global Stats</h3>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
-                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Total Grid Points</div>
-                      <div className="text-2xl font-black text-slate-900 font-mono tracking-tighter">
-                        {registryStats?.globalStats?.total?.toLocaleString() || "142M+"}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Region Distribution</h3>
-                  </div>
-                  <div className="space-y-3">
-                    {MAJOR_CATEGORIES.map(cat => {
-                      const stats = registryStats.regionStats[cat.id];
-                      if (!stats || stats.total === 0) return null;
-                      const percentage = Math.round((stats.total / registryStats.globalStats.total) * 100);
-                      return (
-                        <div key={cat.id} className="space-y-1.5 px-1">
-                          <div className="flex justify-between items-center px-1">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tight">{cat.name}</span>
-                            <span className="text-[9px] font-bold text-slate-900">{percentage}%</span>
-                          </div>
-                          <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-slate-900 rounded-full"
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <ResourcesSideMenu 
+        show={showResources} 
+        onClose={() => setShowResources(false)} 
+        registryStats={registryStats} 
+        majorCategories={MAJOR_CATEGORIES} 
+      />
       {/* Custom Alert Modal */}
-      <AnimatePresence>
-        {alertConfig?.show && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setAlertConfig(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[300]"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-3xl shadow-2xl z-[301] p-8 text-center border border-slate-100"
-            >
-              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Info className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">{alertConfig.title}</h3>
-              <p className="text-sm font-bold text-slate-500 mb-8 leading-relaxed">{alertConfig.message}</p>
-              <button 
-                onClick={() => setAlertConfig(null)}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all active:scale-95"
-              >
-                Dismiss
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <CustomAlert config={alertConfig} onClose={() => setAlertConfig(null)} />
 
-      <AnimatePresence>
-        {isQrScanning && (
-          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => {
-                qrScannerRef.current?.clear();
-                setIsQrScanning(false);
-              }}
-              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-sm bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col pt-8 pb-10 px-8"
-            >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-4">
-                  <QrCode className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900 tracking-tight">QR Scanner</h3>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Scan an AGID QR Code</p>
-              </div>
-
-              <div id="qr-reader" className="w-full aspect-square bg-slate-100 rounded-3xl overflow-hidden border-2 border-slate-100 shadow-inner" />
-              
-              <button 
-                onClick={() => {
-                  qrScannerRef.current?.clear();
-                  setIsQrScanning(false);
-                }}
-                className="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all active:scale-95"
-              >
-                Cancel
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <QrScannerModal 
+        show={isQrScanning} 
+        onClose={() => {
+          qrScannerRef.current?.clear();
+          setIsQrScanning(false);
+        }}
+        scannerId="qr-reader"
+      />
 
       <div id="qr-reader-hidden" className="hidden" />
 
       {/* Center Action Button */}
-      <AnimatePresence>
-        {!clickedAgid && (
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
-          >
-            <button 
-              onClick={() => {
-                if (!map.current) return;
-                const center = map.current.getCenter();
-                const lat = center.lat;
-                const lng = center.lng;
-                const result = encodeAGID(lat, lng);
-                setClickedAgid(result);
-                setClickedAddress("Loading address...");
-                
-                // Fetch address
-                const cc = result.prefix.toLowerCase();
-                const primaryLang = COUNTRY_LANGUAGES[cc]?.[0] || 'en';
-                fetchAddressForLang(lat, lng, primaryLang, true, result.isSea ? '' : result.prefix);
-                
-                // Auto-zoom
-                map.current.flyTo({
-                  center: [lng, lat],
-                  zoom: 18.5,
-                  pitch: 0,
-                  essential: true,
-                  duration: 1000
-                });
-              }}
-              className="pointer-events-auto flex items-center justify-center gap-2 w-14 h-14 md:w-auto md:px-6 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl transition-all active:scale-95 group"
-            >
-              <Target className="w-7 h-7 md:w-4 md:h-4 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-black uppercase tracking-widest hidden md:block whitespace-nowrap">Select Center</span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <CenterActionButton 
+        show={!clickedAgid} 
+        onClick={() => {
+          if (!map.current) return;
+          const center = map.current.getCenter();
+          const lat = center.lat;
+          const lng = center.lng;
+          const result = encodeAGID(lat, lng);
+          setClickedAgid(result);
+          setClickedAddress("Loading address...");
+          
+          // Fetch address
+          const cc = result.prefix.toLowerCase();
+          const primaryLang = COUNTRY_LANGUAGES[cc]?.[0] || 'en';
+          fetchAddressForLang(lat, lng, primaryLang, true, result.isSea ? '' : result.prefix);
+          
+          // Auto-zoom
+          map.current.flyTo({
+            center: [lng, lat],
+            zoom: 18.5,
+            pitch: 0,
+            essential: true,
+            duration: 1000
+          });
+        }} 
+      />
 
       <LicensesOverlay show={showLicenses} onClose={() => setShowLicenses(false)} />
 
@@ -7131,6 +4760,13 @@ export default function App() {
       <ConfirmModal 
         config={confirmConfig} 
         onClose={() => setConfirmConfig(null)} 
+      />
+
+      {/* AI Data Quality Modal */}
+      <QualityReportModal 
+        show={showQualityReport} 
+        onClose={() => setShowQualityReport(false)} 
+        qualityReport={qualityReport} 
       />
     </div>
   );

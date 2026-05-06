@@ -1,9 +1,11 @@
 import { 
-  encodeAGID, 
-  getCellPolygon, 
-  K, 
-  M
+  getCellPolygon,
+  encodeAGID
 } from './agid';
+
+// We'll use the same K/M constants implicitly through agid helpers
+const K = 2097152;
+const M = 2097151;
 
 self.onmessage = (e: MessageEvent) => {
   const { lat, lon, zoom, bounds, isLargeGrid } = e.data;
@@ -13,180 +15,130 @@ self.onmessage = (e: MessageEvent) => {
 };
 
 function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, lat: number, lon: number) {
-  const bObj = bounds ? {
-    w: bounds[0][0],
-    s: bounds[0][1],
-    e: bounds[1][0],
-    n: bounds[1][1]
-  } : null;
+  if (!bounds) return { gridLines: [], gridCells: [] };
 
-  if (!bObj) return { gridLines: [], gridCells: [] };
-
-  const gridLines: any[][] = [];
   const gridCells: any[] = [];
-  const seenCellIds = new Set<string>();
+  const gridLines: any[][] = [];
+  const pointCache = new Map<string, { lat: number, lon: number }>();
+  const lineCache = new Set<string>();
+
+  // Helper to reuse points across adjacent cells
+  const getPointCached = (face: number, x: number, y: number) => {
+    const key = `${face}_${x}_${y}`;
+    let p = pointCache.get(key);
+    if (!p) {
+      p = (self as any).getFromQuantizedInternal(face, x, y);
+      pointCache.set(key, p!);
+    }
+    return p!;
+  };
+
+  const { face, qx, qy } = (self as any).getQuantizedInternal(lat, lon);
   
-  // Adaptive step based on viewport width to ensure full screen coverage without crashing
-  // W is total width in quantization units
-  const totalW = ((bObj.e + 180) / 360) * K - ((bObj.w + 180) / 360) * K;
+  let idealStep = zoom < 10 ? Math.pow(2, Math.floor(18 - zoom)) : 1;
+  let finalStep = 1;
+  while (finalStep * 2 <= idealStep && finalStep < 65536) finalStep *= 2;
   
-  // Aim for a balanced density for good visual coverage without crashing
-  const targetDensity = 400; 
-  let idealStep = Math.max(1, Math.floor(totalW / targetDensity));
+  const range = zoom > 15 ? 70 : 35; // Slightly reduced range for more responsive updates
+  const halfStep = finalStep / 2;
   
-  // Snap step to powers of 2 for more stable grid lines during panning
-  let step = 1;
-  while (step * 2 <= idealStep) {
-    step *= 2;
-  }
-  
-  // Ensure step doesn't get too small at mid-zooms to maintain performance
-  // Reduced minimums to allow the grid to stay more detailed for longer
-  if (zoom < 14 && step < 4) step = 4;
-  if (zoom < 11 && step < 16) step = 16;
-  if (zoom < 9 && step < 64) step = 64;
-  if (zoom < 7 && step < 256) step = 256;
+  const startQX = Math.max(0, Math.floor(qx / finalStep) * finalStep - (finalStep * Math.floor(range/2)));
+  const endQX = Math.min(M, startQX + (finalStep * range));
+  const startQY = Math.max(0, Math.floor(qy / finalStep) * finalStep - (finalStep * Math.floor(range/2)));
+  const endQY = Math.min(M, startQY + (finalStep * range));
 
-  const shouldProduceCells = (zoom >= 14) || (isLargeGrid); 
+  for (let y = startQY; y < endQY; y += finalStep) {
+    for (let x = startQX; x < endQX; x += finalStep) {
+      const cellId = `${face}_${x}_${y}_${finalStep}`;
 
-  // Convert viewport bounds to quantization indices
-  let minQX = Math.floor(((bObj.w + 180) / 360) * K);
-  let maxQX = Math.floor(((bObj.e + 180) / 360) * K);
-  let minQY = Math.floor(((bObj.s + 90) / 180) * (K / 2));
-  let maxQY = Math.floor(((bObj.n + 90) / 180) * (K / 2));
+      // Get 8 boundary points + close
+      const p1 = getPointCached(face, x, y);
+      const p1_2 = getPointCached(face, x + halfStep, y);
+      const p2 = getPointCached(face, x + finalStep, y);
+      const p2_3 = getPointCached(face, x + finalStep, y + halfStep);
+      const p3 = getPointCached(face, x + finalStep, y + finalStep);
+      const p3_4 = getPointCached(face, x + halfStep, y + finalStep);
+      const p4 = getPointCached(face, x, y + finalStep);
+      const p4_1 = getPointCached(face, x, y + halfStep);
 
-  // Buffer area to avoid edges flickering and handle screen rotation/tilt
-  // Increased to 200 steps for even more massive coverage
-  minQX = Math.floor(minQX / step) * step - (step * 200);
-  maxQX = Math.ceil(maxQX / step) * step + (step * 200);
-  minQY = Math.floor(minQY / step) * step - (step * 200);
-  maxQY = Math.ceil(maxQY / step) * step + (step * 200);
-
-  minQX = Math.max(0, Math.min(M, minQX));
-  maxQX = Math.max(0, Math.min(M, maxQX));
-  minQY = Math.max(0, Math.min(Math.floor(K / 2) - 1, minQY));
-  maxQY = Math.max(0, Math.min(Math.floor(K / 2) - 1, maxQY));
-  
-  // High count limit for professional coverage
-  // Increased to 1M to ensure full viewport fill on any screen
-  const countLimit = 1000000; 
-  const totalCount = ((maxQX - minQX) / step + 1) * ((maxQY - minQY) / step + 1);
-  
-  // -- FOCUS GRID (300m Radius) --
-  // Always include high-res grid (step=1) within ~300m of target center
-  // 300m is roughly 100 units at K=12,960,000
-  const centerQX = Math.floor(((lon + 180) / 360) * K);
-  const centerQY = Math.floor(((lat + 90) / 180) * (K / 2));
-  const focusRadius = 100; // ~330m at 0.1 arc-second (3.3m/cell)
-  
-  const minFocusX = Math.max(0, centerQX - focusRadius);
-  const maxFocusX = Math.min(M, centerQX + focusRadius);
-  const minFocusY = Math.max(0, centerQY - focusRadius);
-  const maxFocusY = Math.min(Math.floor(K / 2) - 1, centerQY + focusRadius);
-
-  if (totalCount > countLimit) {
-    const centerX = Math.floor(((minQX + maxQX) / 2) / step) * step;
-    const centerY = Math.floor(((minQY + maxQY) / 2) / step) * step;
-    const side = Math.floor(Math.sqrt(countLimit) / 2) * step;
-    minQX = Math.max(0, centerX - side);
-    maxQX = Math.min(M, centerX + side);
-    minQY = Math.max(0, centerY - side);
-    maxQY = Math.min(Math.floor(K / 2) - 1, centerY + side);
-  }
-
-  const edgeSet = new Set<string>();
-
-  // 1. FOCUS HIGHLIGHT LOOP (Always Step 1 for 300m radius)
-  for (let qy = minFocusY; qy <= maxFocusY; qy += 1) {
-    for (let qx = minFocusX; qx <= maxFocusX; qx += 1) {
-      const cellId = `${qx}_${qy}_1`;
-      if (seenCellIds.has(cellId)) continue;
-      seenCellIds.add(cellId);
-
-      const minLon = (qx / K) * 360 - 180;
-      const maxLon = ((qx + 1) / K) * 360 - 180;
-      const minLat = (qy / (K / 2)) * 180 - 90;
-      const maxLat = ((qy + 1) / (K / 2)) * 180 - 90;
-
-      const p0 = [minLon, minLat];
-      const p1 = [maxLon, minLat];
-      const p2 = [maxLon, maxLat];
-      const p3 = [minLon, maxLat];
-
-      // Edges
-      const vL = `v_${qx}_${qy}`;
-      if (!edgeSet.has(vL)) { gridLines.push([p0, p3]); edgeSet.add(vL); }
-      const vR = `v_${qx + 1}_${qy}`;
-      if (!edgeSet.has(vR)) { gridLines.push([p1, p2]); edgeSet.add(vR); }
-      const hB = `h_${qx}_${qy}`;
-      if (!edgeSet.has(hB)) { gridLines.push([p0, p1]); edgeSet.add(hB); }
-      const hT = `h_${qx}_${qy + 1}`;
-      if (!edgeSet.has(hT)) { gridLines.push([p3, p2]); edgeSet.add(hT); }
+      const poly = [
+        [p1.lon, p1.lat], [p1_2.lon, p1_2.lat], [p2.lon, p2.lat],
+        [p2_3.lon, p2_3.lat], [p3.lon, p3.lat], [p3_4.lon, p3_4.lat],
+        [p4.lon, p4.lat], [p4_1.lon, p4_1.lat], [p1.lon, p1.lat]
+      ];
 
       gridCells.push({
         type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [[p0, p1, p2, p3, p0]] },
-        properties: { id: cellId, step: 1, isFocus: true }
+        geometry: { type: 'Polygon', coordinates: [poly] },
+        properties: { id: cellId, step: finalStep, isFocus: finalStep === 1 }
       });
-    }
-  }
 
-  // 2. MAIN ADAPTIVE GRID LOOP
-  for (let qy = minQY; qy <= maxQY; qy += step) {
-    for (let qx = minQX; qx <= maxQX; qx += step) {
-      const cellId = `${qx}_${qy}_${step}`;
-      if (seenCellIds.has(cellId)) continue;
-      seenCellIds.add(cellId);
-
-      // Inline coordinate calculation with clamping
-      const minLon = Math.max(-180, Math.min(180, (qx / K) * 360 - 180));
-      const maxLon = Math.max(-180, Math.min(180, ((qx + step) / K) * 360 - 180));
-      const minLat = Math.max(-90, Math.min(90, (qy / (K / 2)) * 180 - 90));
-      const maxLat = Math.max(-90, Math.min(90, ((qy + step) / (K / 2)) * 180 - 90));
-
-      const p0 = [minLon, minLat];
-      const p1 = [maxLon, minLat];
-      const p2 = [maxLon, maxLat];
-      const p3 = [minLon, maxLat];
-
-      // Efficiently add unique edges using integer indices
-      // Vertical left
-      const vLeftId = `v_${qx}_${qy}`;
-      if (!edgeSet.has(vLeftId)) {
-        gridLines.push([p0, p3]);
-        edgeSet.add(vLeftId);
-      }
-      // Vertical right
-      const vRightId = `v_${qx + step}_${qy}`;
-      if (!edgeSet.has(vRightId)) {
-        gridLines.push([p1, p2]);
-        edgeSet.add(vRightId);
-      }
-      // Horizontal bottom
-      const hBottomId = `h_${qx}_${qy}`;
-      if (!edgeSet.has(hBottomId)) {
-        gridLines.push([p0, p1]);
-        edgeSet.add(hBottomId);
-      }
-      // Horizontal top
-      const hTopId = `h_${qx}_${qy + step}`;
-      if (!edgeSet.has(hTopId)) {
-        gridLines.push([p3, p2]);
-        edgeSet.add(hTopId);
-      }
-
-      if (shouldProduceCells || step > 1) {
-        gridCells.push({
-          type: 'Feature',
-          geometry: { 
-            type: 'Polygon', 
-            coordinates: [[p0, p1, p2, p3, p0]] 
-          },
-          properties: { id: cellId, step }
-        });
+      // Add lines for grid visualization (8 segments per cell, deduplicated via lineCache)
+      const points = [p1, p1_2, p2, p2_3, p3, p3_4, p4, p4_1, p1];
+      for (let i = 0; i < 8; i++) {
+        const ptA = points[i];
+        const ptB = points[i+1];
+        // Create a unique key for the segment to avoid drawing twice
+        const segmentKey = ptA.lat < ptB.lat || (ptA.lat === ptB.lat && ptA.lon < ptB.lon) 
+          ? `${ptA.lat}_${ptA.lon}_${ptB.lat}_${ptB.lon}`
+          : `${ptB.lat}_${ptB.lon}_${ptA.lat}_${ptA.lon}`;
+          
+        if (!lineCache.has(segmentKey)) {
+          gridLines.push([[ptA.lon, ptA.lat], [ptB.lon, ptB.lat]]);
+          lineCache.add(segmentKey);
+        }
       }
     }
   }
+
+  pointCache.clear();
+  lineCache.clear();
 
   return { gridLines, gridCells };
 }
+
+// Re-implementing projection logic inside worker for speed and independence
+(self as any).getQuantizedInternal = function(lat: number, lon: number) {
+  const phi = (lat * Math.PI) / 180;
+  const theta = (lon * Math.PI) / 180;
+  const x = Math.cos(phi) * Math.cos(theta);
+  const y = Math.cos(phi) * Math.sin(theta);
+  const z = Math.sin(phi);
+  const absX = Math.abs(x), absY = Math.abs(y), absZ = Math.abs(z);
+  let face = 0, uc = 0, vc = 0;
+  if (absX >= absY && absX >= absZ) {
+    if (x > 0) { face = 0; uc = y; vc = z; } else { face = 1; uc = -y; vc = z; }
+  } else if (absY >= absX && absY >= absZ) {
+    if (y > 0) { face = 2; uc = -x; vc = z; } else { face = 3; uc = x; vc = z; }
+  } else {
+    if (z > 0) { face = 4; uc = -x; vc = -y; } else { face = 5; uc = -x; vc = y; }
+  }
+  const maxVal = Math.max(absX, absY, absZ);
+  const xi = uc / maxVal;
+  const eta = vc / maxVal;
+  const u = 0.5 * (xi + 1.0);
+  const v = 0.5 * (eta + 1.0);
+  return { face, qx: Math.floor(u * 2097152), qy: Math.floor(v * 2097152) };
+};
+
+(self as any).getFromQuantizedInternal = function(face: number, qx: number, qy: number) {
+  const u = (qx / 2097152) * 2.0 - 1.0;
+  const v = (qy / 2097152) * 2.0 - 1.0;
+  const xi = u;
+  const eta = v;
+  let x = 0, y = 0, z = 0;
+  switch (face) {
+    case 0: x = 1; y = xi; z = eta; break;
+    case 1: x = -1; y = -xi; z = eta; break;
+    case 2: x = -xi; y = 1; z = eta; break;
+    case 3: x = xi; y = -1; z = eta; break;
+    case 4: x = -xi; y = -eta; z = 1; break;
+    case 5: x = -xi; y = eta; z = -1; break;
+  }
+  const length = Math.sqrt(x * x + y * y + z * z);
+  x /= length; y /= length; z /= length;
+  return {
+    lat: (Math.asin(z) * 180) / Math.PI,
+    lon: (Math.atan2(y, x) * 180) / Math.PI
+  };
+};

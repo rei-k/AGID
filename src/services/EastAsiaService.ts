@@ -189,3 +189,37 @@ export async function fetchTiandituAddress(lat: number, lon: number): Promise<an
     return null;
   }
 }
+
+/**
+ * Fetches detailed Hong Kong address using OGCIO ALS (Official HK Gov API).
+ * Important as HK has no postal codes.
+ */
+export async function fetchHKOfficialAddress(lat: number, lon: number): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/hk-als/lookup?lat=${lat}&lon=${lon}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.SuggestedAddress && data.SuggestedAddress.length > 0) {
+        const addr = data.SuggestedAddress[0].Address.PremisesAddress;
+        
+        // Extract multi-lingual address components
+        const eng = addr.EngPremisesAddress;
+        const chi = addr.ChiPremisesAddress;
+        
+        return {
+          label: eng ? `${eng.BuildingName}, ${eng.EngStreet.StreetName}, ${eng.EngDistrict.DistrictName}` : 'HK Address',
+          chineseLabel: chi ? `${chi.ChiDistrict.DistrictName}${chi.ChiStreet.StreetName}${chi.BuildingName}` : null,
+          district: eng?.EngDistrict?.DistrictName,
+          chineseDistrict: chi?.ChiDistrict?.DistrictName,
+          street: eng?.EngStreet?.StreetName,
+          building: eng?.BuildingName,
+          source: 'OGCIO ALS (Official Hong Kong Gov)'
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching HK ALS address:", error);
+    return null;
+  }
+}

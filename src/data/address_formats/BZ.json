@@ -1,0 +1,36 @@
+{
+  "countryCode": "BZ",
+  "name": "Belize",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Lot/House No.", "placeholder": "101" },
+      { "key": "street", "label": "Street/Road", "placeholder": "Albert Street" },
+      { "key": "city", "label": "Town/City", "placeholder": "Belize City" },
+      { "key": "state", "label": "District", "placeholder": "Belize District" }
+    ]
+  },
+  "domestic": {
+    "es": {
+      "name": "Español",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{state}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa", "placeholder": "" },
+        { "key": "houseNumber", "label": "No. de Lote", "placeholder": "101" },
+        { "key": "street", "label": "Calle", "placeholder": "Calle Albert" },
+        { "key": "city", "label": "Ciudad", "placeholder": "Ciudad de Belice" },
+        { "key": "state", "label": "Distrito", "placeholder": "Distrito de Belice" }
+      ]
+    }
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}}\nBELIZE",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}

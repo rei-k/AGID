@@ -1,0 +1,54 @@
+{
+  "countryCode": "BR",
+  "name": "Brazil",
+  "native": {
+    "name": "Português",
+    "addressFormat": "{{organization}}\n{{street}}, {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Rua/Avenida", "placeholder": "Avenida Paulista", "required": true },
+      { "key": "houseNumber", "label": "Número", "placeholder": "123", "required": true },
+      { "key": "subdistrict", "label": "Bairro", "placeholder": "Bela Vista", "required": true },
+      { "key": "postcode", "label": "CEP", "placeholder": "01310-100", "required": true },
+      { "key": "city", "label": "Cidade", "placeholder": "São Paulo", "required": true },
+      { "key": "state", "label": "Estado", "placeholder": "SP", "required": true }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}}, {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}\nBRAZIL",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "St./Ave. (Latin)", "placeholder": "Av. Paulista" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "123" },
+      { "key": "subdistrict", "label": "Neighborhood", "placeholder": "Bela Vista" },
+      { "key": "postcode", "label": "CEP", "placeholder": "01310-100" },
+      { "key": "city", "label": "City", "placeholder": "Sao Paulo" },
+      { "key": "state", "label": "State Code", "placeholder": "SP" }
+    ]
+  },
+  "international": {
+    "pt": {
+      "name": "Português (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}}, {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}\nBRASIL",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latim)", "placeholder": "" },
+        { "key": "street", "label": "Rua/Av. (Latim)", "placeholder": "Av. Paulista" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "123" },
+        { "key": "subdistrict", "label": "Bairro", "placeholder": "Bela Vista" },
+        { "key": "postcode", "label": "CEP", "placeholder": "01310-100" },
+        { "key": "city", "label": "Cidade", "placeholder": "São Paulo" },
+        { "key": "state", "label": "Edo. (Sigla)", "placeholder": "SP" }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "NNNNN-NNN",
+    "regex": "^\\d{5}-\\d{3}$",
+    "api": "https://buscacepinter.correios.com.br/app/endereco/index.php",
+    "source": "Correios Brasil"
+  }
+}

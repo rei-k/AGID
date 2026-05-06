@@ -2,31 +2,34 @@
   "countryCode": "GB",
   "name": "United Kingdom",
   "native": {
-    "name": "United Kingdom",
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{postcode}}",
+    "name": "English (UK)",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No./Name", "placeholder": "10", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Downing Street", "required": true, "type": "text" },
-      { "key": "city", "label": "Town/City", "placeholder": "London", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "SW1A 2AA", "required": true, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Building Name/No.", "placeholder": "10" },
+      { "key": "street", "label": "Street", "placeholder": "Downing St" },
+      { "key": "suburb", "label": "Locality", "placeholder": "Westminster" },
+      { "key": "city", "label": "Town/City", "placeholder": "London" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "SW1A 2AA" }
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}\n{{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{suburb}}\n{{city}}\n{{postcode}}\nUNITED KINGDOM",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House No./Name", "placeholder": "10", "required": true, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "Downing Street", "required": true, "type": "text" },
-      { "key": "city", "label": "Town/City", "placeholder": "London", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postcode", "placeholder": "SW1A 2AA", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "houseNumber", "label": "No./Bldg", "placeholder": "10" },
+      { "key": "street", "label": "St./Rd./Sq. (Latin)", "placeholder": "Downing St" },
+      { "key": "suburb", "label": "Locality", "placeholder": "Westminster" },
+      { "key": "city", "label": "Town/City", "placeholder": "London" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "SW1A 2AA" }
     ]
   },
   "postalCode": {
-    "format": "A[A]N[A/N] NAA",
-    "regex": "^[A-Z]{1,2}\\d[A-Z\\d]?\\s?\\d[A-Z]{2}$",
+    "format": "AN NAA, ANA NAA, ANN NAA, AAN NAA, AANA NAA, AANN NAA",
+    "regex": "^([A-Z]{1,2}\\d[A-Z\\d]?\\s?\\d[A-Z]{2})$",
     "api": "https://www.royalmail.com/find-a-postcode",
     "source": "Royal Mail"
   }

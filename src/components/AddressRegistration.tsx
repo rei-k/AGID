@@ -874,7 +874,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
         const agidResult = encodeAGID(decoded.lat, decoded.lon);
         setAgidData(agidResult);
         
-        const result = await regionalReverseGeocode(decoded.lat, decoded.lon, 'en', prefix.toLowerCase());
+        // Use activeTab instead of hardcoded 'en' for lookup
+        const result = await regionalReverseGeocode(decoded.lat, decoded.lon, activeTab === 'local' ? 'en' : activeTab, prefix.toLowerCase());
         
         // Calculate consensus metrics if we have multiple candidates (mocking for now based on result quality)
         const mockProbs = new Map<string, number>();
@@ -1078,7 +1079,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               value={formData.recipient}
               onChange={(e) => setFormData({...formData, recipient: e.target.value})}
               placeholder={activeTab === 'en' ? 'Full Name' : ''}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
           </div>
         );
@@ -1094,7 +1095,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               value={formData.organization}
               onChange={(e) => setFormData({...formData, organization: e.target.value})}
               placeholder={activeTab === 'en' ? 'Company / School' : ''}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
           </div>
         );
@@ -1109,7 +1110,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               value={formData.street}
               onChange={(e) => setFormData({...formData, street: e.target.value})}
               placeholder={activeTab === 'en' ? 'House number, street name, apartment, etc.' : ''}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
             />
           </div>
         );
@@ -1123,7 +1124,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               type="text"
               value={formData.city}
               onChange={(e) => setFormData({...formData, city: e.target.value})}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
           </div>
         );
@@ -1137,7 +1138,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               type="text"
               value={formData.state}
               onChange={(e) => setFormData({...formData, state: e.target.value})}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
           </div>
         );
@@ -1151,7 +1152,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               type="text"
               value={formData.suburb}
               onChange={(e) => setFormData({...formData, suburb: e.target.value})}
-              className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
           </div>
         );
@@ -1232,6 +1233,11 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
           let uniqueLangs = Array.from(new Set([...langs, 'en']));
           
+          // Add languages from localFormat.international if available
+          if (localFormat?.international) {
+            uniqueLangs = Array.from(new Set([...uniqueLangs, ...Object.keys(localFormat.international)]));
+          }
+
           // Add languages from COUNTRY_LANGUAGES
           const extraLangs = COUNTRY_LANGUAGES[formData.country.toLowerCase()] || [];
           uniqueLangs = Array.from(new Set([...uniqueLangs, ...extraLangs]));
@@ -1239,11 +1245,6 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
           // India should only support English as per user request
           if (formData.country === 'IN') {
             uniqueLangs = ['en'];
-          }
-          
-          // Add Romaji for CJK countries
-          if (['JP', 'CN', 'KR', 'TW', 'HK'].includes(formData.country)) {
-            uniqueLangs.push('romaji');
           }
           
           setAvailableLangs(uniqueLangs);
@@ -1430,7 +1431,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
           >
             <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
               <div className="flex items-center gap-4">
-                <div className="bg-emerald-600 w-12 h-12 md:w-14 md:h-14 rounded-2xl text-white shadow-lg shadow-emerald-100 flex items-center justify-center shrink-0">
+                <div className="bg-emerald-600 w-12 h-12 md:w-14 md:h-14 rounded-none text-white shadow-lg shadow-emerald-100 flex items-center justify-center shrink-0">
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
@@ -1440,7 +1441,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               </div>
               <button 
                 onClick={onClose}
-                className="w-12 h-12 flex items-center justify-center hover:bg-slate-200 rounded-full transition-colors text-slate-400 active:scale-90 shrink-0"
+                className="w-12 h-12 flex items-center justify-center hover:bg-slate-200 rounded-none transition-colors text-slate-400 active:scale-90 shrink-0"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -1464,12 +1465,12 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                           placeholder={t('agidPlaceholder')}
                           value={agidInput}
                           onChange={(e) => setAgidInput(e.target.value.toUpperCase())}
-                          className="w-full bg-slate-50 px-4 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm font-mono transition-all"
+                          className="w-full bg-slate-50 px-4 py-4 rounded-none border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm font-mono transition-all"
                         />
                       </div>
                       <button 
                         onClick={startQrScanner}
-                        className="px-4 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 active:scale-95 transition-all"
+                        className="px-4 bg-slate-100 text-slate-600 rounded-none hover:bg-slate-200 active:scale-95 transition-all"
                         title="Scan QR"
                       >
                         <QrCode className="w-5 h-5" />
@@ -1477,7 +1478,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <button 
                         onClick={() => handleAgidLookup()}
                         disabled={isSearching || !agidInput}
-                        className="px-6 py-4 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center min-w-[80px]"
+                        className="px-6 py-4 bg-blue-600 text-white rounded-none font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center min-w-[80px]"
                       >
                         {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : t('agid')}
                       </button>
@@ -1485,7 +1486,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
                     {/* QR Scanner Display */}
                     {isQrScanning && (
-                      <div className="bg-slate-900 rounded-[2rem] overflow-hidden relative border border-slate-800 shadow-2xl">
+                      <div className="bg-slate-900 rounded-none overflow-hidden relative border border-slate-800 shadow-2xl">
                         <div className="p-4 bg-slate-800/50 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Camera className="w-4 h-4 text-red-500" />
@@ -1530,13 +1531,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                           placeholder={t('phonePlaceholder')}
                           value={phoneInput}
                           onChange={(e) => setPhoneInput(e.target.value)}
-                          className="w-full bg-slate-50 px-4 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 text-sm transition-all"
+                          className="w-full bg-slate-50 px-4 py-4 rounded-none border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 text-sm transition-all"
                         />
                       </div>
                       <button 
                         onClick={handlePhoneLookup}
                         disabled={isPhoneSearching || !phoneInput}
-                        className="px-6 py-4 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-700 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center min-w-[80px]"
+                        className="px-6 py-4 bg-emerald-600 text-white rounded-none font-black uppercase tracking-widest text-[10px] hover:bg-emerald-700 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center min-w-[80px]"
                       >
                         {isPhoneSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : t('phone')}
                       </button>
@@ -1566,13 +1567,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                   </div>
                 </div>
                 {error && (
-                  <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-xl border border-red-100">
+                  <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-none border border-red-100">
                     <AlertCircle className="w-4 h-4" />
                     {t('lookupError')}
                   </div>
                 )}
                 {success && (
-                  <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                  <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold bg-emerald-50 p-3 rounded-none border border-emerald-100">
                     <CheckCircle2 className="w-4 h-4" />
                     {t('lookupSuccess')}
                   </div>
@@ -1598,14 +1599,14 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                     </button>
                     <button 
                       onClick={openInBaiduMaps}
-                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all group"
+                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-100 rounded-none hover:bg-blue-50 hover:border-blue-200 transition-all group"
                     >
                       <Navigation className="w-4 h-4 text-blue-600 mb-1" />
                       <span className="text-[8px] font-bold text-slate-500">Baidu</span>
                     </button>
                     <button 
                       onClick={openInAmap}
-                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all group"
+                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-100 rounded-none hover:bg-blue-50 hover:border-blue-200 transition-all group"
                     >
                       <Navigation className="w-4 h-4 text-blue-400 mb-1" />
                       <span className="text-[8px] font-bold text-slate-500">Amap</span>
@@ -1616,35 +1617,35 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
               {/* Japanese Geo Details Section */}
               {japaneseGeoContext && formData.country === 'JP' && (
-                <section className="bg-red-50/50 p-4 rounded-2xl border border-red-100 space-y-3">
+                <section className="bg-red-50/50 p-4 rounded-none border border-red-100 space-y-3">
                   <div className="flex items-center gap-2 text-red-700 font-black text-[10px] uppercase tracking-widest">
                     <MapIcon className="w-3 h-3" />
                     {t('jpAdminDetails')}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white p-2 rounded-xl border border-red-50 shadow-sm">
+                    <div className="bg-white p-2 rounded-none border border-red-50 shadow-sm">
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{t('prefecture')}</p>
                       <p className="text-xs font-bold text-slate-700">{japaneseGeoContext.prefecture}</p>
                     </div>
-                    <div className="bg-white p-2 rounded-xl border border-red-50 shadow-sm">
+                    <div className="bg-white p-2 rounded-none border border-red-50 shadow-sm">
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{t('cityWard')}</p>
                       <p className="text-xs font-bold text-slate-700">{japaneseGeoContext.city || japaneseGeoContext.ward || '-'}</p>
                     </div>
                     {japaneseGeoContext.town && (
-                      <div className="bg-white p-2 rounded-xl border border-red-50 shadow-sm">
+                      <div className="bg-white p-2 rounded-none border border-red-50 shadow-sm">
                         <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{t('townVillage')}</p>
                         <p className="text-xs font-bold text-slate-700">{japaneseGeoContext.town}</p>
                       </div>
                     )}
                     {japaneseGeoContext.chome && (
-                      <div className="bg-white p-2 rounded-xl border border-red-50 shadow-sm">
+                      <div className="bg-white p-2 rounded-none border border-red-50 shadow-sm">
                         <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{t('chome')}</p>
                         <p className="text-xs font-bold text-slate-700">{japaneseGeoContext.chome}</p>
                       </div>
                     )}
                   </div>
                   {japaneseGeoContext.historical_name && (
-                    <div className="flex items-center gap-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                    <div className="flex items-center gap-2 bg-amber-50 p-2 rounded-none border border-amber-100">
                       <History className="w-3 h-3 text-amber-600" />
                       <span className="text-[9px] font-bold text-amber-700 uppercase tracking-widest">{t('historicalName')}:</span>
                       <span className="text-[10px] font-black text-amber-800">{japaneseGeoContext.historical_name}</span>
@@ -1655,14 +1656,14 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
               {/* Deep Sea Details Section */}
               {seaContext && (
-                <section className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-3">
+                <section className="bg-indigo-50/50 p-4 rounded-none border border-indigo-100 space-y-3">
                   <div className="flex items-center gap-2 text-indigo-700 font-black text-[10px] uppercase tracking-widest">
                     <Fish className="w-3 h-3" />
                     Deep Sea Details
                   </div>
                   <div className="grid grid-cols-1 gap-2">
-                    <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-indigo-50 shadow-sm">
-                      <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600">
+                    <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-indigo-50 shadow-sm">
+                      <div className="bg-indigo-100 p-2 rounded-none text-indigo-600">
                         <Waves className="w-4 h-4" />
                       </div>
                       <div>
@@ -1671,8 +1672,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     </div>
                     {seaContext.bathymetry !== undefined && (
-                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-indigo-50 shadow-sm">
-                        <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-indigo-50 shadow-sm">
+                        <div className="bg-blue-100 p-2 rounded-none text-blue-600">
                           <Navigation className="w-4 h-4" />
                         </div>
                         <div>
@@ -1682,8 +1683,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     )}
                     {seaContext.marine_protected_area && (
-                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-indigo-50 shadow-sm">
-                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-indigo-50 shadow-sm">
+                        <div className="bg-emerald-100 p-2 rounded-none text-emerald-600">
                           <ShieldIcon className="w-4 h-4" />
                         </div>
                         <div>
@@ -1698,7 +1699,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Marine Features</p>
                       <div className="flex flex-wrap gap-1.5">
                         {seaContext.features.slice(0, 8).map((f, i) => (
-                          <span key={i} className="bg-white px-2 py-1 rounded-md text-[9px] font-bold text-indigo-600 border border-indigo-50 shadow-sm">
+                          <span key={i} className="bg-white px-2 py-1 rounded-none text-[9px] font-bold text-indigo-600 border border-indigo-50 shadow-sm">
                             {f.name} ({f.type})
                           </span>
                         ))}
@@ -1710,7 +1711,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
               {/* World Heritage & Historic Sites Section */}
               {heritageContext && (heritageContext.unescoSites.length > 0 || heritageContext.historicSites.length > 0) && (
-                <section className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 space-y-3">
+                <section className="bg-amber-50/50 p-4 rounded-none border border-amber-100 space-y-3">
                   <div className="flex items-center gap-2 text-amber-700 font-black text-[10px] uppercase tracking-widest">
                     <Landmark className="w-3 h-3" />
                     World Heritage & History
@@ -1721,8 +1722,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest">UNESCO World Heritage</p>
                       <div className="grid grid-cols-1 gap-2">
                         {heritageContext.unescoSites.map((site, i) => (
-                          <div key={i} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
-                            <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
+                          <div key={i} className="flex items-center gap-3 bg-white p-3 rounded-none border border-amber-100 shadow-sm">
+                            <div className="bg-amber-100 p-2 rounded-none text-amber-600">
                               <Globe className="w-4 h-4" />
                             </div>
                             <div>
@@ -1740,7 +1741,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Significant Historic Sites</p>
                       <div className="flex flex-wrap gap-1.5">
                         {heritageContext.historicSites.slice(0, 6).map((site, i) => (
-                          <span key={i} className="bg-white px-2 py-1 rounded-md text-[9px] font-bold text-slate-600 border border-slate-100 shadow-sm flex items-center gap-1.5">
+                          <span key={i} className="bg-white px-2 py-1 rounded-none text-[9px] font-bold text-slate-600 border border-slate-100 shadow-sm flex items-center gap-1.5">
                             <History className="w-2.5 h-2.5 text-slate-400" />
                             {site.name}
                           </span>
@@ -1755,14 +1756,14 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
               {/* Polar Details Section */}
               {polarContext && (
-                <section className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 space-y-3">
+                <section className="bg-blue-50/50 p-4 rounded-none border border-blue-100 space-y-3">
                   <div className="flex items-center gap-2 text-blue-700 font-black text-[10px] uppercase tracking-widest">
                     <Snowflake className="w-3 h-3" />
                     Polar Region Details
                   </div>
                   <div className="grid grid-cols-1 gap-2">
-                    <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-blue-50 shadow-sm">
-                      <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+                    <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-blue-50 shadow-sm">
+                      <div className="bg-blue-100 p-2 rounded-none text-blue-600">
                         <Anchor className="w-4 h-4" />
                       </div>
                       <div>
@@ -1771,8 +1772,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     </div>
                     {polarContext.bathymetry && (
-                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-blue-50 shadow-sm">
-                        <div className="bg-cyan-100 p-2 rounded-lg text-cyan-600">
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-blue-50 shadow-sm">
+                        <div className="bg-cyan-100 p-2 rounded-none text-cyan-600">
                           <Waves className="w-4 h-4" />
                         </div>
                         <div>
@@ -1782,8 +1783,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     )}
                     {polarOfficialData?.address?.research_station && (
-                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-blue-50 shadow-sm">
-                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-blue-50 shadow-sm">
+                        <div className="bg-emerald-100 p-2 rounded-none text-emerald-600">
                           <Building2 className="w-4 h-4" />
                         </div>
                         <div>
@@ -1801,7 +1802,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nearby Features</p>
                       <div className="flex flex-wrap gap-1.5">
                         {polarContext.features.slice(0, 5).map((f, i) => (
-                          <span key={i} className="bg-white px-2 py-1 rounded-md text-[9px] font-bold text-blue-600 border border-blue-50 shadow-sm">
+                          <span key={i} className="bg-white px-2 py-1 rounded-none text-[9px] font-bold text-blue-600 border border-blue-50 shadow-sm">
                             {f.name}
                           </span>
                         ))}
@@ -1813,16 +1814,16 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
               {/* Nature & Environment Section */}
               {natureContext && (
-                <section className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 space-y-3">
+                <section className="bg-emerald-50/50 p-4 rounded-none border border-emerald-100 space-y-3">
                   <div className="flex items-center gap-2 text-emerald-700 font-black text-[10px] uppercase tracking-widest">
                     <Trees className="w-3 h-3" />
                     Nature & Environment
                   </div>
                   
                   {elevationData && (
-                    <div className="bg-white p-3 rounded-xl border border-emerald-50 shadow-sm flex items-center justify-between">
+                    <div className="bg-white p-3 rounded-none border border-emerald-50 shadow-sm flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+                        <div className="bg-emerald-100 p-2 rounded-none text-emerald-600">
                           <Navigation className="w-4 h-4 rotate-45" />
                         </div>
                         <div>
@@ -1839,8 +1840,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
 
                   <div className="grid grid-cols-2 gap-2">
                     {natureContext.mountains.length > 0 && (
-                      <div className="bg-white p-2.5 rounded-xl border border-emerald-50 shadow-sm flex items-center gap-2">
-                        <div className="bg-amber-100 p-1.5 rounded-lg text-amber-600">
+                      <div className="bg-white p-2.5 rounded-none border border-emerald-50 shadow-sm flex items-center gap-2">
+                        <div className="bg-amber-100 p-1.5 rounded-none text-amber-600">
                           <Mountain className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
@@ -1850,8 +1851,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     )}
                     {natureContext.beaches.length > 0 && (
-                      <div className="bg-white p-2.5 rounded-xl border border-emerald-50 shadow-sm flex items-center gap-2">
-                        <div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-600">
+                      <div className="bg-white p-2.5 rounded-none border border-emerald-50 shadow-sm flex items-center gap-2">
+                        <div className="bg-yellow-100 p-1.5 rounded-none text-yellow-600">
                           <Palmtree className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
@@ -1861,8 +1862,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     )}
                     {natureContext.ports.length > 0 && (
-                      <div className="bg-white p-2.5 rounded-xl border border-emerald-50 shadow-sm flex items-center gap-2">
-                        <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
+                      <div className="bg-white p-2.5 rounded-none border border-emerald-50 shadow-sm flex items-center gap-2">
+                        <div className="bg-blue-100 p-1.5 rounded-none text-blue-600">
                           <Ship className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
@@ -1872,8 +1873,8 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </div>
                     )}
                     {natureContext.deserts.length > 0 && (
-                      <div className="bg-white p-2.5 rounded-xl border border-emerald-50 shadow-sm flex items-center gap-2">
-                        <div className="bg-orange-100 p-1.5 rounded-lg text-orange-600">
+                      <div className="bg-white p-2.5 rounded-none border border-emerald-50 shadow-sm flex items-center gap-2">
+                        <div className="bg-orange-100 p-1.5 rounded-none text-orange-600">
                           <Sun className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
@@ -1893,19 +1894,19 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
               )}
 
               {/* Language Tabs */}
-              <div className="flex p-1 bg-slate-100 rounded-xl overflow-x-auto custom-scrollbar no-scrollbar">
+              <div className="flex p-1 bg-slate-100 rounded-none overflow-x-auto custom-scrollbar no-scrollbar">
                 {availableLangs.map((lang) => (
                   <button
                     key={lang}
                     type="button"
                     onClick={() => setActiveTab(lang)}
                     className={cn(
-                      "flex-1 py-2 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 whitespace-nowrap",
+                      "flex-1 py-2 px-4 rounded-none text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 whitespace-nowrap",
                       activeTab === lang ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
                     )}
                   >
                     {lang === 'en' ? (
-                      <span className="font-mono text-[8px] border border-current px-1 rounded">EN</span>
+                      <span className="font-mono text-[8px] border border-current px-1 rounded-none">EN</span>
                     ) : (
                       <Globe className="w-3 h-3" />
                     )}
@@ -1924,7 +1925,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       {t('countryRegion')}
                     </label>
                     <div className="flex gap-3">
-                      <div className="w-16 h-12 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm text-3xl">
+                      <div className="w-16 h-12 bg-slate-50 rounded-none border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm text-3xl">
                         {currentFlag}
                       </div>
                       <select 
@@ -2001,26 +2002,26 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100"
+                        className="space-y-3 p-4 bg-emerald-50 rounded-none border border-emerald-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                             British Overseas Territories & Crown Dependencies
                           </label>
-                          <span className="text-[8px] font-bold text-emerald-400 bg-white px-2 py-0.5 rounded-full border border-emerald-100">
+                          <span className="text-[8px] font-bold text-emerald-400 bg-white px-2 py-0.5 rounded-none border border-emerald-100">
                             {BRITISH_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {BRITISH_TERRITORIES.map(t => (
+                           {BRITISH_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
-                                  ? "bg-emerald-500 text-white border-emerald-600 shadow-sm scale-[1.02]" 
+                                  ? "bg-emerald-600 text-white border-emerald-700 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-emerald-100 border-emerald-100 hover:border-emerald-200"
                               )}
                             >
@@ -2036,24 +2037,24 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"
+                        className="space-y-3 p-4 bg-blue-50 rounded-none border border-blue-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
                             France Overseas Departments & Collectivities
                           </label>
-                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-full border border-blue-100">
+                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-none border border-blue-100">
                             {FRENCH_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {FRENCH_TERRITORIES.map(t => (
+                           {FRENCH_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-blue-500 text-white border-blue-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-blue-100 border-blue-100 hover:border-blue-200"
@@ -2071,24 +2072,24 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200"
+                        className="space-y-3 p-4 bg-slate-50 rounded-none border border-slate-200"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                             Norwegian Territories
                           </label>
-                          <span className="text-[8px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-100">
+                          <span className="text-[8px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-none border border-slate-100">
                             {NORWEGIAN_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {NORWEGIAN_TERRITORIES.map(t => (
+                           {NORWEGIAN_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-slate-600 text-white border-slate-700 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-slate-100 border-slate-100 hover:border-slate-200"
@@ -2106,24 +2107,24 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-yellow-50 rounded-2xl border border-yellow-100"
+                        className="space-y-3 p-4 bg-yellow-50 rounded-none border border-yellow-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-yellow-600 uppercase tracking-widest">
                             Spanish Territories
                           </label>
-                          <span className="text-[8px] font-bold text-yellow-400 bg-white px-2 py-0.5 rounded-full border border-yellow-100">
+                          <span className="text-[8px] font-bold text-yellow-400 bg-white px-2 py-0.5 rounded-none border border-yellow-100">
                             {SPANISH_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {SPANISH_TERRITORIES.map(t => (
+                           {SPANISH_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-yellow-500 text-white border-yellow-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-yellow-100 border-yellow-100 hover:border-yellow-200"
@@ -2141,24 +2142,24 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-red-50 rounded-2xl border border-red-100"
+                        className="space-y-3 p-4 bg-red-50 rounded-none border border-red-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-red-600 uppercase tracking-widest">
                             Portuguese Territories
                           </label>
-                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-full border border-red-100">
+                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-none border border-red-100">
                             {PORTUGUESE_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {PORTUGUESE_TERRITORIES.map(t => (
+                           {PORTUGUESE_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-red-500 text-white border-red-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-red-100 border-red-100 hover:border-red-200"
@@ -2176,24 +2177,24 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100"
+                        className="space-y-3 p-4 bg-orange-50 rounded-none border border-orange-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest">
                             Dutch Territories
                           </label>
-                          <span className="text-[8px] font-bold text-orange-400 bg-white px-2 py-0.5 rounded-full border border-orange-100">
+                          <span className="text-[8px] font-bold text-orange-400 bg-white px-2 py-0.5 rounded-none border border-orange-100">
                             {DUTCH_TERRITORIES.length} Regions
                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {DUTCH_TERRITORIES.map(t => (
+                           {DUTCH_TERRITORIES.map(t => (
                             <button
                               key={t.code}
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-orange-500 text-white border-orange-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-orange-100 border-orange-100 hover:border-orange-200"
@@ -2211,13 +2212,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-red-50 rounded-2xl border border-red-100"
+                        className="space-y-3 p-4 bg-red-50 rounded-none border border-red-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-red-600 uppercase tracking-widest">
                             Danish Territories
                           </label>
-                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-full border border-red-100">
+                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-none border border-red-100">
                             {DANISH_TERRITORIES.length} Regions
                           </span>
                         </div>
@@ -2228,7 +2229,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-red-500 text-white border-red-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-red-100 border-red-100 hover:border-red-200"
@@ -2246,13 +2247,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"
+                        className="space-y-3 p-4 bg-blue-50 rounded-none border border-blue-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
                             Australian Territories
                           </label>
-                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-full border border-blue-100">
+                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-none border border-blue-100">
                             {AUSTRALIAN_TERRITORIES.length} Regions
                           </span>
                         </div>
@@ -2263,7 +2264,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-blue-500 text-white border-blue-600 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-blue-100 border-blue-100 hover:border-blue-200"
@@ -2281,13 +2282,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200"
+                        className="space-y-3 p-4 bg-slate-50 rounded-none border border-slate-200"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                             New Zealand Territories
                           </label>
-                          <span className="text-[8px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+                          <span className="text-[8px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-none border border-slate-200">
                             {NEW_ZEALAND_TERRITORIES.length} Regions
                           </span>
                         </div>
@@ -2298,7 +2299,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-slate-800 text-white border-slate-900 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200 hover:border-slate-300"
@@ -2316,13 +2317,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100"
+                        className="space-y-3 p-4 bg-blue-50 rounded-none border border-blue-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
                             USA Overseas Territories & Insular Areas
                           </label>
-                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-full border border-blue-100">
+                          <span className="text-[8px] font-bold text-blue-400 bg-white px-2 py-0.5 rounded-none border border-blue-100">
                             {US_TERRITORIES.length} Regions
                           </span>
                         </div>
@@ -2333,7 +2334,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                               type="button"
                               onClick={() => setFormData({...formData, country: t.code})}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 formData.country === t.code 
                                   ? "bg-blue-600 text-white border-blue-700 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-blue-100 border-blue-100 hover:border-blue-200"
@@ -2351,13 +2352,13 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3 p-4 bg-red-50 rounded-2xl border border-red-100"
+                        className="space-y-3 p-4 bg-red-50 rounded-none border border-red-100"
                       >
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black text-red-600 uppercase tracking-widest">
                             Chile Overseas Territories & Insular Areas
                           </label>
-                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-full border border-red-100">
+                          <span className="text-[8px] font-bold text-red-400 bg-white px-2 py-0.5 rounded-none border border-red-100">
                             {CHILE_TERRITORIES.length} Regions
                           </span>
                         </div>
@@ -2373,7 +2374,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                                 }
                               }}
                               className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border",
+                                "flex items-center gap-2 px-3 py-2 rounded-none text-[10px] font-bold transition-all border",
                                 (formData.country === 'CL' && (t.code === 'CL' ? !formData.state : formData.state === t.name))
                                   ? "bg-red-600 text-white border-red-700 shadow-sm scale-[1.02]" 
                                   : "bg-white text-slate-600 hover:bg-red-100 border-red-100 hover:border-red-200"
@@ -2392,7 +2393,17 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                   <div className="space-y-6">
                     {localFormat ? (
                       (() => {
-                        const currentFormat = activeTab === 'en' ? localFormat.english : localFormat.native;
+                        // Priority: 
+                        // 1. If 'en' tab and localFormat.english exists
+                        // 2. If activeTab matches localFormat.international[lang]
+                        // 3. Fallback to native
+                        let currentFormat = localFormat.native;
+                        if (activeTab === 'en' && localFormat.english) {
+                          currentFormat = localFormat.english;
+                        } else if (localFormat.international && localFormat.international[activeTab]) {
+                          currentFormat = localFormat.international[activeTab];
+                        }
+                        
                         const fields = currentFormat?.fields || localFormat.fields || [];
                         
                         return fields.map(field => (
@@ -2408,7 +2419,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                                 value={(formData as any)[field.key] || ''}
                                 onChange={(e) => setFormData({...formData, [field.key]: e.target.value})}
                                 placeholder={field.placeholder}
-                                className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
+                                className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
                               />
                             ) : field.key === 'postcode' ? (
                               <PostcodeInput
@@ -2424,7 +2435,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                                 value={(formData as any)[field.key] || ''}
                                 onChange={(e) => setFormData({...formData, [field.key]: e.target.value})}
                                 placeholder={field.placeholder}
-                                className="w-full bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                                className="w-full bg-slate-50 px-4 py-3 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                               />
                             )}
                           </div>
@@ -2444,27 +2455,27 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                       </h4>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <div className="bg-slate-50 p-3 rounded-none border border-slate-100">
                         <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Mountain Class</div>
                         <div className="text-xs font-bold text-slate-700 flex items-center gap-1">
                           <Mountain className="w-3 h-3 text-slate-400" />
                           {elevationData?.elevation !== undefined ? `Class ${calculateMountainClass(elevationData.elevation)}` : 'N/A'}
                         </div>
                       </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <div className="bg-slate-50 p-3 rounded-none border border-slate-100">
                         <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Confidence</div>
                         <div className="text-xs font-bold text-emerald-600 flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
                           {consensus ? `${(consensus.confidence * 100).toFixed(1)}%` : 'N/A'}
                         </div>
                       </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <div className="bg-slate-50 p-3 rounded-none border border-slate-100">
                         <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Entropy</div>
                         <div className="text-xs font-mono text-slate-600">
                           {consensus ? consensus.entropy.toFixed(3) : 'N/A'}
                         </div>
                       </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <div className="bg-slate-50 p-3 rounded-none border border-slate-100">
                         <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Domain</div>
                         <div className="text-xs font-bold text-slate-700 flex items-center gap-1">
                           <Globe className="w-3 h-3 text-slate-400" />
@@ -2476,7 +2487,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                 </div>
 
                 {/* AOID Mode Toggle */}
-                <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 space-y-3">
+                <div className="bg-emerald-50 p-4 rounded-none border border-emerald-100 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-emerald-700 font-black text-[10px] uppercase tracking-widest">
                       <ShieldIcon className="w-3 h-3" />
@@ -2505,7 +2516,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                   <button 
                     type="submit"
                     className={cn(
-                      "w-full py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95",
+                      "w-full py-5 rounded-none font-black uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95",
                       isAoidMode 
                         ? "bg-slate-900 text-white shadow-slate-200" 
                         : "bg-emerald-600 text-white shadow-emerald-100 hover:bg-emerald-700"

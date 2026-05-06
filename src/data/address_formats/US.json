@@ -1,0 +1,51 @@
+{
+  "countryCode": "US",
+  "name": "United States",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}} {{postcode}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "Google LLC", "required": false },
+      { "key": "houseNumber", "label": "House No.", "placeholder": "1600", "required": true },
+      { "key": "street", "label": "Street", "placeholder": "Amphitheatre Pkwy", "required": true },
+      { "key": "city", "label": "City", "placeholder": "Mountain View", "required": true },
+      { "key": "state", "label": "State", "placeholder": "CA", "required": true },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "94043", "required": true }
+    ]
+  },
+  "domestic": {
+    "es": {
+      "name": "Español",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}} {{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa", "placeholder": "Google LLC" },
+        { "key": "houseNumber", "label": "No. de Casa", "placeholder": "1600" },
+        { "key": "street", "label": "Calle", "placeholder": "Amphitheatre Pkwy" },
+        { "key": "city", "label": "Ciudad", "placeholder": "Mountain View" },
+        { "key": "state", "label": "Estado", "placeholder": "CA" },
+        { "key": "postcode", "label": "Código Postal", "placeholder": "94043" }
+      ]
+    }
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{city}}, {{state}} {{postcode}}\nUNITED STATES",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "e.g. Google LLC" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1600" },
+      { "key": "street", "label": "St./Ave./Rd.", "placeholder": "Amphitheatre Pkwy" },
+      { "key": "city", "label": "City", "placeholder": "Mountain View" },
+      { "key": "state", "label": "State Code", "placeholder": "CA" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "94043" }
+    ]
+  },
+  "postalCode": {
+    "format": "NNNNN[-NNNN]",
+    "regex": "^\\d{5}(-\\d{4})?$",
+    "api": "https://tools.usps.com/go/ZipLookupAction_input",
+    "source": "USPS"
+  }
+}

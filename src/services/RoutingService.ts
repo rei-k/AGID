@@ -1,7 +1,8 @@
 
 import createGraph from 'ngraph.graph';
 import path from 'ngraph.path';
-import { fetchWithRetry } from '../lib/api-utils';
+import { fetchWithRetry } from '../lib/utils';
+import { calculateDistance } from '../lib/nav';
 
 export interface RouteNode {
   id: string;
@@ -51,21 +52,6 @@ export class RoutingService {
   }
 
   /**
-   * Calculates distance between two points in meters (Haversine).
-   */
-  private static getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371000; // Earth radius in meters
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  /**
    * Finds the shortest path between two coordinates.
    */
   public static async findRoute(start: [number, number], end: [number, number], mode: travelMode = 'driving'): Promise<RouteResult | null> {
@@ -73,7 +59,7 @@ export class RoutingService {
     const [endLat, endLon] = end;
 
     // 1. Define BBOX with dynamic buffer based on distance
-    const dist = this.getDistance(startLat, startLon, endLat, endLon);
+    const dist = calculateDistance(startLat, startLon, endLat, endLon) * 1000;
     const buffer = Math.max(0.005, Math.min(0.05, dist / 100000)); // 0.5km to 5km buffer
     
     const minLat = Math.min(startLat, endLat) - buffer;
@@ -107,7 +93,7 @@ export class RoutingService {
           const toNode = nodesMap.get(toId);
           
           if (fromNode && toNode) {
-            const d = this.getDistance(fromNode.lat, fromNode.lon, toNode.lat, toNode.lon);
+            const d = calculateDistance(fromNode.lat, fromNode.lon, toNode.lat, toNode.lon) * 1000;
             graph.addLink(fromId, toId, { weight: d });
             if (!isOneWay) {
               graph.addLink(toId, fromId, { weight: d });
@@ -124,8 +110,8 @@ export class RoutingService {
     let minEndDist = Infinity;
 
     nodesMap.forEach((coords, id) => {
-      const dStart = this.getDistance(startLat, startLon, coords.lat, coords.lon);
-      const dEnd = this.getDistance(endLat, endLon, coords.lat, coords.lon);
+      const dStart = calculateDistance(startLat, startLon, coords.lat, coords.lon) * 1000;
+      const dEnd = calculateDistance(endLat, endLon, coords.lat, coords.lon) * 1000;
       
       if (dStart < minStartDist) { minStartDist = dStart; startNodeId = id; }
       if (dEnd < minEndDist) { minEndDist = dEnd; endNodeId = id; }
@@ -139,10 +125,10 @@ export class RoutingService {
     const pathFinder = path.nba(graph, {
       distance(fromNode, toNode, link) { return link.data.weight; },
       heuristic(fromNode, toNode) {
-        return RoutingService.getDistance(
+        return calculateDistance(
           (fromNode.data as any).lat, (fromNode.data as any).lon,
           (toNode.data as any).lat, (toNode.data as any).lon
-        );
+        ) * 1000;
       }
     });
 
@@ -157,7 +143,7 @@ export class RoutingService {
 
     let totalDist = 0;
     for (let i = 0; i < resultPath.length - 1; i++) {
-      totalDist += this.getDistance(resultPath[i].lat, resultPath[i].lon, resultPath[i+1].lat, resultPath[i+1].lon);
+      totalDist += calculateDistance(resultPath[i].lat, resultPath[i].lon, resultPath[i+1].lat, resultPath[i+1].lon) * 1000;
     }
 
     // Walking: 5km/h = 1.39m/s, Driving: ~40km/h = 11.1m/s

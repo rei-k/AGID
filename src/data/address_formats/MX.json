@@ -1,0 +1,53 @@
+{
+  "countryCode": "MX",
+  "name": "Mexico",
+  "native": {
+    "name": "Español",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Empresa", "placeholder": "" },
+      { "key": "street", "label": "Calle", "placeholder": "Avenida Reforma", "required": true },
+      { "key": "houseNumber", "label": "Número Ext/Int", "placeholder": "123", "required": true },
+      { "key": "subdistrict", "label": "Colonia", "placeholder": "Centro", "required": true },
+      { "key": "postcode", "label": "Código Postal", "placeholder": "06000", "required": true },
+      { "key": "city", "label": "Ciudad/Delegación", "placeholder": "Ciudad de México", "required": true },
+      { "key": "state", "label": "Estado", "placeholder": "CDMX", "required": true }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}\nMEXICO",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street Address (Latin)", "placeholder": "Av. Reforma", "required": true },
+      { "key": "houseNumber", "label": "Ext. No.", "placeholder": "123", "required": true },
+      { "key": "subdistrict", "label": "Neighborhood", "placeholder": "Centro", "required": true },
+      { "key": "postcode", "label": "Postcode", "placeholder": "06000", "required": true },
+      { "key": "city", "label": "City/Town", "placeholder": "Mexico City", "required": true },
+      { "key": "state", "label": "State Code", "placeholder": "CDMX", "required": true }
+    ]
+  },
+  "international": {
+    "es": {
+      "name": "Español (Internacional)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{subdistrict}}\n{{postcode}} {{city}}, {{state}}\nMÉXICO",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Empresa (Latín)", "placeholder": "" },
+        { "key": "street", "label": "Calle/Via (Latín)", "placeholder": "Av. Reforma", "required": true },
+        { "key": "houseNumber", "label": "Nº Ext.", "placeholder": "123", "required": true },
+        { "key": "subdistrict", "label": "Colonia", "placeholder": "Centro", "required": true },
+        { "key": "postcode", "label": "C.P. (Latin)", "placeholder": "06000", "required": true },
+        { "key": "city", "label": "Ciudad/Del.", "placeholder": "CDMX", "required": true },
+        { "key": "state", "label": "Edo. (Sigla)", "placeholder": "CDMX", "required": true }
+      ]
+    }
+  },
+  "postalCode": {
+    "format": "NNNNN",
+    "regex": "^\\d{5}$",
+    "source": "Correos de México"
+  }
+}

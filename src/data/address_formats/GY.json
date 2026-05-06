@@ -1,0 +1,22 @@
+{
+  "countryCode": "GY",
+  "name": "Guyana",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Lot/House No.", "placeholder": "45" },
+      { "key": "street", "label": "Street", "placeholder": "Brickdam" },
+      { "key": "subdistrict", "label": "Area", "placeholder": "Stabroek" },
+      { "key": "city", "label": "Town/City", "placeholder": "Georgetown" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}}\nGUYANA",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}

@@ -2,32 +2,50 @@
   "countryCode": "PH",
   "name": "Philippines",
   "native": {
-    "name": "Pilipinas",
+    "name": "English",
     "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company Name", "placeholder": "SM Mall of Asia", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Unit 101", "required": false, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "J.W. Diokno Blvd", "required": true, "type": "text" },
-      { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76", "required": true, "type": "text" },
-      { "key": "district", "label": "District/Zone", "placeholder": "", "required": false, "type": "text" },
-      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City", "required": true, "type": "text" },
-      { "key": "state", "label": "Province", "placeholder": "Metro Manila", "required": true, "type": "text" },
-      { "key": "postcode", "label": "ZIP Code", "placeholder": "1300", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "SM Mall of Asia" },
+      { "key": "houseNumber", "label": "Unit/House No.", "placeholder": "Unit 101" },
+      { "key": "street", "label": "Street", "placeholder": "Diokno Blvd" },
+      { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76" },
+      { "key": "district", "label": "District", "placeholder": "" },
+      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City" },
+      { "key": "state", "label": "Province", "placeholder": "Metro Manila" },
+      { "key": "postcode", "label": "ZIP Code", "placeholder": "1300" }
     ]
   },
+  "domestic": {
+    "tl": {
+      "name": "Tagalog",
+      "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Building/Kumpanya", "placeholder": "SM Mall of Asia" },
+        { "key": "houseNumber", "label": "Blk/Lote No.", "placeholder": "Unit 101" },
+        { "key": "street", "label": "Kalye", "placeholder": "Diokno Blvd" },
+        { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76" },
+        { "key": "district", "label": "Distrito", "placeholder": "" },
+        { "key": "city", "label": "Lungsod/Bayan", "placeholder": "Pasay City" },
+        { "key": "state", "label": "Lalawigan", "placeholder": "Metro Manila" },
+        { "key": "postcode", "label": "ZIP Code", "placeholder": "1300" }
+      ]
+    }
+  },
   "english": {
-    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}, {{district}}\n{{city}}, {{state}}\n{{postcode}}\nPHILIPPINES",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Building/Company", "placeholder": "SM Mall of Asia", "required": false, "type": "text" },
-      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Unit 101", "required": false, "type": "text" },
-      { "key": "street", "label": "Street", "placeholder": "J.W. Diokno Blvd", "required": true, "type": "text" },
-      { "key": "subdistrict", "label": "Barangay", "placeholder": "Barangay 76", "required": true, "type": "text" },
-      { "key": "district", "label": "District", "placeholder": "", "required": false, "type": "text" },
-      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City", "required": true, "type": "text" },
-      { "key": "state", "label": "Province", "placeholder": "Metro Manila", "required": true, "type": "text" },
-      { "key": "postcode", "label": "ZIP Code", "placeholder": "1300", "required": true, "type": "text" }
+      { "key": "organization", "label": "Building/Company", "placeholder": "SM Mall of Asia" },
+      { "key": "houseNumber", "label": "House/Unit No.", "placeholder": "Unit 101" },
+      { "key": "street", "label": "Street Address", "placeholder": "Diokno Blvd" },
+      { "key": "subdistrict", "label": "Barangay/Neighborhood", "placeholder": "Barangay 76" },
+      { "key": "district", "label": "District", "placeholder": "" },
+      { "key": "city", "label": "City/Municipality", "placeholder": "Pasay City" },
+      { "key": "state", "label": "Province/State", "placeholder": "Metro Manila" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "1300" }
     ]
   },
   "postalCode": {

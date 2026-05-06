@@ -14,15 +14,30 @@
     ]
   },
   "english": {
-    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{country}}",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nSAN MARINO",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "organization", "label": "Company/Organization", "placeholder": "", "required": false, "type": "text" },
-      { "key": "street", "label": "Street/Square", "placeholder": "Via della Capannaccia", "required": true, "type": "text" },
-      { "key": "houseNumber", "label": "House No.", "placeholder": "1", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "47890", "required": true, "type": "text" },
-      { "key": "city", "label": "Municipality", "placeholder": "San Marino", "required": true, "type": "text" }
+      { "key": "organization", "label": "Co./Org.", "placeholder": "" },
+      { "key": "street", "label": "Street Address (Latin)", "placeholder": "Via della Capannaccia" },
+      { "key": "houseNumber", "label": "No.", "placeholder": "1" },
+      { "key": "postcode", "label": "Postcode", "placeholder": "47890" },
+      { "key": "city", "label": "City", "placeholder": "San Marino" }
     ]
+  },
+  "international": {
+    "it": {
+      "name": "Italiano (Internazionale)",
+      "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\nSAN MARINO",
+      "ordering": "small-to-big",
+      "fields": [
+        { "key": "organization", "label": "Soc./Org.", "placeholder": "" },
+        { "key": "street", "label": "Via/Piazza (Latín)", "placeholder": "Via della Capannaccia" },
+        { "key": "houseNumber", "label": "Nº", "placeholder": "1" },
+        { "key": "postcode", "label": "CAP", "placeholder": "47890" },
+        { "key": "city", "label": "Castello", "placeholder": "San Marino" }
+      ]
+    }
   },
   "postalCode": {
     "format": "NNNNN",

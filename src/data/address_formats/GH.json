@@ -2,27 +2,23 @@
   "countryCode": "GH",
   "name": "Ghana",
   "native": {
-    "name": "Ghana",
-    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}}\n{{postcode}}",
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}\n{{city}}\n{{postcode}}",
     "ordering": "small-to-big",
     "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Kwame Mensah", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / Digital Address", "placeholder": "GA-123-4567", "required": true, "type": "text" },
-      { "key": "district", "label": "District", "placeholder": "Osu", "required": false, "type": "text" },
-      { "key": "city", "label": "City / Town", "placeholder": "Accra", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "GA123", "required": false, "type": "text" }
+      { "key": "organization", "label": "Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "Digital Address/No.", "placeholder": "GA-123-4567" },
+      { "key": "street", "label": "Street Name", "placeholder": "Independence Ave" },
+      { "key": "district", "label": "District", "placeholder": "Osu" },
+      { "key": "city", "label": "City/Town", "placeholder": "Accra" },
+      { "key": "postcode", "label": "Postal Code", "placeholder": "GA123" }
     ]
   },
   "english": {
-    "addressFormat": "{{recipient}}\n{{street}}\n{{district}}\n{{city}}\n{{postcode}}\nGhana",
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{district}}\n{{city}}\n{{postcode}}\nGHANA",
     "ordering": "small-to-big",
-    "fields": [
-      { "key": "recipient", "label": "Full Name", "placeholder": "Kwame Mensah", "required": true, "type": "text" },
-      { "key": "street", "label": "Street Address / Digital Address", "placeholder": "GA-123-4567", "required": true, "type": "text" },
-      { "key": "district", "label": "District", "placeholder": "Osu", "required": false, "type": "text" },
-      { "key": "city", "label": "City / Town", "placeholder": "Accra", "required": true, "type": "text" },
-      { "key": "postcode", "label": "Postal Code", "placeholder": "GA123", "required": false, "type": "text" }
-    ]
+    "fields": []
   },
   "postalCode": {
     "format": "AA NNN",

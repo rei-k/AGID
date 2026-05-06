@@ -23,11 +23,11 @@ export interface PostalCodeInfo {
 export interface AddressFormat {
   countryCode: string;
   name: string;
-  // Enriched fields
   native?: LanguageFormat;
   english?: LanguageFormat;
+  domestic?: Record<string, LanguageFormat>;
+  international?: Record<string, LanguageFormat>;
   postalCode?: PostalCodeInfo;
-  // Legacy fields (for compatibility during migration)
   nativeName?: string;
   addressFormat?: string;
   fields?: (AddressField & { labelEn?: string })[];

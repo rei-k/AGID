@@ -1,0 +1,23 @@
+{
+  "countryCode": "JM",
+  "name": "Jamaica",
+  "native": {
+    "name": "English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}}\n{{state}}",
+    "ordering": "small-to-big",
+    "fields": [
+      { "key": "organization", "label": "Building/Company", "placeholder": "" },
+      { "key": "houseNumber", "label": "House/Lot No.", "placeholder": "10" },
+      { "key": "street", "label": "Street", "placeholder": "Knutsford Blvd" },
+      { "key": "subdistrict", "label": "Area/Locality", "placeholder": "New Kingston" },
+      { "key": "city", "label": "Town/City", "placeholder": "Kingston" },
+      { "key": "state", "label": "Parish", "placeholder": "St. Andrew" }
+    ]
+  },
+  "english": {
+    "name": "International English",
+    "addressFormat": "{{organization}}\n{{houseNumber}} {{street}}\n{{subdistrict}}\n{{city}}, {{state}}\nJAMAICA",
+    "ordering": "small-to-big",
+    "fields": []
+  }
+}
