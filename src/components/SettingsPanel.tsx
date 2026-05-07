@@ -33,7 +33,10 @@ import {
   Box, 
   Search, 
   LocateFixed, 
-  Check 
+  Check,
+  Search as SearchIcon,
+  Map as MapIcon,
+  Compass
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { LANGUAGES } from '../lib/addressUtils';
@@ -41,6 +44,7 @@ import { MAJOR_CATEGORIES, MAP_STYLES } from '../constants/appConstants';
 import { ExportService, ExportData } from '../services/ExportService';
 import { saveAs } from 'file-saver';
 import maplibregl from 'maplibre-gl';
+import { LAND_REGIONS, SEA_REGIONS, COUNTRY_REGIONS } from '../lib/regions';
 
 interface SettingsPanelProps {
   show: boolean;
@@ -123,7 +127,45 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   jumpToAgid,
   t
 }) => {
-  // Removed useTranslation
+  // Local state for searching codes
+  const [codeSearch, setCodeSearch] = React.useState('');
+  const [codeFilter, setCodeFilter] = React.useState<'ALL' | 'LAND' | 'SEA'>('ALL');
+
+  const filteredCodes = React.useMemo(() => {
+    let all = [...COUNTRY_REGIONS, ...SEA_REGIONS];
+    if (codeFilter === 'LAND') all = COUNTRY_REGIONS;
+    if (codeFilter === 'SEA') all = SEA_REGIONS;
+
+    const query = codeSearch.toLowerCase();
+    
+    // Map sea long codes to short codes for searching
+    const seaShortMap: { [key: string]: string } = {
+      'NPAC': 'NP', 'NEPC': 'NE', 'SPAC': 'SP', 'SEPC': 'SE',
+      'NATL': 'NA', 'SATL': 'SA', 'NIND': 'NI', 'SIND': 'SI',
+      'SOUT': 'SO', 'ARCT': 'AR'
+    };
+
+    if (!query) return all.slice(0, 50);
+
+    return all.filter(r => {
+      const id = (r.id || r.code || '').toLowerCase();
+      const name = r.name.toLowerCase();
+      const short = isSeaRegion(r) ? (seaShortMap[r.id || ''] || '').toLowerCase() : id;
+      
+      return id.includes(query) || name.includes(query) || short === query;
+    }).sort((a, b) => {
+      // Prioritize exact matches on code
+      const aId = (a.id || a.code || '').toLowerCase();
+      const bId = (b.id || b.code || '').toLowerCase();
+      if (aId === query) return -1;
+      if (bId === query) return 1;
+      return a.name.localeCompare(b.name);
+    }).slice(0, 100);
+  }, [codeSearch, codeFilter]);
+
+  function isSeaRegion(r: any): boolean {
+    return !!r.isSea || !COUNTRY_REGIONS.some(c => c.id === r.id || c.code === (r.id || r.code));
+  }
 
   return (
     <AnimatePresence>
@@ -876,13 +918,34 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       className="p-8 space-y-10"
                     >
                       <div className="text-center space-y-4">
-                        <div className="w-24 h-24 bg-slate-900 rounded-none flex items-center justify-center mx-auto text-white shadow-2xl">
-                          <Grid3X3 className="w-12 h-12" />
+                        <div className="group relative w-32 h-32 mx-auto">
+                          <div className="absolute inset-0 bg-blue-500/20 rounded-none blur-2xl group-hover:bg-blue-500/40 transition-all duration-500" />
+                          <div className="relative w-full h-full bg-slate-900 rounded-none flex items-center justify-center text-white shadow-2xl border border-white/10">
+                            <Grid3X3 className="w-16 h-16" />
+                          </div>
                         </div>
                         <div>
-                          <h4 className="text-2xl font-black text-slate-900 tracking-tighter">AGID</h4>
+                          <h4 className="text-2xl font-black text-slate-900 tracking-tighter">AGID EXPLORER</h4>
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Version 2.4.0-PRO</p>
                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        <button 
+                          onClick={() => setSettingsTab('region-codes')}
+                          className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none group transition-all"
+                        >
+                          <div className="flex items-center gap-4 text-left">
+                            <div className="w-12 h-12 bg-white rounded-none flex items-center justify-center text-slate-900 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                              <Globe className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-slate-900 uppercase tracking-tight">Geographic Region Codes</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Country & Sea Code Dictionary</p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-900 transition-colors" />
+                        </button>
                       </div>
 
                       <div className="p-8 bg-slate-900 rounded-none text-white shadow-xl space-y-6 text-left">
@@ -967,6 +1030,93 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </motion.div>
                   )}
 
+                   {settingsTab === 'region-codes' && (
+                    <motion.div 
+                      key="region-codes"
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 20, opacity: 0 }}
+                      className="flex flex-col h-full min-h-[600px] pb-24"
+                    >
+                      <div className="p-6 md:p-8 space-y-6 sticky top-0 bg-white z-10">
+                        <div className="flex flex-col gap-2">
+                          <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">{t('region_code_directory')}</h4>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('region_code_dictionary')}</p>
+                        </div>
+
+                        <div className="relative">
+                          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <input 
+                            type="text"
+                            placeholder={t('search_codes_placeholder')}
+                            value={codeSearch}
+                            onChange={(e) => setCodeSearch(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-none pl-12 pr-4 py-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-300"
+                          />
+                        </div>
+
+                        <div className="flex bg-slate-100 p-1 rounded-none">
+                          {(['ALL', 'LAND', 'SEA'] as const).map(f => (
+                            <button
+                              key={f}
+                              onClick={() => setCodeFilter(f)}
+                              className={cn(
+                                "flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all",
+                                codeFilter === f ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                              )}
+                            >
+                              {f === 'ALL' ? 'ALL' : f === 'LAND' ? t('land') : t('sea')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="border-t border-slate-100 divide-y divide-slate-100">
+                          {filteredCodes.map((region, idx) => {
+                            const isSea = isSeaRegion(region);
+                            
+                            // Map sea long codes to short codes for display
+                            const seaCodeMap: { [key: string]: string } = {
+                              'NPAC': 'NP', 'NEPC': 'NE', 'SPAC': 'SP', 'SEPC': 'SE',
+                              'NATL': 'NA', 'SATL': 'SA', 'NIND': 'NI', 'SIND': 'SI',
+                              'SOUT': 'SO', 'ARCT': 'AR'
+                            };
+                            const displayCode = isSea ? (seaCodeMap[region.id || ''] || region.id || region.code) : (region.id || region.code);
+
+                            return (
+                              <div key={`${region.id || region.code}-${idx}`} className="flex items-center gap-4 p-4 md:p-6 hover:bg-slate-50 transition-colors">
+                                <div className={cn(
+                                  "w-12 h-12 flex items-center justify-center font-mono font-black text-sm shrink-0 rounded-none",
+                                  isSea ? "bg-blue-900 text-blue-200" : "bg-slate-900 text-white"
+                                )}>
+                                  {displayCode}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-black text-slate-900 uppercase tracking-tight truncate">{region.name}</span>
+                                    <span className={cn(
+                                      "text-[8px] font-black uppercase px-1.5 py-0.5 rounded-none",
+                                      isSea ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                                    )}>
+                                      {isSea ? t('sea') : t('land')}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-3 text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                                    <span className="flex items-center gap-1 shrink-0"><Compass className="w-2 h-2" /> {t('bounds')}</span>
+                                    <span className="truncate whitespace-nowrap">
+                                      N:{Math.round(region.n)}° S:{Math.round(region.s)}° W:{Math.round(region.w)}° E:{Math.round(region.e)}°
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
                   {settingsTab === 'help' && (
                     <motion.div 
                       key="help"
@@ -1040,8 +1190,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       initial={{ x: 20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: 20, opacity: 0 }}
-                      className="p-6 space-y-4"
+                      className="p-6 space-y-6"
                     >
+                      {settingsTab === 'address-language' && (
+                        <div className="bg-red-50 border-2 border-red-200 p-4 rounded-none space-y-2">
+                          <div className="flex items-center gap-2 text-red-600">
+                            <ShieldCheck className="w-4 h-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest leading-none">{t('strict_protocol_active')}</span>
+                          </div>
+                          <p className="text-[10px] font-bold text-red-700/80 leading-relaxed uppercase">
+                            {t('strict_protocol_desc')}
+                          </p>
+                        </div>
+                      )}
+
                       <div className="grid gap-2">
                         {settingsTab === 'address-language' && (
                           <button
@@ -1052,26 +1214,35 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                               setSettingsTab('app');
                             }}
                             className={cn(
-                              "w-full flex items-center justify-between p-4 rounded-none border transition-all text-left mb-2",
+                              "w-full flex items-center justify-between p-4 rounded-none border-2 transition-all text-left mb-2 shadow-sm",
                               addressLanguage === 'local'
-                                ? "bg-blue-50 border-blue-200 ring-2 ring-blue-500/10" 
-                                : "bg-slate-50 border-slate-100 hover:bg-slate-100"
+                                ? "bg-blue-600 border-blue-700 text-white shadow-blue-200" 
+                                : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-700"
                             )}
                           >
                             <div>
-                              <p className={cn("text-sm font-bold", addressLanguage === 'local' ? "text-blue-700" : "text-slate-700")}>
+                              <p className={cn("text-sm font-black uppercase tracking-tight", addressLanguage === 'local' ? "text-white" : "text-slate-900")}>
                                 {t('local_lang')}
                               </p>
-                              <p className="text-[10px] text-slate-400 font-medium">{t('local_lang_desc')}</p>
+                              <p className={cn("text-[9px] font-bold uppercase tracking-widest", addressLanguage === 'local' ? "text-white/60" : "text-slate-400")}>
+                                {t('local_lang_desc')}
+                              </p>
                             </div>
                             {addressLanguage === 'local' && (
-                              <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                                <Check className="w-3 h-3 text-white" />
+                              <div className="w-5 h-5 bg-white rounded-none flex items-center justify-center">
+                                <Check className="w-3 h-3 text-blue-600" />
                               </div>
                             )}
                           </button>
                         )}
-                        {LANGUAGES.map((lang) => (
+                        
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2 pb-1">
+                          {settingsTab === 'address-language' ? 'Standard AGID Identifiers' : 'System Languages'}
+                        </div>
+
+                        {(settingsTab === 'address-language' 
+                          ? LANGUAGES.filter(l => ['ja', 'en', 'zh-Hans', 'zh-Hant', 'ko', 'fr', 'de', 'es'].includes(l.code)) 
+                          : LANGUAGES).map((lang) => (
                           <button
                             key={lang.code}
                             onClick={() => {
@@ -1085,25 +1256,33 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                               setSettingsTab('app');
                             }}
                             className={cn(
-                              "w-full flex items-center justify-between p-4 rounded-none border transition-all text-left",
+                              "w-full flex items-center justify-between p-4 rounded-none border-2 transition-all text-left shadow-sm",
                               (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code)
-                                ? "bg-blue-50 border-blue-200 ring-2 ring-blue-500/10" 
-                                : "bg-slate-50 border-slate-100 hover:bg-slate-100"
+                                ? "bg-blue-600 border-blue-700 text-white shadow-blue-200" 
+                                : "bg-white border-slate-100 hover:bg-slate-50 text-slate-700"
                             )}
                           >
                             <div>
-                              <p className={cn("text-sm font-bold", (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) ? "text-blue-700" : "text-slate-700")}>
+                              <p className={cn("text-sm font-black uppercase tracking-tight", (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) ? "text-white" : "text-slate-900")}>
                                 {lang.name}
                               </p>
-                              <p className="text-[10px] text-slate-400 font-medium">{lang.country}</p>
+                              <p className={cn("text-[9px] font-bold uppercase tracking-widest", (settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) ? "text-white/60" : "text-slate-400")}>
+                                {lang.country}
+                              </p>
                             </div>
                             {(settingsTab === 'app-language' ? appLanguage === lang.code : addressLanguage === lang.code) && (
-                              <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                                <Check className="w-3 h-3 text-white" />
+                              <div className="w-5 h-5 bg-white rounded-none flex items-center justify-center">
+                                <Check className="w-3 h-3 text-blue-600" />
                               </div>
                             )}
                           </button>
                         ))}
+
+                        {settingsTab === 'address-language' && (
+                          <div className="mt-4 p-4 border-2 border-dashed border-slate-100 text-center">
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Extended Support Restricted</span>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}

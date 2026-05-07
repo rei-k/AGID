@@ -85,7 +85,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
-            <h2 className="text-base md:text-lg font-black text-slate-900 tracking-tight line-clamp-1">IHO Sea Codes</h2>
+            <h2 className="text-base md:text-lg font-black text-slate-900 tracking-tight line-clamp-1">AGID Sea Context</h2>
             <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">
               Global Maritime • {filtered.length} Regions
             </p>

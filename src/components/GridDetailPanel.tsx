@@ -66,6 +66,7 @@ interface GridDetailPanelProps {
   setShowPostalCodeLab: (s: boolean) => void;
   showGeoArchitect: boolean;
   setShowGeoArchitect: (s: boolean) => void;
+  t: (key: string) => string;
 }
 
 export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
@@ -106,7 +107,8 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
   setOrigin,
   setOriginQuery,
   fastJapaneseTransliterate,
-  showAlert
+  showAlert,
+  t
 }) => {
   if (!clickedAgid) return null;
 
@@ -148,7 +150,7 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
                   <MapPin className="w-3.5 h-3.5 text-red-500" />
                 </div>
                 <span className="text-[9px] font-black uppercase tracking-[0.1em] text-red-400/90 truncate max-w-[150px]">
-                  {clickedAgid.isSea ? "Sea Code" : (clickedAgid.id.startsWith('IN') ? "Bharat" : clickedAgid.id.startsWith('ZA') ? "SA" : "Country Code")}
+                  {clickedAgid.isSea ? t('agid_code') : t('country_code')}
                 </span>
                 {isAgidPinnedToGps && (
                   <div className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded-none animate-pulse">
@@ -278,7 +280,7 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
                     title="Get Directions"
                   >
                     <ArrowUpRight className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-tight">経路案内</span>
+                    <span className="text-[10px] font-black uppercase tracking-tight">{t('get_directions')}</span>
                   </button>
                 </div>
                </div>
@@ -338,7 +340,7 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
                            )}
                          >
                            <Globe className="w-2.5 h-2.5" />
-                           <span>English</span>
+                           <span>{LANGUAGES.find(l => l.code === 'en')?.name || "English"}</span>
                          </button>
                        </div>
                      </div>
@@ -347,11 +349,11 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
                         {clickedAddressMap[`${clickedAddressTab}_domestic`] && clickedAddressMap[`${clickedAddressTab}_domestic`] !== (clickedAddressMap[clickedAddressTab] || clickedAddress) ? (
                           <div className="flex flex-col gap-2">
                             <div className="flex flex-col gap-0.5">
-                              <span className="text-[7px] font-black uppercase tracking-widest text-blue-400/80">International Standard</span>
+                              <span className="text-[7px] font-black uppercase tracking-widest text-blue-400/80">{t('international_standard')}</span>
                               <span>{clickedAddressMap[clickedAddressTab] || (clickedAddressTab === 'en' ? fastJapaneseTransliterate(clickedAddress) : clickedAddress)}</span>
                             </div>
                             <div className="flex flex-col gap-0.5 pt-1.5 border-t border-white/5">
-                              <span className="text-[7px] font-black uppercase tracking-widest text-amber-400/80">Domestic Sequence</span>
+                              <span className="text-[7px] font-black uppercase tracking-widest text-amber-400/80">{t('domestic_sequence')}</span>
                               <span>{clickedAddressMap[`${clickedAddressTab}_domestic`]}</span>
                             </div>
                           </div>

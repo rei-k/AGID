@@ -221,7 +221,7 @@ export function fastJapaneseTransliterate(text: string): string {
 export async function formatAddress(details: any, lang: string = 'local', options: { shipping?: boolean, isHighPrecision?: boolean, forceDomestic?: boolean } = {}): Promise<string> {
   if (!details) return "";
 
-  const c = details.country_code?.toUpperCase();
+  const c = details.country_code?.slice(0, 2).toUpperCase();
   const formatDef = await (c ? getAddressFormat(c) : Promise.resolve(null));
 
   // Determine which specification to use from JSON

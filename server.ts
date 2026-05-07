@@ -117,7 +117,7 @@ async function startServer() {
     }
   });
 
-  const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  const USER_AGENT = 'AGID-Explorer/2.4.0 (kitaura.code@gmail.com; Geogrid Project)';
 
   const apiCache = new Map<string, { data: any, timestamp: number }>();
   const API_CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
@@ -244,8 +244,7 @@ async function startServer() {
     // Merge headers carefully
     const headers: Record<string, string> = {
       'User-Agent': USER_AGENT,
-      'Accept': 'application/json, text/plain, */*',
-      'Referer': 'https://ais-dev-pccznu564ainowkzzbgqek-10301310581.asia-northeast1.run.app/'
+      'Accept': 'application/json, text/plain, */*'
     };
     
     if (options.headers) {
@@ -307,12 +306,14 @@ async function startServer() {
   const NOMINATIM_MIRRORS = [
     'https://nominatim.openstreetmap.org/reverse',      // Official
     'https://nominatim.qwant.com/reverse',              // Qwant (Privacy-focused/Stable)
+    'https://nominatim.openstreetmap.de/reverse',       // Germany (Stable)
+    'https://nominatim.openstreetmap.fr/reverse',       // France (Stable)
     'https://photon.komoot.io/reverse',                 // Photon (Fallback)
   ];
 
   const nominatimBlacklist = new Map<string, number>();
   const NOMINATIM_BLACKLIST_DURATION = 1000 * 60 * 30; // 30 mins
-  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 60 * 2; // 2 hours for resolution failures
+  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 5; // 5 mins for resolution failures (retry sooner)
 
   /**
    * Robust reverse geocoding using multiple mirrors
@@ -351,10 +352,13 @@ async function startServer() {
           ? `${mirror}?lat=${lat}&lon=${lon}`
           : `${mirror}?format=json&lat=${lat}&lon=${lon}&addressdetails=1&zoom=${zoom}&accept-language=${lang}`;
 
-        // Add User-Agent as some mirrors require it
+        // Add User-Agent and identifying headers
         const res = await safeFetch(url, {
-          headers: { 'User-Agent': 'AGID-Geogrid-Explorer/2.4.0' }
-        }, isPhoton ? 10000 : 12000);
+          headers: { 
+            'User-Agent': 'AGID-Geogrid-Explorer/2.4.0 (kitaura.code@gmail.com)',
+            'Accept-Language': lang
+          }
+        }, isPhoton ? 10000 : 15000);
         
         const contentType = res.headers.get('content-type') || '';
         
@@ -403,20 +407,22 @@ async function startServer() {
           // If not OK or not JSON, blacklist
           const isRateLimit = res.status === 429;
           const isServerError = res.status >= 500;
+          const isNotFound = res.status === 404;
           const isNotJson = res.ok && !(contentType.includes('json') || contentType.includes('geojson'));
           
-          if (isRateLimit || isServerError || isNotJson) {
+          if (isRateLimit || isServerError || isNotJson || isNotFound) {
             nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
           }
           errors.push(`${mirror} (${res.status}${isNotJson ? ' Non-JSON' : ''})`);
         }
       } catch (e: any) {
-        // Blacklist immediately on DNS/Network failure
-        const isDnsError = e.message?.includes('getaddrinfo') || e.message?.includes('ENOTFOUND');
+        // Blacklist on DNS/Network failure
+        const msg = e.message || String(e);
+        const isDnsError = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('fetch failed');
         nominatimBlacklist.set(mirror, now + (isDnsError ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
-        const msg = e.message || 'Fetch failed';
         errors.push(`${mirror} [${msg}]`);
-        console.warn(`[API] Mirror Failed: ${mirror} - ${msg}`);
+        // Log as warning unless it's the last one, to reduce noise
+        console.warn(`[API] Reverse Mirror Failed: ${mirror} - ${msg}`);
       }
     }
     
@@ -1670,6 +1676,8 @@ async function startServer() {
   const NOMINATIM_SEARCH_MIRRORS = [
     'https://nominatim.openstreetmap.org/search',
     'https://nominatim.qwant.com/search',
+    'https://nominatim.openstreetmap.de/search',
+    'https://nominatim.openstreetmap.fr/search',
   ];
 
   /**
@@ -1699,12 +1707,24 @@ async function startServer() {
     const errors: string[] = [];
     const mirrorsToTry = mirrors.length > 0 ? mirrors : [...NOMINATIM_SEARCH_MIRRORS];
 
+    // Sort: Official first
+    mirrorsToTry.sort((a, b) => {
+      const aOfficial = a.includes('openstreetmap.org/search');
+      const bOfficial = b.includes('openstreetmap.org/search');
+      if (aOfficial && !bOfficial) return -1;
+      if (!aOfficial && bOfficial) return 1;
+      return 0;
+    });
+
     for (const mirror of mirrorsToTry) {
       try {
         const url = `${mirror}?${params.toString()}`;
         const res = await safeFetch(url, {
-          headers: { 'User-Agent': 'AGID-Geogrid-Explorer/2.4.0' }
-        }, 15000);
+          headers: { 
+            'User-Agent': 'AGID-Geogrid-Explorer/2.4.0 (kitaura.code@gmail.com)',
+            'Accept-Language': accept_language || 'en'
+          }
+        }, 20000);
         
         const contentType = res.headers.get('content-type') || '';
         
@@ -1722,15 +1742,21 @@ async function startServer() {
             continue;
           }
         } else {
-          if (res.status === 429 || res.status >= 500) {
+          const isRateLimit = res.status === 429;
+          const isServerError = res.status >= 500;
+          const isNotFound = res.status === 404;
+          
+          if (isRateLimit || isServerError || isNotFound) {
             nominatimBlacklist.set(mirror, now + NOMINATIM_BLACKLIST_DURATION);
           }
           errors.push(`${mirror} (${res.status})`);
         }
       } catch (e: any) {
-        const isDns = e.message?.includes('getaddrinfo') || e.message?.includes('ENOTFOUND');
+        const msg = e.message || String(e);
+        const isDns = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('fetch failed');
         nominatimBlacklist.set(mirror, now + (isDns ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
-        errors.push(`${mirror} [${e.message || 'Error'}]`);
+        errors.push(`${mirror} [${msg}]`);
+        console.warn(`[API] Search Mirror Failed: ${mirror} - ${msg}`);
       }
     }
     

@@ -20,6 +20,7 @@ interface MapControlsProps {
   clickedAgid: any;
   isAgidPanelCollapsed: boolean;
   mapRef: React.MutableRefObject<maplibregl.Map | null>;
+  t: (key: string) => string;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
@@ -31,15 +32,16 @@ export const MapControls: React.FC<MapControlsProps> = ({
   setShowStyleMenu,
   clickedAgid,
   isAgidPanelCollapsed,
-  mapRef
+  mapRef,
+  t
 }) => {
   return (
     <div className={cn(
       "absolute z-40 flex flex-col gap-2 md:gap-1.5 pointer-events-none transition-all duration-500 items-end",
       "right-2 md:right-3",
       clickedAgid 
-        ? (isAgidPanelCollapsed ? "bottom-24" : "bottom-72 md:bottom-80") 
-        : "bottom-8 md:bottom-6"
+        ? (isAgidPanelCollapsed ? "bottom-24 md:bottom-8" : "bottom-72 md:bottom-8") 
+        : "bottom-8 md:bottom-8"
     )}>
       {/* Upper Group: Compass (Only when tilted) */}
       <div className="flex flex-col gap-2 md:gap-2 items-end">
@@ -57,7 +59,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
                   setMapBearing(0);
                 }}
                 className="w-10 h-10 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center relative overflow-hidden"
-                title="コンパスをリセット"
+                title={t('reset_compass')}
               >
                 <div 
                   className="relative w-6 h-6 md:w-5 md:h-5 transition-transform duration-300 ease-out"
@@ -80,7 +82,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
           <button 
             onClick={() => setShowStyleMenu(true)}
             className="w-9 h-9 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center group hover:bg-slate-50 transition-all"
-            title="レイヤー"
+            title={t('layers')}
           >
             <Layers className="w-4.5 h-4.5 md:w-4 md:h-4 text-slate-600" />
           </button>
@@ -94,7 +96,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
               "w-9 h-9 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center transition-all active:scale-95 group relative",
               isTracking ? "text-blue-600 border-blue-200" : "text-slate-600"
             )}
-            title="現在地表示"
+            title={t('current_location')}
           >
             <LocateFixed className={cn("w-4.5 h-4.5 md:w-4 md:h-4", (isTracking || isLocating) && "animate-pulse")} />
           </button>
@@ -105,14 +107,14 @@ export const MapControls: React.FC<MapControlsProps> = ({
           <button 
             onClick={() => mapRef.current?.zoomIn()}
             className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-600"
-            title="拡大"
+            title={t('zoom_in')}
           >
             <Plus className="w-4 h-4" />
           </button>
           <button 
             onClick={() => mapRef.current?.zoomOut()}
             className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 transition-colors text-slate-600"
-            title="縮小"
+            title={t('zoom_out')}
           >
             <Minus className="w-4 h-4" />
           </button>

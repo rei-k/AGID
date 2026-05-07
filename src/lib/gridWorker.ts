@@ -39,7 +39,7 @@ function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, 
   let finalStep = 1;
   while (finalStep * 2 <= idealStep && finalStep < 65536) finalStep *= 2;
   
-  const range = zoom > 15 ? 70 : 35; // Slightly reduced range for more responsive updates
+  const range = zoom > 18 ? 120 : (zoom > 15 ? 80 : 40); 
   const halfStep = finalStep / 2;
   
   const startQX = Math.max(0, Math.floor(qx / finalStep) * finalStep - (finalStep * Math.floor(range/2)));
@@ -116,16 +116,22 @@ function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, 
   const maxVal = Math.max(absX, absY, absZ);
   const xi = uc / maxVal;
   const eta = vc / maxVal;
-  const u = 0.5 * (xi + 1.0);
-  const v = 0.5 * (eta + 1.0);
+  
+  // Tangent Inverse Map (Equal-Area)
+  const u = 0.5 * (Math.atan(xi) * 4 / Math.PI + 1.0);
+  const v = 0.5 * (Math.atan(eta) * 4 / Math.PI + 1.0);
+  
   return { face, qx: Math.floor(u * 2097152), qy: Math.floor(v * 2097152) };
 };
 
 (self as any).getFromQuantizedInternal = function(face: number, qx: number, qy: number) {
   const u = (qx / 2097152) * 2.0 - 1.0;
   const v = (qy / 2097152) * 2.0 - 1.0;
-  const xi = u;
-  const eta = v;
+  
+  // Tangent Map (Equal-Area)
+  const xi = Math.tan(u * Math.PI / 4);
+  const eta = Math.tan(v * Math.PI / 4);
+  
   let x = 0, y = 0, z = 0;
   switch (face) {
     case 0: x = 1; y = xi; z = eta; break;

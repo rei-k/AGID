@@ -1659,7 +1659,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                 <section className="bg-indigo-50/50 p-4 rounded-none border border-indigo-100 space-y-3">
                   <div className="flex items-center gap-2 text-indigo-700 font-black text-[10px] uppercase tracking-widest">
                     <Fish className="w-3 h-3" />
-                    Deep Sea Details
+                    AGID Maritime Details
                   </div>
                   <div className="grid grid-cols-1 gap-2">
                     <div className="flex items-center gap-3 bg-white p-3 rounded-none border border-indigo-50 shadow-sm">
@@ -1667,7 +1667,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                         <Waves className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sea / Ocean</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maritime Region</p>
                         <p className="text-sm font-bold text-slate-700">{seaContext.sea_name}</p>
                       </div>
                     </div>
@@ -1767,7 +1767,7 @@ export const AddressRegistration: React.FC<AddressRegistrationProps> = ({
                         <Anchor className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Region / Sea</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maritime Area</p>
                         <p className="text-sm font-bold text-slate-700">{polarContext.region}</p>
                       </div>
                     </div>

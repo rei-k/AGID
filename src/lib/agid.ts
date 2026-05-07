@@ -24,13 +24,11 @@ const L = 21;
  * Based on the Tangent transformation to achieve near-uniform area on the sphere.
  */
 function applyEqualArea(val: number): number {
-  // Linear Cubed Sphere (Right-angled squares)
-  return val;
+  return Math.tan(val * Math.PI / 4);
 }
 
 function invertEqualArea(val: number): number {
-  // Linear Cubed Sphere (Right-angled squares)
-  return val;
+  return Math.atan(val) * 4 / Math.PI;
 }
 
 /**
@@ -144,8 +142,24 @@ export function generatePrefix(code: string, isSea: boolean, name: string): stri
   
   // Categorization
   let category: 'OPEN' | 'COASTAL' | 'OTHER' = 'OTHER';
+  
   if (isSea) {
-    const isOpen = code.startsWith("O_") || ["NPAC", "NEPC", "SPAC", "SEPC", "NATL", "SATL", "NIND", "SIND", "SOUT", "ARCT"].includes(code);
+    // [SPECIFIC 2-CHAR SEA CODES]
+    const seaCodeMap: { [key: string]: string } = {
+      'NPAC': 'NP', 'NEPC': 'NE', 'SPAC': 'SP', 'SEPC': 'SE',
+      'NATL': 'NA', 'SATL': 'SA', 'NIND': 'NI', 'SIND': 'SI',
+      'SOUT': 'SO', 'ARCT': 'AR'
+    };
+    
+    // Check if it's a major ocean segment
+    for (const [longCode, shortCode] of Object.entries(seaCodeMap)) {
+      if (code.includes(longCode)) {
+        PREFIX_CACHE[cacheKey] = shortCode;
+        return shortCode;
+      }
+    }
+
+    const isOpen = code.startsWith("O_") || Object.keys(seaCodeMap).some(k => code.includes(k));
     if (isOpen) {
       category = 'OPEN'; // Alpha + Number
     } else {
@@ -163,14 +177,28 @@ export function generatePrefix(code: string, isSea: boolean, name: string): stri
       }
     }
   } else {
-    // [RESTORE COUNTRY CODE]
-    // If it's land and has a 2-letter ISO code, use it directly.
-    // This is the ONLY case where Alpha + Alpha is allowed.
+    // [STRICT 2-LETTER COUNTRY CODES]
+    // If it's land, ensure we always use a 2-letter code as requested by the user.
     if (code.length === 2 && /^[A-Z]{2}$/i.test(code)) {
-      const countryCode = code.toUpperCase();
+      const countryCode = code.toUpperCase().slice(0, 2);
       PREFIX_CACHE[cacheKey] = countryCode;
       return countryCode;
     }
+    
+    // For non-2-letter codes (disputed/territories), condense strictly to 2 characters
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const char1 = LETTERS[hash % 22];
+    const char2 = LETTERS[(hash / 22 | 0) % 22];
+    const condensed = (code.slice(0, 2).toUpperCase().padEnd(2, char1)).slice(0, 2);
+    
+    // Special handling for common disputed codes to keep them recognizable if possible
+    const specialMap: Record<string, string> = {
+      'BT_T': 'BT', 'CRIM': 'CR', 'DONB': 'DO', 'KASH': 'KA', 'SCSD': 'SC', 'EEBD': 'EB', 'TRNC': 'TR', 'SLND': 'SL', 'PMR': 'PM', 'PHIS': 'PH', 'BAAR': 'BA', 'CYGL': 'CY'
+    };
+    const finalCode = specialMap[code] || condensed;
+
+    PREFIX_CACHE[cacheKey] = finalCode;
+    return finalCode;
   }
 
   // Consistent Hash for prefix assignment
@@ -410,17 +438,23 @@ export function getCellPolygon(face: number, quantX: number, quantY: number, ste
   ];
 }
 
-export function getCellBounds(face: number, quantX: number, quantY: number, step: number = 1) {
+export function getCellCorners(face: number, quantX: number, quantY: number, step: number = 1) {
   const p1 = getFromQuantized(face, quantX, quantY);
   const p2 = getFromQuantized(face, quantX + step, quantY);
   const p3 = getFromQuantized(face, quantX + step, quantY + step);
   const p4 = getFromQuantized(face, quantX, quantY + step);
 
+  return [p1, p2, p3, p4];
+}
+
+export function getCellBounds(face: number, quantX: number, quantY: number, step: number = 1) {
+  const corners = getCellCorners(face, quantX, quantY, step);
+  
   return {
-    minLat: Math.min(p1.lat, p2.lat, p3.lat, p4.lat),
-    maxLat: Math.max(p1.lat, p2.lat, p3.lat, p4.lat),
-    minLon: Math.min(p1.lon, p2.lon, p3.lon, p4.lon),
-    maxLon: Math.max(p1.lon, p2.lon, p3.lon, p4.lon)
+    minLat: Math.min(...corners.map(c => c.lat)),
+    maxLat: Math.max(...corners.map(c => c.lat)),
+    minLon: Math.min(...corners.map(c => c.lon)),
+    maxLon: Math.max(...corners.map(c => c.lon))
   };
 }
 
@@ -824,29 +858,23 @@ export function getGridFeatures(lat: number, lon: number, range: number) {
       const qx = quantX + dx;
       const qy = quantY + dy;
       
-      const bounds = getCellBounds(face, qx, qy);
+      const polyCoords = getCellPolygon(face, qx, qy);
       const cellId = `${face},${qx},${qy}`;
       if (seenIds.has(cellId)) continue;
       seenIds.add(cellId);
 
-      const { minLat, maxLat, minLon, maxLon } = bounds;
-      
-      const coords = [
-        [minLon, minLat],
-        [maxLon, minLat],
-        [maxLon, maxLat],
-        [minLon, maxLat],
-        [minLon, minLat]
-      ];
-
-      gridLines.push([[minLon, minLat], [maxLon, minLat]]);
-      gridLines.push([[minLon, minLat], [minLon, maxLat]]);
-      if (dx === range) gridLines.push([[maxLon, minLat], [maxLon, maxLat]]);
-      if (dy === range) gridLines.push([[minLon, maxLat], [maxLon, maxLat]]);
+      gridLines.push([polyCoords[0], polyCoords[1]]);
+      gridLines.push([polyCoords[1], polyCoords[2]]);
+      gridLines.push([polyCoords[2], polyCoords[3]]);
+      gridLines.push([polyCoords[3], polyCoords[4]]);
+      gridLines.push([polyCoords[4], polyCoords[5]]);
+      gridLines.push([polyCoords[5], polyCoords[6]]);
+      gridLines.push([polyCoords[6], polyCoords[7]]);
+      gridLines.push([polyCoords[7], polyCoords[0]]);
 
       gridCells.push({
         type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [coords] },
+        geometry: { type: 'Polygon', coordinates: [polyCoords] },
         properties: { id: cellId, isSea: centerResult.isSea }
       });
     }

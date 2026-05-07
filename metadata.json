@@ -1,5 +1,5 @@
 {
   "name": "AGID",
-  "description": "Explore the world through Absolute Grid Identity (AGID), a global 4m x 4m precision indexing system. Visualize terrestrial and maritime grids, find localized resources, and register addresses.",
+  "description": "Explore the world through Absolute Grid Identity or AddressgridID (AGID), a global 4m x 4m precision indexing system. Visualize terrestrial and maritime grids, find localized resources, and register addresses.",
   "requestFramePermissions": ["geolocation", "camera"]
 }

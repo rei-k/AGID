@@ -26,37 +26,40 @@ export async function fetchGlobalContext(lat: number, lon: number): Promise<{ we
     // 1. Fetch Weather from Proxy
     const weatherRes = await fetchWithRetry(`/api/weather?latitude=${lat}&longitude=${lon}`, {}, 2, 15000);
     if (weatherRes.ok) {
-      const data = await weatherRes.json();
-      if (data.current) {
-        weather = {
-          temp: data.current.temperature_2m,
-          humidity: data.current.relative_humidity_2m,
-          windSpeed: data.current.wind_speed_10m,
-          condition: getWeatherCondition(data.current.weather_code)
-        };
-        
-        // Use the timezone from Open-Meteo to calculate local time
-        if (data.timezone) {
-          const now = new Date();
-          const options: Intl.DateTimeFormatOptions = {
-            timeZone: data.timezone,
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          };
-          const dateOptions: Intl.DateTimeFormatOptions = {
-            timeZone: data.timezone,
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+      const contentType = weatherRes.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await weatherRes.json();
+        if (data.current) {
+          weather = {
+            temp: data.current.temperature_2m,
+            humidity: data.current.relative_humidity_2m,
+            windSpeed: data.current.wind_speed_10m,
+            condition: getWeatherCondition(data.current.weather_code)
           };
           
-          time = {
-            time: new Intl.DateTimeFormat('en-US', options).format(now),
-            date: new Intl.DateTimeFormat('en-US', dateOptions).format(now),
-            timezone: data.timezone,
-            offset: data.utc_offset_seconds ? `${data.utc_offset_seconds / 3600}h` : ''
-          };
+          // Use the timezone from Open-Meteo to calculate local time
+          if (data.timezone) {
+            const now = new Date();
+            const options: Intl.DateTimeFormatOptions = {
+              timeZone: data.timezone,
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            };
+            const dateOptions: Intl.DateTimeFormatOptions = {
+              timeZone: data.timezone,
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            };
+            
+            time = {
+              time: new Intl.DateTimeFormat('en-US', options).format(now),
+              date: new Intl.DateTimeFormat('en-US', dateOptions).format(now),
+              timezone: data.timezone,
+              offset: data.utc_offset_seconds ? `${data.utc_offset_seconds / 3600}h` : ''
+            };
+          }
         }
       }
     }

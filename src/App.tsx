@@ -211,9 +211,10 @@ export default function App() {
   // Device-specific zoom determination
   const getDeviceZoom = () => {
     const w = window.innerWidth;
-    if (w < 640) return 19.2; // Smartphone: ~60m diameter
-    if (w < 1024) return 18.6; // Tablet: ~100m diameter
-    return 18.2; // PC: ~80m radius (160m diameter)
+    // Area size is fixed by device (~120m viewport width)
+    if (w < 640) return 20.2; // Smartphone: ~110m width
+    if (w < 1024) return 19.8; // Tablet: ~130m width
+    return 19.5; // PC: ~160m width
   };
 
   const initialLat = parseFloat(urlParams.get('lat') || '35.6812'); // Tokyo Station
@@ -302,6 +303,12 @@ export default function App() {
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
+  const [savedQrs, setSavedQrs] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('saved_qrs');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [homeAgid, setHomeAgid] = useState<string>(() => {
     try {
       return localStorage.getItem('agid_home_agid') || "";
@@ -322,7 +329,7 @@ export default function App() {
   const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
   const qrFileRef = useRef<HTMLInputElement>(null);
   const [showSaved, setShowSaved] = useState(false);
-  const [savedTab, setSavedTab] = useState<'agid' | 'aoid'>('agid');
+  const [savedTab, setSavedTab] = useState<'agid' | 'aoid' | 'qr'>('agid');
   const [showAddressRegistration, setShowAddressRegistration] = useState(false);
   const [showQualityReport, setShowQualityReport] = useState(false);
   const [qualityReport, setQualityReport] = useState<{ report: string, stats: any, continentQuality: any } | null>(null);
@@ -770,11 +777,33 @@ export default function App() {
     ctx.fillText(`AGID GLOBAL ADDR GRID • ${new Date().toLocaleDateString()}`, padding, qrCanvas.height + padding + 135);
 
     const url = compositeCanvas.toDataURL('image/png');
+    
+    // Save to list
+    const newQr = {
+      id: clickedAgid.id,
+      lat: clickedAgid.lat,
+      lon: clickedAgid.lon,
+      address: clickedAddress,
+      regionName: clickedAgid.regionName,
+      savedAt: new Date().toISOString(),
+      imageData: url // Store the preview or just the ID reference? Keeping reference is lighter, but image is what was requested?
+    };
+    
+    const newSavedQrs = [newQr, ...savedQrs.filter(q => q.id !== clickedAgid.id)];
+    setSavedQrs(newSavedQrs);
+    localStorage.setItem('saved_qrs', JSON.stringify(newSavedQrs));
+
     const link = document.createElement('a');
     link.download = `AGID_CARD-${clickedAgid.id}.png`;
     link.href = url;
     link.click();
     showAlert('Saved Card', `High-quality AGID Location Card has been saved.`);
+  };
+
+  const deleteSavedQr = (id: string) => {
+    const newSaved = savedQrs.filter(q => q.id !== id);
+    setSavedQrs(newSaved);
+    localStorage.setItem('saved_qrs', JSON.stringify(newSaved));
   };
 
   const SATELLITE_STYLE = {
@@ -1466,21 +1495,28 @@ export default function App() {
 
     try {
       // Determine languages based on AGID prefix and sea status
+      const ALLOWED_STRICT_LANGS = ['ja', 'en', 'zh-Hans', 'zh-Hant', 'ko', 'fr', 'de', 'es', 'pt', 'it', 'ru'];
       let langs: string[] = [];
       if (isSeaLoc) {
-        langs = ['en', appLanguage];
+        langs = ['en'];
+        if (ALLOWED_STRICT_LANGS.includes(appLanguage) && appLanguage !== 'en') {
+          langs.push(appLanguage);
+        }
       } else {
         const cc = prefix.toLowerCase();
-        langs = [...(COUNTRY_LANGUAGES[cc] || ['en'])];
+        // For terrestrial, we still allow the country's main language if it's one of the widely supported ones
+        // or we just fallback to 'en' if it's considered outside the 厳格なプロトコル (Strict Protocol)
+        const countryLangs = COUNTRY_LANGUAGES[cc] || ['en'];
+        langs = countryLangs.filter(code => ALLOWED_STRICT_LANGS.includes(code));
+        
+        // If no country lang is in allowed list, use English as standard
+        if (langs.length === 0) langs = ['en'];
+        
+        // Always ensure English is first or present for global standard
+        if (!langs.includes('en')) langs.push('en');
       }
 
-      // Always ensure English is available
-      if (!langs.includes('en')) langs.push('en');
-      
-      // Ensure app language is available for sea
-      if (isSeaLoc && !langs.includes(appLanguage)) langs.push(appLanguage);
-
-      // Remove duplicates and filter by supported LANGUAGES
+      // Final unique filter and validation
       langs = Array.from(new Set(langs)).filter(code => LANGUAGES.some(lang => lang.code === code));
       if (langs.length === 0) langs = ['en'];
 
@@ -1753,8 +1789,8 @@ export default function App() {
 
     map.current.flyTo({
       center: [newLng, newLat],
-      zoom: getDeviceZoom(),
-      pitch: mapPitch,
+      zoom: result.type === 'saved_qr' ? 19.5 : getDeviceZoom(),
+      pitch: result.type === 'saved_qr' ? 0 : mapPitch,
       essential: true,
       duration: 1500
     });
@@ -1768,7 +1804,59 @@ export default function App() {
     setIsSearching(true);
     setSearchResults([]);
     try {
-      // Check if input is "lat, lng"
+      // 1. Check Saved QRs first
+      const matchedQrs = savedQrs.filter(q => 
+        q.id.toLowerCase() === query.toLowerCase() || 
+        (q.id.toLowerCase().includes(query.toLowerCase()) && query.length >= 4)
+      );
+
+      if (matchedQrs.length > 0 && query.length >= 4) {
+        const qrResults = matchedQrs.map(q => ({
+          display_name: `${q.id} - ${q.address || q.regionName}`,
+          lat: q.lat.toString(),
+          lon: q.lon.toString(),
+          type: 'saved_qr',
+          source: 'local_qrs',
+          id: q.id
+        }));
+        setSearchResults(prev => [...qrResults, ...prev]);
+        
+        if (matchedQrs.some(q => q.id.toLowerCase() === query.toLowerCase())) {
+          const first = matchedQrs.find(q => q.id.toLowerCase() === query.toLowerCase());
+          if (first) {
+            selectSearchResult({
+              display_name: first.address || first.id,
+              lat: first.lat.toString(),
+              lon: first.lon.toString(),
+              type: 'saved_qr'
+            });
+            setIsSearching(false);
+            return;
+          }
+        }
+      }
+
+      // 2. Check if input is standard 12-char AGID (2 prefix + 10 hash)
+      const cleanAgid = query.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (cleanAgid.length === 12) {
+        const decoded = decodeAGID(cleanAgid);
+        if (decoded) {
+          const result = encodeAGID(decoded.lat, decoded.lon);
+          setIsManualSelection(true);
+          setClickedAgid(result);
+          setClickedAddress("Loading address...");
+          
+          map.current.flyTo({
+            center: [decoded.lon, decoded.lat],
+            zoom: 19,
+            essential: true
+          });
+          setIsSearching(false);
+          return;
+        }
+      }
+
+      // 3. Check if input is "lat, lng"
       const latLngMatch = query.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
       if (latLngMatch) {
         const newLat = parseFloat(latLngMatch[1]);
@@ -1871,6 +1959,19 @@ export default function App() {
     if (agidMatch) {
       if (latHint !== null && lonHint !== null) {
         map.current?.flyTo({ center: [lonHint, latHint], zoom: 19 });
+        
+        // Auto-save if it has a lat/lon hint (meaning it's likely a generated card)
+        const newQr = {
+          id: agidMatch[0],
+          lat: latHint,
+          lon: lonHint,
+          address: "Imported from QR",
+          regionName: "Scanned",
+          savedAt: new Date().toISOString()
+        };
+        const newSaved = [newQr, ...savedQrs.filter(q => q.id !== agidMatch[0])];
+        setSavedQrs(newSaved);
+        localStorage.setItem('saved_qrs', JSON.stringify(newSaved));
       }
       jumpToAgid(agidMatch[0]);
     } else {
@@ -1879,7 +1980,7 @@ export default function App() {
       performSearch(result);
     }
     setIsQrScanning(false);
-  }, [jumpToAgid, performSearch]);
+  }, [jumpToAgid, performSearch, savedQrs, setSavedQrs]);
 
   const startQrScanner = () => {
     setIsQrScanning(true);
@@ -4318,14 +4419,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Crosshair */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="relative">
-          <div className="w-8 h-8 border-2 border-red-500/50 rounded-none" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-red-600 rounded-none shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
-        </div>
-      </div>
-
       {/* Legal Links Footer Overlay */}
       <div className="absolute bottom-2 left-3 z-10 flex gap-3 text-[9px] font-black uppercase tracking-widest text-slate-400/80 pointer-events-none">
         <button 
@@ -4504,6 +4597,7 @@ export default function App() {
           encodeAGID={encodeAGID}
           copied={copied}
           setCopied={setCopied}
+          t={t}
         />
       </div>
 
@@ -4597,6 +4691,7 @@ export default function App() {
         isTracking={isTracking}
         isLocating={isLocating}
         mapRef={map}
+        t={t}
       />
 
       <React.Suspense fallback={null}>
@@ -4658,6 +4753,7 @@ export default function App() {
         show={showSaved}
         onClose={() => setShowSaved(false)}
         savedAgids={savedAgids}
+        savedQrs={savedQrs}
         savedTab={savedTab}
         setSavedTab={setSavedTab}
         savedSearch={savedSearch}
@@ -4666,6 +4762,7 @@ export default function App() {
         copyToClipboard={copyToClipboard}
         copied={copied}
         deleteSavedAgid={deleteSavedAgid}
+        deleteSavedQr={deleteSavedQr}
         jumpToSaved={jumpToSaved}
         aoids={aoids}
         setAoids={setAoids}
@@ -4674,6 +4771,9 @@ export default function App() {
         setLng={setLng}
         setZoom={setZoom}
         setShowMenu={setShowMenu}
+        qrFileRef={qrFileRef}
+        handleQrFileUpload={handleQrFileUpload}
+        startQrScanner={startQrScanner}
       />
 
       {/* Side Menu (Resources) */}

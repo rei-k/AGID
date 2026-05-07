@@ -12,7 +12,9 @@ import {
   Navigation,
   User,
   Phone,
-  Home as HomeIcon
+  Home as HomeIcon,
+  QrCode,
+  Camera
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { TranslationKey } from '../constants/translations';
@@ -21,14 +23,16 @@ interface SavedLocationsProps {
   show: boolean;
   onClose: () => void;
   savedAgids: any[];
-  savedTab: 'agid' | 'aoid';
-  setSavedTab: (tab: 'agid' | 'aoid') => void;
+  savedQrs: any[];
+  savedTab: 'agid' | 'aoid' | 'qr';
+  setSavedTab: (tab: 'agid' | 'aoid' | 'qr') => void;
   savedSearch: string;
   setSavedSearch: (search: string) => void;
   t: (key: TranslationKey) => string;
   copyToClipboard: (text: string, id: string) => void;
   copied: string | null;
   deleteSavedAgid: (id: string) => void;
+  deleteSavedQr: (id: string) => void;
   jumpToSaved: (saved: any) => void;
   aoids: any[];
   setAoids: React.Dispatch<React.SetStateAction<any[]>>;
@@ -37,12 +41,16 @@ interface SavedLocationsProps {
   setLng: (lng: number) => void;
   setZoom: (zoom: number) => void;
   setShowMenu: (show: boolean) => void;
+  qrFileRef?: React.RefObject<HTMLInputElement>;
+  handleQrFileUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  startQrScanner?: () => void;
 }
 
 export const SavedLocations: React.FC<SavedLocationsProps> = ({
   show,
   onClose,
   savedAgids,
+  savedQrs,
   savedTab,
   setSavedTab,
   savedSearch,
@@ -51,6 +59,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
   copyToClipboard,
   copied,
   deleteSavedAgid,
+  deleteSavedQr,
   jumpToSaved,
   aoids,
   setAoids,
@@ -58,7 +67,10 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
   setLat,
   setLng,
   setZoom,
-  setShowMenu
+  setShowMenu,
+  qrFileRef,
+  handleQrFileUpload,
+  startQrScanner
 }) => {
   return (
     <AnimatePresence>
@@ -108,7 +120,16 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                   savedTab === 'agid' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
                 )}
               >
-                Locations
+                {t('tab_locations')}
+              </button>
+              <button 
+                onClick={() => setSavedTab('qr')}
+                className={cn(
+                  "flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all",
+                  savedTab === 'qr' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                {t('saved_qrs')}
               </button>
               <button 
                 onClick={() => setSavedTab('aoid')}
@@ -117,7 +138,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                   savedTab === 'aoid' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
                 )}
               >
-                AOID Registry
+                {t('tab_aoid')}
               </button>
             </div>
 
@@ -197,6 +218,104 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                         </div>
                       </div>
                     ))
+                  )}
+                </>
+              ) : savedTab === 'qr' ? (
+                <>
+                  <div className="sticky top-0 z-10 bg-white pb-2">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          placeholder={t('search_qr_placeholder')}
+                          value={savedSearch}
+                          onChange={(e) => setSavedSearch(e.target.value)}
+                          className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      </div>
+                      <button 
+                        onClick={startQrScanner}
+                        className="p-1.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors"
+                        title="Start Camera Scanner"
+                      >
+                        <Camera className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => qrFileRef?.current?.click()}
+                        className="p-1.5 bg-purple-50 text-purple-600 border border-purple-100 hover:bg-purple-100 transition-colors"
+                        title="Import QR Card"
+                      >
+                        <QrCode className="w-5 h-5" />
+                        <input 
+                          type="file" 
+                          ref={qrFileRef} 
+                          className="hidden" 
+                          accept="image/*"
+                          onChange={handleQrFileUpload}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {savedQrs.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40 py-20">
+                      <QrCode className="w-12 h-12 text-slate-300" />
+                      <p className="text-sm font-medium text-slate-500">{t('no_saved_qrs')}<br/>{t('save_qr_instruction')}</p>
+                    </div>
+                  ) : (
+                    savedQrs
+                      .filter(q => 
+                        q.id.toLowerCase().includes(savedSearch.toLowerCase()) || 
+                        (q.address && q.address.toLowerCase().includes(savedSearch.toLowerCase())) ||
+                        (q.regionName && q.regionName.toLowerCase().includes(savedSearch.toLowerCase()))
+                      )
+                      .map((q) => (
+                        <div 
+                          key={q.id}
+                          className="bg-white rounded-none border border-purple-100 p-4 shadow-sm hover:border-purple-300 transition-all"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex flex-col">
+                              <span className="text-lg font-black text-purple-600 font-mono tracking-wider">{q.id}</span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase">{q.regionName}</span>
+                            </div>
+                            <button 
+                              onClick={() => deleteSavedQr(q.id)}
+                              className="p-2 text-slate-300 hover:text-red-500"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          
+                          {q.imageData && (
+                            <div className="mb-3 bg-slate-50 p-2 border border-slate-100 flex justify-center">
+                              <img src={q.imageData} alt="QR Card" className="max-h-32 shadow-sm" />
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                            <button 
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.download = `AGID_CARD-${q.id}.png`;
+                                link.href = q.imageData;
+                                link.click();
+                              }}
+                              className="text-[10px] font-black text-purple-600 hover:text-purple-700"
+                            >
+                              {t('download_card')}
+                            </button>
+                            <button 
+                              onClick={() => jumpToSaved(q)}
+                              className="text-[10px] font-black text-slate-600 hover:text-slate-900 flex items-center gap-1"
+                            >
+                              {t('jump_to_map')}
+                              <Navigation className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
                   )}
                 </>
               ) : (

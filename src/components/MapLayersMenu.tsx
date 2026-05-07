@@ -239,7 +239,7 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                           {isSeaTypeMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-cyan-500 rounded-none" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isSeaTypeMode ? "text-cyan-600" : "text-slate-500")}>
-                          Sea Type
+                          Sea Context
                         </span>
                       </button>
                     </div>
