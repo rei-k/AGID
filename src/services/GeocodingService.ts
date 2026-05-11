@@ -336,7 +336,7 @@ export async function smartSearch(query: string, lat?: number, lon?: number): Pr
   // 2. Search Nominatim via Proxy
   let nominatimResults: any[] = [];
   try {
-    const biasParam = lat && lon ? `&bias=${encodeURIComponent(`&viewbox=${lon-0.1},${lat+0.1},${lon+0.1},${lat-0.1}&bounded=0`)}` : '';
+    const biasParam = lat && lon ? `&viewbox=${lon-0.1},${lat+0.1},${lon+0.1},${lat-0.1}&bounded=0` : '';
     const res = await fetchWithRetry(`/api/osm-search?q=${encodeURIComponent(query)}${biasParam}&limit=10`);
     if (res.ok) {
       nominatimResults = await res.json();

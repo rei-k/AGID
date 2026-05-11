@@ -28,6 +28,9 @@ interface SideMenuProps {
   handleShare: () => void;
   isSearchVisible: boolean;
   setSearchVisible: (v: boolean) => void;
+  appLanguage: string;
+  setAppLanguage: (l: string) => void;
+  t: (key: any) => string;
 }
 
 export const SideMenu: React.FC<SideMenuProps> = ({
@@ -42,7 +45,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   setSettingsTab,
   handleShare,
   isSearchVisible,
-  setSearchVisible
+  setSearchVisible,
+  appLanguage,
+  setAppLanguage,
+  t
 }) => {
   return (
     <AnimatePresence mode="wait">
@@ -60,14 +66,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 1 }}
-            className="fixed top-0 left-0 bottom-0 w-72 md:w-48 bg-white/95 backdrop-blur-xl shadow-2xl z-[101] pointer-events-auto flex flex-col border-r border-white/20"
+            className="fixed top-0 left-0 bottom-0 w-72 md:w-56 bg-white/95 backdrop-blur-xl shadow-2xl z-[101] pointer-events-auto flex flex-col border-r border-white/20 md:rounded-r-[2.5rem]"
             style={{
               paddingTop: 'env(safe-area-inset-top)',
               paddingBottom: 'env(safe-area-inset-bottom)',
               paddingLeft: 'env(safe-area-inset-left)',
             }}
           >
-            <div className="px-3 py-6 pb-2 flex items-center justify-between">
+            <div className="px-5 py-6 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="text-slate-900 flex items-center justify-center">
                   <Globe className="w-6 h-6 animate-pulse" />
@@ -78,7 +84,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               </div>
               <button 
                 onClick={onClose}
-                className="w-12 h-12 flex items-center justify-center hover:bg-slate-100 rounded-none transition-all text-slate-400 hover:text-slate-900 active:scale-90"
+                className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-xl transition-all text-slate-400 hover:text-slate-900 active:scale-90"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -87,18 +93,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             <div className="flex-1 overflow-y-auto px-3 py-6 space-y-8 custom-scrollbar">
               {/* Personal Section */}
               <section className="space-y-4">
-                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Personal Space</h3>
+                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{t('personal_space')}</h3>
                 <div className="grid grid-cols-1 gap-1">
                   {[
-                    { icon: Bookmark, label: "Saved Locations", color: "blue", onClick: () => { setSavedTab('agid'); setShowSaved(true); } },
-                    { icon: ShieldIcon, label: "Verified AOIDs", color: "emerald", onClick: () => { setSavedTab('aoid'); setShowSaved(true); } },
-                    { icon: HomeIcon, label: "Register Address", color: "blue", onClick: () => { setAoidModeForced(false); setShowAddressRegistration(true); } },
+                    { icon: Bookmark, label: t('saved_locations'), color: "blue", onClick: () => { setSavedTab('agid'); setShowSaved(true); } },
+                    { icon: ShieldIcon, label: t('verified_aoids'), color: "emerald", onClick: () => { setSavedTab('aoid'); setShowSaved(true); } },
+                    { icon: HomeIcon, label: t('register_address'), color: "blue", onClick: () => { setAoidModeForced(false); setShowAddressRegistration(true); } },
                   ].map((item, idx) => (
                     <motion.button 
                       key={idx}
                       whileHover={{ x: 4 }}
                       onClick={() => { item.onClick(); onClose(); }}
-                      className="w-full flex items-center gap-2 px-1.5 py-3 hover:bg-slate-50 rounded-none transition-all group"
+                      className="w-full flex items-center gap-2 px-3 py-3 hover:bg-slate-50 rounded-xl transition-all group"
                     >
                       <div className={cn(
                         "transition-all",
@@ -115,17 +121,17 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
               {/* Discovery Section */}
               <section className="space-y-4">
-                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Discovery</h3>
+                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{t('discovery')}</h3>
                 <div className="grid grid-cols-1 gap-1">
                   {[
-                    { icon: Search, label: "Advanced Search", onClick: () => setSearchVisible(true) },
-                    { icon: History, label: "Search History", onClick: () => setShowHistory(true) },
+                    { icon: Search, label: t('advanced_search'), onClick: () => setSearchVisible(true) },
+                    { icon: History, label: t('search_history'), onClick: () => setShowHistory(true) },
                   ].map((item, idx) => (
                     <motion.button 
                       key={idx}
                       whileHover={{ x: 4 }}
                       onClick={() => { item.onClick(); onClose(); }}
-                      className="w-full flex items-center gap-2 px-1.5 py-3 hover:bg-slate-50 rounded-none transition-all group"
+                      className="w-full flex items-center gap-2 px-3 py-3 hover:bg-slate-50 rounded-xl transition-all group"
                     >
                       <div className="text-slate-400 group-hover:text-slate-900 transition-all">
                         <item.icon className="w-4 h-4" />
@@ -138,18 +144,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
               {/* Extras Section */}
               <section className="space-y-4">
-                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System</h3>
+                <h3 className="px-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{t('system')}</h3>
                 <div className="grid grid-cols-1 gap-1">
                   {[
-                    { icon: Settings, label: "Settings", onClick: () => setShowSettings(true) },
-                    { icon: HelpCircle, label: "Help Center", onClick: () => { setShowSettings(true); setSettingsTab('help'); } },
-                    { icon: Share2, label: "Share App", onClick: handleShare },
+                    { icon: Settings, label: t('settings'), onClick: () => setShowSettings(true) },
+                    { icon: HelpCircle, label: t('help'), onClick: () => { setShowSettings(true); setSettingsTab('help'); } },
+                    { icon: Share2, label: t('share_app'), onClick: handleShare },
                   ].map((item, idx) => (
                     <motion.button 
                       key={idx}
                       whileHover={{ x: 4 }}
                       onClick={() => { item.onClick(); onClose(); }}
-                      className="w-full flex items-center gap-2 px-1.5 py-3 hover:bg-slate-50 rounded-none transition-all group"
+                      className="w-full flex items-center gap-2 px-3 py-3 hover:bg-slate-50 rounded-xl transition-all group"
                     >
                       <div className="text-slate-400 group-hover:text-slate-900 transition-all">
                         <item.icon className="w-4 h-4" />
@@ -163,7 +169,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
             {/* Footer */}
             <div className="p-4 border-t border-slate-100 mb-safe">
-              <div className="bg-slate-50 rounded-none p-4">
+              <div className="bg-slate-50 rounded-2xl p-4">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
                   Absolute Grid Identity (AGID)
                 </p>

@@ -92,7 +92,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
           >
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-none flex items-center justify-center shadow-inner">
+                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-inner">
                   {savedTab === 'agid' ? <History className="w-5 h-5" /> : <ShieldIcon className="w-5 h-5" />}
                 </div>
                 <div>
@@ -106,13 +106,13 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
               </div>
               <button 
                 onClick={onClose}
-                className="p-2 hover:bg-slate-100 rounded-none transition-all text-slate-400 hover:text-slate-900"
+                className="p-2 hover:bg-slate-100 rounded-xl transition-all text-slate-400 hover:text-slate-900"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="p-1 px-1.5 bg-slate-100/50 m-4 rounded-none border border-slate-200/50 flex">
+            <div className="p-1 px-1.5 bg-slate-100/50 m-4 rounded-xl border border-slate-200/50 flex">
               <button 
                 onClick={() => setSavedTab('agid')}
                 className={cn(
@@ -152,7 +152,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                         placeholder={t('search_agid_placeholder')}
                         value={savedSearch}
                         onChange={(e) => setSavedSearch(e.target.value)}
-                        className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       />
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     </div>
@@ -172,7 +172,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                       .map((saved) => (
                         <div 
                           key={saved.id}
-                          className="group bg-slate-50 rounded-none border border-slate-100 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all shadow-sm"
+                          className="group bg-slate-50 rounded-2xl border border-slate-100 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all shadow-sm"
                         >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-baseline gap-1">
@@ -182,14 +182,14 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                           <div className="flex items-center gap-1">
                             <button 
                               onClick={() => copyToClipboard(saved.id, 'saved-list-' + saved.id)}
-                              className="p-2 hover:bg-white rounded-none text-slate-400 hover:text-blue-600 transition-all shadow-sm"
+                              className="p-2 hover:bg-white rounded-xl text-slate-400 hover:text-blue-600 transition-all shadow-sm"
                               title="Copy AGID"
                             >
                               <BookOpen className={cn("w-4 h-4", copied === ('saved-list-' + saved.id) ? "text-green-500" : "")} />
                             </button>
                             <button 
                               onClick={() => deleteSavedAgid(saved.id)}
-                              className="p-2 hover:bg-white rounded-none text-slate-400 hover:text-red-600 transition-all shadow-sm"
+                              className="p-2 hover:bg-white rounded-xl text-slate-400 hover:text-red-600 transition-all shadow-sm"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -230,7 +230,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                           placeholder={t('search_qr_placeholder')}
                           value={savedSearch}
                           onChange={(e) => setSavedSearch(e.target.value)}
-                          className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                          className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       </div>
@@ -273,7 +273,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                       .map((q) => (
                         <div 
                           key={q.id}
-                          className="bg-white rounded-none border border-purple-100 p-4 shadow-sm hover:border-purple-300 transition-all"
+                          className="bg-white rounded-2xl border border-purple-100 p-4 shadow-sm hover:border-purple-300 transition-all"
                         >
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex flex-col">
@@ -327,7 +327,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                         placeholder={t('search_aoid_placeholder')}
                         value={savedSearch}
                         onChange={(e) => setSavedSearch(e.target.value)}
-                        className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-none border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="w-full bg-slate-50 px-4 py-2 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                       />
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     </div>
@@ -339,7 +339,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                       <p className="text-sm font-medium text-slate-500">No AOIDs registered yet.<br/>Create private IDs for your locations.</p>
                       <button 
                         onClick={() => { setShowAddressRegistration(true); onClose(); }}
-                        className="px-6 py-2 bg-emerald-600 text-white rounded-none font-bold text-xs shadow-lg shadow-emerald-100"
+                        className="px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-emerald-100"
                       >
                         Register First AOID
                       </button>
@@ -354,10 +354,10 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                       .map((aoid) => (
                         <div 
                           key={aoid.id}
-                          className="bg-white rounded-none border border-slate-100 p-4 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
+                          className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
                         >
                           <div className="flex items-start justify-between mb-3">
-                            <div className="bg-emerald-50 px-3 py-1 rounded-none border border-emerald-100">
+                            <div className="bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
                               <span className="text-lg font-black text-emerald-700 font-mono tracking-tighter">{aoid.id}</span>
                             </div>
                             <button 
@@ -395,7 +395,7 @@ export const SavedLocations: React.FC<SavedLocationsProps> = ({
                               onClose();
                               setShowMenu(false);
                             }}
-                            className="w-full mt-4 py-2 bg-slate-50 text-slate-600 rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100 group-hover:border-emerald-200"
+                            className="w-full mt-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100 group-hover:border-emerald-200"
                           >
                             View on Map
                           </button>

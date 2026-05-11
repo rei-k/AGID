@@ -94,23 +94,23 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-none shadow-2xl z-[101] pointer-events-auto overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] shadow-2xl z-[101] pointer-events-auto overflow-hidden"
           >
-            <div className="max-w-4xl mx-auto p-4 md:p-6">
-              <div className="w-10 h-1 bg-slate-200 rounded-none mx-auto mb-4" />
+            <div className="max-w-4xl mx-auto p-4 md:p-6 pb-12">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6" />
               
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-blue-50 rounded-none">
-                    <Layers className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center justify-between mb-6 px-1">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 rounded-xl">
+                    <Layers className="w-5 h-5 text-blue-600" />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Map Layers</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Map Layers</h3>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="p-1.5 hover:bg-slate-100 rounded-none transition-colors text-slate-400 hover:text-slate-600"
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -127,7 +127,7 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all overflow-hidden relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all overflow-hidden relative shadow-sm",
                           mapStyle === style.url ? "border-blue-500 ring-4 ring-blue-500/10 scale-105" : "border-slate-100 group-hover/item:border-blue-200"
                         )}>
                           <img 
@@ -184,11 +184,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isSystematicMode ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
                         )}>
                           <BarChart3 className="w-5 h-5" />
-                          {isSystematicMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-none" />}
+                          {isSystematicMode && <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isSystematicMode ? "text-blue-600" : "text-slate-500")}>
                           Systematic
@@ -200,11 +200,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isRegionalMode ? "border-emerald-500 bg-emerald-50 text-emerald-600 ring-4 ring-emerald-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-emerald-200"
                         )}>
                           <Landmark className="w-5 h-5" />
-                          {isRegionalMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-none" />}
+                          {isRegionalMode && <div className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isRegionalMode ? "text-emerald-600" : "text-slate-500")}>
                           Regional
@@ -216,11 +216,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isNauticalMode ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
                         )}>
                           <Anchor className="w-5 h-5" />
-                          {isNauticalMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-none" />}
+                          {isNauticalMode && <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isNauticalMode ? "text-blue-600" : "text-slate-500")}>
                           Nautical
@@ -232,11 +232,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isSeaTypeMode ? "border-cyan-500 bg-cyan-50 text-cyan-600 ring-4 ring-cyan-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-cyan-200"
                         )}>
                           <Waves className="w-5 h-5" />
-                          {isSeaTypeMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-cyan-500 rounded-none" />}
+                          {isSeaTypeMode && <div className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isSeaTypeMode ? "text-cyan-600" : "text-slate-500")}>
                           Sea Context
@@ -253,11 +253,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           is3DEnabled ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
                         )}>
                           <Layers className="w-5 h-5" />
-                          {is3DEnabled && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-none" />}
+                          {is3DEnabled && <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", is3DEnabled ? "text-blue-600" : "text-slate-500")}>
                           3D Terrain
@@ -269,11 +269,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isDisasterMode ? "border-red-500 bg-red-50 text-red-600 ring-4 ring-red-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-red-200"
                         )}>
                           <AlertOctagon className={cn("w-5 h-5", isDisasterMode ? "animate-pulse" : "")} />
-                          {isDisasterMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-none" />}
+                          {isDisasterMode && <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isDisasterMode ? "text-red-600" : "text-slate-500")}>
                           Disaster
@@ -285,11 +285,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isMountainMode ? "border-emerald-500 bg-emerald-50 text-emerald-600 ring-4 ring-emerald-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-emerald-200"
                         )}>
                           <MountainSnow className="w-5 h-5" />
-                          {isMountainMode && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-none" />}
+                          {isMountainMode && <div className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isMountainMode ? "text-emerald-600" : "text-slate-500")}>
                           Mountain
@@ -303,11 +303,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0 snap-start w-12 md:w-14"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           projection === 'globe' ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
                         )}>
                           {projection === 'globe' ? <Globe className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
-                          {projection === 'globe' && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-none" />}
+                          {projection === 'globe' && <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", projection === 'globe' ? "text-blue-600" : "text-slate-500")}>
                           {projection === 'globe' ? 'Globe' : 'Flat'}
@@ -324,11 +324,11 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                         className="flex flex-col items-center gap-1.5 group/item shrink-0"
                       >
                         <div className={cn(
-                          "w-12 h-12 md:w-14 md:h-14 rounded-none border-2 transition-all flex items-center justify-center relative shadow-sm",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 transition-all flex items-center justify-center relative shadow-sm",
                           isGridVisible ? "border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10" : "border-slate-100 bg-slate-50 text-slate-400 group-hover/item:border-blue-200"
                         )}>
                           <Grid3X3 className="w-5 h-5" />
-                          {isGridVisible && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-500 rounded-none" />}
+                          {isGridVisible && <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border border-white" />}
                         </div>
                         <span className={cn("text-[8px] font-bold uppercase tracking-wider text-center leading-tight", isGridVisible ? "text-blue-600" : "text-slate-500")}>
                           {isGridVisible ? 'Grid ON' : 'Grid OFF'}
@@ -341,7 +341,7 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                              <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-0.5">DETAIL LEVEL</span>
                              <span className="text-[9px] font-black text-slate-900 leading-none">RESOLUTION: ~4.4m (UNIFORM)</span>
                            </div>
-                           <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-none text-[9px] font-black tracking-tighter">{gridOpacityLevel}x</span>
+                           <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-lg text-[9px] font-black tracking-tighter">{gridOpacityLevel}x</span>
                          </div>
                          <input 
                            type="range" 
@@ -350,7 +350,7 @@ export const MapLayersMenu: React.FC<MapLayersMenuProps> = ({
                            step="1"
                            value={gridOpacityLevel} 
                            onChange={(e) => setGridOpacityLevel(parseInt(e.target.value))}
-                           className="w-full h-1.5 bg-slate-200 rounded-none appearance-none cursor-pointer accent-blue-600"
+                           className="w-full h-1.5 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-600"
                          />
                       </div>
                     </div>

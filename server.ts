@@ -117,7 +117,7 @@ async function startServer() {
     }
   });
 
-  const USER_AGENT = 'AGID-Explorer/2.4.0 (kitaura.code@gmail.com; Geogrid Project)';
+  const USER_AGENT = 'AGID-Geogrid-Explorer/2.5.1 (kitaura.code@gmail.com; Geogrid Project)';
 
   const apiCache = new Map<string, { data: any, timestamp: number }>();
   const API_CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
@@ -305,15 +305,13 @@ async function startServer() {
   // --- Nominatim Geocoding Mirrors ---
   const NOMINATIM_MIRRORS = [
     'https://nominatim.openstreetmap.org/reverse',      // Official
-    'https://nominatim.qwant.com/reverse',              // Qwant (Privacy-focused/Stable)
-    'https://nominatim.openstreetmap.de/reverse',       // Germany (Stable)
-    'https://nominatim.openstreetmap.fr/reverse',       // France (Stable)
-    'https://photon.komoot.io/reverse',                 // Photon (Fallback)
+    'https://nominatim.qwant.com/reverse',              // Qwant
+    'https://photon.komoot.io/reverse',                 // Photon
   ];
 
   const nominatimBlacklist = new Map<string, number>();
   const NOMINATIM_BLACKLIST_DURATION = 1000 * 60 * 30; // 30 mins
-  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 5; // 5 mins for resolution failures (retry sooner)
+  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 15; // 15 mins for persistent resolution failures
 
   /**
    * Robust reverse geocoding using multiple mirrors
@@ -355,7 +353,7 @@ async function startServer() {
         // Add User-Agent and identifying headers
         const res = await safeFetch(url, {
           headers: { 
-            'User-Agent': 'AGID-Geogrid-Explorer/2.4.0 (kitaura.code@gmail.com)',
+            'User-Agent': 'AGID-Geogrid-Explorer/2.5.1 (kitaura.code@gmail.com; https://ais-dev-pccznu564ainowkzzbgqek-10301310581.asia-northeast1.run.app)',
             'Accept-Language': lang
           }
         }, isPhoton ? 10000 : 15000);
@@ -2149,15 +2147,16 @@ async function startServer() {
 
   // Nominatim Search Proxy
   app.get('/api/osm-search', async (req, res) => {
-    const { q, bias, limit, polygon_geojson } = req.query;
+    const { q, viewbox, bounded, limit, polygon_geojson } = req.query as any;
     if (!q) return res.status(400).json({ error: 'Missing query' });
     
     try {
-      const data = await performOsmSearch(q as string, { 
+      const data = await performOsmSearch(q, { 
         limit: limit || 10, 
         addressdetails: 1, 
         polygon_geojson: polygon_geojson === '1' ? 1 : 0,
-        viewbox: bias // handle viewbox bias if present
+        viewbox,
+        bounded
       });
       return res.json(data);
     } catch (error: any) {

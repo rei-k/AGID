@@ -194,14 +194,14 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
           <div className="flex items-center gap-3 md:gap-6">
             <button 
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded-none transition-colors text-slate-400"
+              className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
             >
               <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             <div className="flex flex-col">
               <h2 className="text-base md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                 Postal Lab 
-                <span className="text-[8px] md:text-[10px] bg-blue-600 text-white px-1.5 md:py-0.5 rounded-none uppercase tracking-widest font-black">Beta</span>
+                <span className="text-[8px] md:text-[10px] bg-blue-600 text-white px-1.5 md:py-0.5 rounded-lg uppercase tracking-widest font-black">Beta</span>
               </h2>
               <p className="text-[8px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
                 <Sparkles className="w-2 h-2 md:w-3 md:h-3" /> Experimental
@@ -211,11 +211,11 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
 
           <div className="flex items-center gap-2 md:gap-4">
             {selectedCountry && (
-              <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-3 md:px-4 py-1.5 md:py-2 rounded-none border border-slate-100">
+              <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-3 md:px-4 py-1.5 md:py-2 rounded-xl border border-slate-100">
                 <img 
                   src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
                   alt={selectedCountry.name}
-                  className="w-4 md:w-5 h-auto rounded-none shadow-sm"
+                  className="w-4 md:w-5 h-auto rounded shadow-sm"
                   referrerPolicy="no-referrer"
                 />
                 <span className="text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest truncate max-w-[80px] md:max-w-none">
@@ -224,7 +224,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
               </div>
             )}
             <div className="hidden md:block w-px h-8 bg-slate-100 mx-2" />
-            <div className="hidden sm:flex bg-amber-50 border border-amber-100 px-3 md:px-4 py-1.5 md:py-2 rounded-none items-center gap-2 md:gap-3">
+            <div className="hidden sm:flex bg-amber-50 border border-amber-100 px-3 md:px-4 py-1.5 md:py-2 rounded-xl items-center gap-2 md:gap-3">
               <ShieldAlert className="w-3 h-3 md:w-4 md:h-4 text-amber-600 shrink-0" />
               <p className="text-[8px] md:text-[10px] text-amber-700 font-bold leading-relaxed hidden lg:block">
                 Architecting postal protocols for non-indexed territories.
@@ -232,7 +232,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
             </div>
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 bg-blue-50 text-blue-600 rounded-none md:hidden"
+              className="p-2 bg-blue-50 text-blue-600 rounded-xl md:hidden"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -267,7 +267,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                 </div>
                 <button 
                   onClick={() => setSelectedCountry(null)}
-                  className="p-1.5 hover:bg-slate-200 rounded-none transition-colors text-slate-400"
+                  className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-400"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                 </button>
@@ -298,7 +298,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                     <Settings2 className="w-3.5 h-3.5" />
                     <h4 className="text-[10px] font-black uppercase tracking-widest">Protocol Architect</h4>
                   </div>
-                  <div className="bg-white border-2 border-slate-50 p-3 rounded-none space-y-3">
+                  <div className="bg-white border-2 border-slate-50 p-3 rounded-2xl space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-black text-purple-600 font-mono">{customDigitCount}D</span>
                       <div className="flex items-center gap-1">
@@ -307,7 +307,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                             key={s}
                             onClick={() => setStyle(s)}
                             className={cn(
-                              "w-5 h-5 rounded flex items-center justify-center text-[6px] font-black uppercase transition-all",
+                              "w-5 h-5 rounded-lg flex items-center justify-center text-[6px] font-black uppercase transition-all",
                               style === s ? "bg-purple-600 text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
                             )}
                             title={s}
@@ -324,7 +324,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                       step="1"
                       value={customDigitCount}
                       onChange={(e) => setCustomDigitCount(parseInt(e.target.value))}
-                      className="w-full h-1 bg-slate-100 rounded-none appearance-none cursor-pointer accent-purple-600"
+                      className="w-full h-1 bg-slate-100 rounded-full appearance-none cursor-pointer accent-purple-600"
                     />
                   </div>
                 </div>
@@ -335,7 +335,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                     <Zap className="w-3.5 h-3.5" />
                     <h4 className="text-[10px] font-black uppercase tracking-widest">Synthesis Engine</h4>
                   </div>
-                  <div className="bg-slate-900 rounded-none p-4 text-center space-y-2 relative overflow-hidden">
+                  <div className="bg-slate-900 rounded-2xl p-4 text-center space-y-2 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
                     <p className="text-[6px] font-black text-white/30 uppercase tracking-[0.2em]">Output</p>
                     <div className="text-xl font-black text-white tracking-widest font-mono flex items-center justify-center gap-2">
@@ -345,7 +345,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                           navigator.clipboard.writeText(generatedCode);
                           setIsSaved(true);
                         }}
-                        className="p-1 hover:bg-white/10 rounded transition-colors"
+                        className="p-1 hover:bg-white/10 rounded-lg transition-colors"
                       >
                         {isSaved ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/40" />}
                       </button>
@@ -356,7 +356,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                       setIsSaved(true);
                       if (window.innerWidth < 768) setIsSidebarOpen(false);
                     }}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-none font-black uppercase tracking-widest text-[9px] transition-all shadow-lg active:scale-95"
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black uppercase tracking-widest text-[9px] transition-all shadow-lg active:scale-95"
                   >
                     Deploy Architecture
                   </button>
@@ -364,7 +364,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
 
                 {/* Local Context Brief */}
                 <div className="space-y-2.5 pt-2 border-t border-slate-50">
-                   <div className="flex flex-col p-2.5 bg-slate-50/50 rounded-none text-left">
+                   <div className="flex flex-col p-2.5 bg-slate-50/50 rounded-xl text-left">
                       <span className="text-[7px] font-black text-slate-400 uppercase mb-0.5">Local Context</span>
                       <p className="text-[9px] font-bold text-slate-500 line-clamp-2 leading-relaxed">
                         {selectedCountry.history || 'Systemic absence mapping... Architectural logic pending.'}
@@ -374,7 +374,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
               </div>
               
               <div className="mt-auto p-4 border-t border-slate-50 bg-slate-50/20 shrink-0">
-                 <div className="flex items-center justify-between p-2.5 bg-white rounded-none border border-slate-100 shadow-sm">
+                 <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-100 shadow-sm">
                     <div className="flex flex-col">
                       <span className="text-[7px] font-black text-slate-400 uppercase mb-0.5 tracking-widest">Locked Location</span>
                       <span className="font-mono text-[9px] font-black text-slate-600">{selectedCountry.lat.toFixed(4)}, {selectedCountry.lng.toFixed(4)}</span>
@@ -393,7 +393,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search territories..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-none pl-10 pr-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
@@ -451,9 +451,9 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
             animate={{ y: 0 }}
             className="absolute bottom-4 left-4 md:left-76 right-4 pointer-events-none z-10"
           >
-            <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-none p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto max-w-4xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-[2rem] p-4 md:p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto max-w-4xl mx-auto">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-none flex items-center justify-center text-white shadow-lg">
+                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                   <Zap className="w-6 h-6" />
                 </div>
                 <div>
@@ -469,7 +469,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                  <div className="w-px h-10 bg-slate-100 mx-2 hidden md:block" />
                  <button 
                   onClick={() => onClose()}
-                  className="px-6 py-2.5 bg-slate-900 text-white rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
+                  className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
                  >
                    Exit Lab
                  </button>
@@ -485,7 +485,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
             animate={{ opacity: 1, x: 0 }}
             className="absolute top-20 md:top-24 right-4 md:right-8 w-64 space-y-4 pointer-events-auto hidden md:block" // Hidden on mobile to avoid overlap
           >
-             <div className="bg-white/90 backdrop-blur rounded-none p-6 border border-slate-100 shadow-xl space-y-4">
+             <div className="bg-white/90 backdrop-blur rounded-[2rem] p-6 border border-slate-100 shadow-xl space-y-4">
                 <div className="flex items-center gap-3 text-purple-600">
                   <Globe className="w-4 h-4" />
                   <h4 className="text-[10px] font-black uppercase tracking-widest">Territory Analysis</h4>
@@ -504,14 +504,14 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                     <span className="text-xs font-black text-slate-700">{cities.length > 50 ? 'High Density' : 'Low Density'}</span>
                   </div>
                 </div>
-                <div className="p-3 bg-purple-50 rounded-none">
+                <div className="p-3 bg-purple-50 rounded-xl">
                   <p className="text-[8px] font-bold text-purple-600/70 italic leading-relaxed">
                     National boundary synchronization complete. Spatial indexing mapping to 512-byte sectors.
                   </p>
                 </div>
              </div>
 
-             <div className="bg-slate-900 rounded-none p-6 shadow-2xl space-y-4">
+             <div className="bg-slate-900 rounded-[2rem] p-6 shadow-2xl space-y-4">
                 <div className="flex items-center gap-3 text-amber-400">
                   <History className="w-4 h-4" />
                   <h4 className="text-[10px] font-black uppercase tracking-widest">Postal Archeology</h4>
@@ -523,7 +523,7 @@ export const PostalCodeLab: React.FC<PostalCodeLabProps> = ({
                      'Systemic absence mapping... Architectural logic pending further research.'}
                   </p>
                   <div className="flex items-center gap-2 pt-2 grayscale opacity-50">
-                    <div className="w-1.5 h-1.5 rounded-none bg-amber-500" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                     <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Context Synchronized</span>
                   </div>
                 </div>

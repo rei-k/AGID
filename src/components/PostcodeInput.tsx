@@ -76,7 +76,7 @@ export const PostcodeInput: React.FC<PostcodeInputProps> = ({ format, value, onC
           <img 
             src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`} 
             alt={countryCode}
-            className="w-5 h-auto rounded-sm shadow-sm"
+            className="w-5 h-auto rounded-md shadow-sm"
             referrerPolicy="no-referrer"
           />
         </div>

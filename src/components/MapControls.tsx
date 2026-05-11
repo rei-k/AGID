@@ -58,15 +58,15 @@ export const MapControls: React.FC<MapControlsProps> = ({
                   mapRef.current?.setBearing(0);
                   setMapBearing(0);
                 }}
-                className="w-10 h-10 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center relative overflow-hidden"
+                className="w-10 h-10 md:w-8 md:h-8 rounded-xl bg-white shadow-lg border border-slate-200 flex items-center justify-center relative overflow-hidden"
                 title={t('reset_compass')}
               >
                 <div 
                   className="relative w-6 h-6 md:w-5 md:h-5 transition-transform duration-300 ease-out"
                   style={{ transform: `rotate(${-mapBearing}deg)` }}
                 >
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-red-500 rounded-none" />
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-slate-400 rounded-none" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-red-500 rounded-full" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-3 md:h-2.5 bg-slate-400 rounded-full" />
                   <span className="absolute top-[-1px] left-1/2 -translate-x-1/2 text-[9px] font-black text-red-500 select-none">N</span>
                 </div>
               </button>
@@ -81,7 +81,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
         <div className="pointer-events-auto mb-1.5 md:mb-1.5">
           <button 
             onClick={() => setShowStyleMenu(true)}
-            className="w-9 h-9 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center group hover:bg-slate-50 transition-all"
+            className="w-9 h-9 md:w-8 md:h-8 rounded-xl bg-white shadow-lg border border-slate-200 flex items-center justify-center group hover:bg-slate-50 transition-all"
             title={t('layers')}
           >
             <Layers className="w-4.5 h-4.5 md:w-4 md:h-4 text-slate-600" />
@@ -93,7 +93,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
           <button 
             onClick={toggleTracking}
             className={cn(
-              "w-9 h-9 md:w-8 md:h-8 rounded-none bg-white shadow-lg border border-slate-200 flex items-center justify-center transition-all active:scale-95 group relative",
+              "w-9 h-9 md:w-8 md:h-8 rounded-xl bg-white shadow-lg border border-slate-200 flex items-center justify-center transition-all active:scale-95 group relative",
               isTracking ? "text-blue-600 border-blue-200" : "text-slate-600"
             )}
             title={t('current_location')}
@@ -103,7 +103,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
         </div>
 
         {/* Zoom Controls (PC only) */}
-        <div className="hidden md:flex flex-col bg-white rounded-none shadow-lg border border-slate-200 pointer-events-auto overflow-hidden">
+        <div className="hidden md:flex flex-col bg-white rounded-xl shadow-lg border border-slate-200 pointer-events-auto overflow-hidden">
           <button 
             onClick={() => mapRef.current?.zoomIn()}
             className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-600"

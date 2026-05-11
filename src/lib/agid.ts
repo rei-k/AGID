@@ -146,9 +146,9 @@ export function generatePrefix(code: string, isSea: boolean, name: string): stri
   if (isSea) {
     // [SPECIFIC 2-CHAR SEA CODES]
     const seaCodeMap: { [key: string]: string } = {
-      'NPAC': 'NP', 'NEPC': 'NE', 'SPAC': 'SP', 'SEPC': 'SE',
-      'NATL': 'NA', 'SATL': 'SA', 'NIND': 'NI', 'SIND': 'SI',
-      'SOUT': 'SO', 'ARCT': 'AR'
+      'NPAC': 'P1', 'NEPC': 'P0', 'SPAC': 'P3', 'SEPC': 'P2',
+      'NATL': 'A1', 'SATL': 'A2', 'NIND': 'I1', 'SIND': 'I2',
+      'SOUT': 'S0', 'ARCT': 'R0'
     };
     
     // Check if it's a major ocean segment
@@ -178,24 +178,20 @@ export function generatePrefix(code: string, isSea: boolean, name: string): stri
     }
   } else {
     // [STRICT 2-LETTER COUNTRY CODES]
-    // If it's land, ensure we always use a 2-letter code as requested by the user.
-    if (code.length === 2 && /^[A-Z]{2}$/i.test(code)) {
-      const countryCode = code.toUpperCase().slice(0, 2);
-      PREFIX_CACHE[cacheKey] = countryCode;
-      return countryCode;
+    // If it's land, ensure we always use a 2-letter code from ISO 3166-1 if detected.
+    const upperCode = code.toUpperCase();
+    const isIsoCountry = COUNTRIES.some(c => c.code === upperCode) || code.length === 2;
+    
+    if (isIsoCountry && /^[A-Z]{2}$/.test(upperCode)) {
+      PREFIX_CACHE[cacheKey] = upperCode;
+      return upperCode;
     }
     
-    // For non-2-letter codes (disputed/territories), condense strictly to 2 characters
-    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const char1 = LETTERS[hash % 22];
-    const char2 = LETTERS[(hash / 22 | 0) % 22];
-    const condensed = (code.slice(0, 2).toUpperCase().padEnd(2, char1)).slice(0, 2);
-    
-    // Special handling for common disputed codes to keep them recognizable if possible
-    const specialMap: Record<string, string> = {
-      'BT_T': 'BT', 'CRIM': 'CR', 'DONB': 'DO', 'KASH': 'KA', 'SCSD': 'SC', 'EEBD': 'EB', 'TRNC': 'TR', 'SLND': 'SL', 'PMR': 'PM', 'PHIS': 'PH', 'BAAR': 'BA', 'CYGL': 'CY'
-    };
-    const finalCode = specialMap[code] || condensed;
+    // For non-ISO codes (disputed/territories), use Number-Number format to avoid collisions
+    const hashData = (name + code).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const n1 = NUMBERS[hashData % 10];
+    const n2 = NUMBERS[(hashData / 10 | 0) % 10];
+    const finalCode = n1 + n2;
 
     PREFIX_CACHE[cacheKey] = finalCode;
     return finalCode;
@@ -551,12 +547,18 @@ function isPointInPolygon(lat: number, lon: number, polygon: [number, number][] 
   const EPS = 1e-9;
   
   // Bounding box pre-check
+  let inBounds = false;
   if (bounds) {
     const inLon = bounds.w <= bounds.e 
       ? (lon >= bounds.w - EPS && lon <= bounds.e + EPS) 
       : (lon >= bounds.w - EPS || lon <= bounds.e + EPS);
     if (lat < bounds.s - EPS || lat > bounds.n + EPS || !inLon) return false;
+    inBounds = true;
   }
+
+  // If no polygon data is provided but we matched the bounds, we treat it as a hit.
+  // This is critical for countries defined only by their bounding boxes in our JSON.
+  if (!polygon) return inBounds;
 
   const polygons = (Array.isArray(polygon) && Array.isArray(polygon[0]) && Array.isArray(polygon[0][0]))
     ? polygon as [number, number][][]

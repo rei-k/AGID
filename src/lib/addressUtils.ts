@@ -52,54 +52,195 @@ export function applyShippingAbbreviations(text: string): string {
   return result;
 }
 
+/**
+ * Robust algorithm to convert local address data into an international shipping label (UPU compatible).
+ * Standards used:
+ * - UPU S42 (International addressing standards)
+ * - ISO/IEC 19773:2011 (Address conversion)
+ * - Latin transliteration for global machine readability
+ */
+export async function generateInternationalShippingLabel(details: any, options: { recipient?: string } = {}): Promise<string> {
+  if (!details) return "";
+
+  // 1. Core Data Extraction & Enrichment
+  const c = details.country_code?.slice(0, 2).toUpperCase() || "";
+  
+  // Use English/International as the base language for the algorithm
+  const baseLang = 'international';
+  const mapping: Record<string, string> = {
+    organization: details.building || details.organization || details.amenity || "",
+    houseNumber: details.house_number || details.building || "",
+    street: details.road || details.street || "",
+    suburb: details.suburb || details.neighbourhood || "",
+    city: details.city || details.town || details.village || "",
+    state: details.state || details.province || details.region || "",
+    postcode: details.postcode || (details.plus_code ? details.plus_code.replace(/\+/g, ' ') : ""),
+    country: details.country || ""
+  };
+
+  // 2. Language Normalization & Transliteration
+  // We must ensure Latin script for international sorting.
+  Object.keys(mapping).forEach(key => {
+    let val = mapping[key];
+    if (val && /[^\u0000-\u007F]/.test(val)) {
+      // Use local transliteration logic
+      mapping[key] = transliterate(val, c.toLowerCase() || 'en');
+    }
+  });
+
+  // 3. Postal formatting by country (UPU Standard)
+  let formatted = "";
+  if (options.recipient) {
+    formatted += options.recipient.toUpperCase() + "\n";
+  }
+
+  // Handle Japan specifically (Big-to-Small in local, Small-to-Big in International)
+  if (c === 'JP') {
+    // International standard for JP: No/Street, Locality, PREFECTURE, POSTCODE, JAPAN
+    const block = details.jp_block || details.block_number;
+    const chome = details.jp_chome || details.subdistrict;
+    const number = details.jp_number;
+    
+    let streetPart = mapping.street;
+    if (chome || block || number) {
+      streetPart = [chome, block, number].filter(Boolean).join("-") + " " + mapping.street;
+    }
+    
+    formatted += `${streetPart}\n`;
+    formatted += `${mapping.suburb ? mapping.suburb + ", " : ""}${mapping.city}\n`;
+    formatted += `${mapping.state.toUpperCase()} ${mapping.postcode}\n`;
+  } else {
+    // Default Western style (UPU Standard)
+    if (mapping.organization) formatted += `${mapping.organization}\n`;
+    formatted += `${mapping.houseNumber} ${mapping.street}\n`;
+    if (mapping.suburb && mapping.suburb !== mapping.city) formatted += `${mapping.suburb}\n`;
+    formatted += `${mapping.city}${mapping.state ? ", " + mapping.state : ""} ${mapping.postcode}\n`;
+  }
+
+  // 4. Final Country Line (MUST BE CAPITALIZED for international sorting)
+  formatted += mapping.country.toUpperCase();
+
+  // 5. Cleanup & Abbreviations
+  let lines = formatted.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+  
+  // Apply abbreviations to street-level lines (usually the 1st or 2nd line after recipient)
+  lines = lines.map((line, idx) => {
+    if (idx > 0 && idx < lines.length - 1) {
+      return applyShippingAbbreviations(line);
+    }
+    return line;
+  });
+
+  // Strict Latin character enforcement (remove remaining non-latin if any)
+  return lines
+    .map(line => line.replace(/[^\x00-\x7F]/g, ""))
+    .join('\n')
+    .replace(/,\s*,/g, ',')
+    .replace(/^,|,$/g, '')
+    .trim();
+}
+
 export const LANGUAGES = [
-  { code: 'ja', name: '日本語', country: 'Japan' },
-  { code: 'en', name: 'English', country: 'United States' },
-  { code: 'zh-Hans', name: '简体中文', country: 'China' },
-  { code: 'zh-Hant', name: '繁體中文', country: 'Taiwan' },
-  { code: 'ko', name: '한국어', country: 'South Korea' },
-  { code: 'fr', name: 'Français', country: 'France' },
-  { code: 'de', name: 'Deutsch', country: 'Germany' },
-  { code: 'es', name: 'Español', country: 'Spain' },
-  { code: 'it', name: 'Italiano', country: 'Italy' },
-  { code: 'pt', name: 'Português', country: 'Portugal' },
-  { code: 'ru', name: 'Русский', country: 'Russia' },
-  { code: 'kk', name: 'Қазақша', country: 'Kazakhstan' },
-  { code: 'ky', name: 'Кыргызча', country: 'Kyrgyzstan' },
-  { code: 'tg', name: 'Тоҷикӣ', country: 'Tajikistan' },
-  { code: 'tk', name: 'Türkmençe', country: 'Turkmenistan' },
-  { code: 'uz', name: 'Oʻzbekcha', country: 'Uzbekistan' },
-  { code: 'vi', name: 'Tiếng Việt', country: 'Vietnam' },
-  { code: 'th', name: 'ไทย', country: 'Thailand' },
-  { code: 'hi', name: 'हिन्दी', country: 'India' },
-  { code: 'bn', name: 'বাংলা', country: 'Bangladesh' },
-  { code: 'ur', name: 'اردو', country: 'Pakistan' },
-  { code: 'ta', name: 'தமிழ்', country: 'India' },
-  { code: 'te', name: 'తెలుగు', country: 'India' },
-  { code: 'mr', name: 'मराठी', country: 'India' },
-  { code: 'gu', name: 'ગુજરાતી', country: 'India' },
-  { code: 'kn', name: 'ಕನ್ನಡ', country: 'India' },
-  { code: 'ml', name: 'മലയാളം', country: 'India' },
-  { code: 'pa', name: 'ਪੰਜਾਬੀ', country: 'India' },
-  { code: 'si', name: 'සිංහල', country: 'Sri Lanka' },
-  { code: 'ne', name: 'नेपाली', country: 'Nepal' },
-  { code: 'dz', name: 'རྫོང་ཁ', country: 'Bhutan' },
-  { code: 'ps', name: 'پښتو', country: 'Afghanistan' },
-  { code: 'dv', name: 'ދިވެހި', country: 'Maldives' },
-  { code: 'ar', name: 'العربية', country: 'Saudi Arabia' },
-  { code: 'tr', name: 'Türkçe', country: 'Turkey' },
-  { code: 'fa', name: 'فارسی', country: 'Iran' },
-  { code: 'he', name: 'עברית', country: 'Israel' },
-  { code: 'af', name: 'Afrikaans', country: 'South Africa' },
-  { code: 'zu', name: 'isiZulu', country: 'South Africa' },
-  { code: 'xh', name: 'isiXhosa', country: 'South Africa' }
+  { code: 'ja', name: '日本語', country: 'Japan', flag: '🇯🇵' },
+  { code: 'en', name: 'English', country: 'United States', flag: '🇺🇸' },
+  { code: 'en-GB', name: 'English', country: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'en-AU', name: 'English', country: 'Australia', flag: '🇦🇺' },
+  { code: 'en-CA', name: 'English', country: 'Canada', flag: '🇨🇦' },
+  { code: 'zh-Hans', name: '简体中文', country: 'China', flag: '🇨🇳' },
+  { code: 'zh-Hant', name: '繁體中文', country: 'Taiwan', flag: '🇹🇼' },
+  { code: 'ko', name: '한국어', country: 'South Korea', flag: '🇰🇷' },
+  { code: 'fr', name: 'Français', country: 'France', flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch', country: 'Germany', flag: '🇩🇪' },
+  { code: 'es', name: 'Español', country: 'Spain', flag: '🇪🇸' },
+  { code: 'it', name: 'Italiano', country: 'Italy', flag: '🇮🇹' },
+  { code: 'pt', name: 'Português', country: 'Portugal', flag: '🇵🇹' },
+  { code: 'ru', name: 'Русский', country: 'Russia', flag: '🇷🇺' },
+  { code: 'kk', name: 'Қазақша', country: 'Kazakhstan', flag: '🇰🇿' },
+  { code: 'ky', name: 'Кыргызча', country: 'Kyrgyzstan', flag: '🇰🇬' },
+  { code: 'tg', name: 'Тоҷикӣ', country: 'Tajikistan', flag: '🇹🇯' },
+  { code: 'tk', name: 'Türkmençe', country: 'Turkmenistan', flag: '🇹🇲' },
+  { code: 'uz', name: 'Oʻzbekcha', country: 'Uzbekistan', flag: '🇺🇿' },
+  { code: 'vi', name: 'Tiếng Việt', country: 'Vietnam', flag: '🇻🇳' },
+  { code: 'th', name: 'ไทย', country: 'Thailand', flag: '🇹🇭' },
+  { code: 'hi', name: 'हिन्दी', country: 'India', flag: '🇮🇳' },
+  { code: 'bn', name: 'বাংলা', country: 'Bangladesh', flag: '🇧🇩' },
+  { code: 'ur', name: 'اردو', country: 'Pakistan', flag: '🇵🇰' },
+  { code: 'ta', name: 'தமிழ்', country: 'India', flag: '🇮🇳' },
+  { code: 'te', name: 'తెలుగు', country: 'India', flag: '🇮🇳' },
+  { code: 'mr', name: 'मराठी', country: 'India', flag: '🇮🇳' },
+  { code: 'gu', name: 'ગુજરાતી', country: 'India', flag: '🇮🇳' },
+  { code: 'kn', name: 'ಕನ್ನಡ', country: 'India', flag: '🇮🇳' },
+  { code: 'ml', name: 'മലയാളം', country: 'India', flag: '🇮🇳' },
+  { code: 'pa', name: 'ਪੰਜਾਬੀ', country: 'India', flag: '🇮🇳' },
+  { code: 'si', name: 'සිංහල', country: 'Sri Lanka', flag: '🇱🇰' },
+  { code: 'ne', name: 'नेपाली', country: 'Nepal', flag: '🇳🇵' },
+  { code: 'dz', name: 'རྫོང་ཁ', country: 'Bhutan', flag: '🇧🇹' },
+  { code: 'ps', name: 'پښتو', country: 'Afghanistan', flag: '🇦🇫' },
+  { code: 'dv', name: 'ދިވެހި', country: 'Maldives', flag: '🇲🇻' },
+  { code: 'ar', name: 'العربية', country: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: 'tr', name: 'Türkçe', country: 'Turkey', flag: '🇹🇷' },
+  { code: 'fa', name: 'فارسی', country: 'Iran', flag: '🇮🇷' },
+  { code: 'he', name: 'עברית', country: 'Israel', flag: '🇮🇱' },
+  { code: 'af', name: 'Afrikaans', country: 'South Africa', flag: '🇿🇦' },
+  { code: 'zu', name: 'isiZulu', country: 'South Africa', flag: '🇿🇦' },
+  { code: 'xh', name: 'isiXhosa', country: 'South Africa', flag: '🇿🇦' },
+  { code: 'sw', name: 'Kiswahili', country: 'Kenya/Tanzania', flag: '🇰🇪' },
+  { code: 'ka', name: 'ქართული', country: 'Georgia', flag: '🇬🇪' },
+  { code: 'hy', name: 'Հայերեն', country: 'Armenia', flag: '🇦🇲' },
+  { code: 'az', name: 'Azərbaycan', country: 'Azerbaijan', flag: '🇦🇿' },
+  { code: 'am', name: 'አማርኛ', country: 'Ethiopia', flag: '🇪🇹' },
+  { code: 'sq', name: 'Shqip', country: 'Albania', flag: '🇦🇱' },
+  { code: 'sr', name: 'Српски', country: 'Serbia', flag: '🇷🇸' },
+  { code: 'hr', name: 'Hrvatski', country: 'Croatia', flag: '🇭🇷' },
+  { code: 'bg', name: 'Български', country: 'Bulgaria', flag: '🇧🇬' },
+  { code: 'ro', name: 'Română', country: 'Romania', flag: '🇷🇴' },
+  { code: 'el', name: 'Ελληνικά', country: 'Greece', flag: '🇬🇷' },
+  { code: 'et', name: 'Eesti', country: 'Estonia', flag: '🇪🇪' },
+  { code: 'lv', name: 'Latviešu', country: 'Latvia', flag: '🇱🇻' },
+  { code: 'lt', name: 'Lietuvių', country: 'Lithuania', flag: '🇱🇹' },
+  { code: 'is', name: 'Íslenska', country: 'Iceland', flag: '🇮🇸' },
+  { code: 'fi', name: 'Suomi', country: 'Finland', flag: '🇫🇮' },
+  { code: 'da', name: 'Dansk', country: 'Denmark', flag: '🇩🇰' },
+  { code: 'sv', name: 'Svenska', country: 'Sweden', flag: '🇸🇪' },
+  { code: 'nb', name: 'Norsk Bokmål', country: 'Norway', flag: '🇳🇴' },
+  { code: 'nl', name: 'Nederlands', country: 'Netherlands', flag: '🇳🇱' },
+  { code: 'ms', name: 'Bahasa Melayu', country: 'Malaysia', flag: '🇲🇾' },
+  { code: 'id', name: 'Bahasa Indonesia', country: 'Indonesia', flag: '🇮🇩' },
+  { code: 'tl', name: 'Tagalog', country: 'Philippines', flag: '🇵🇭' },
+  { code: 'pl', name: 'Polski', country: 'Poland', flag: '🇵🇱' },
+  { code: 'uk', name: 'Українська', country: 'Ukraine', flag: '🇺🇦' },
+  { code: 'cs', name: 'Čeština', country: 'Czechia', flag: '🇨🇿' },
+  { code: 'hu', name: 'Magyar', country: 'Hungary', flag: '🇭🇺' },
+  { code: 'mk', name: 'Македонски', country: 'North Macedonia', flag: '🇲🇰' },
+  { code: 'bs', name: 'Bosanski', country: 'Bosnia', flag: '🇧🇦' },
+  { code: 'mt', name: 'Malti', country: 'Malta', flag: '🇲🇹' },
+  { code: 'ga', name: 'Gaeilge', country: 'Ireland', flag: '🇮🇪' },
+  { code: 'kl', name: 'Kalaallisut', country: 'Greenland', flag: '🇬🇱' },
+  { code: 'mn', name: 'Монгол', country: 'Mongolia', flag: '🇲🇳' },
+  { code: 'lo', name: 'ພາສາລາວ', country: 'Laos', flag: '🇱🇦' },
+  { code: 'km', name: 'ភាសាខ្មែរ', country: 'Cambodia', flag: '🇰🇭' },
+  { code: 'my', name: 'ဗမာစာ', country: 'Myanmar', flag: '🇲🇲' },
+  { code: 'so', name: 'Soomaali', country: 'Somalia', flag: '🇸🇴' },
+  { code: 'rw', name: 'Kinyarwanda', country: 'Rwanda', flag: '🇷🇼' },
+  { code: 'rn', name: 'Kirundi', country: 'Burundi', flag: '🇧🇮' },
+  { code: 'mg', name: 'Malagasy', country: 'Madagascar', flag: '🇲🇬' },
+  { code: 'sn', name: 'ChiShona', country: 'Zimbabwe', flag: '🇿🇼' },
+  { code: 'st', name: 'Sesotho', country: 'Lesotho', flag: '🇱🇸' },
+  { code: 'tn', name: 'Setswana', country: 'Botswana', flag: '🇧🇼' },
+  { code: 'ss', name: 'siSwati', country: 'Eswatini', flag: '🇸🇿' },
+  { code: 'ti', name: 'ትግርኛ', country: 'Eritrea', flag: '🇪🇷' }
 ];
 
 export const COUNTRY_LANGUAGES: Record<string, string[]> = {
   'jp': ['ja'],
   'us': ['en', 'es'],
-  'ca': ['en', 'fr'],
-  'gb': ['en'],
+  'ca': ['en', 'en-CA', 'fr'],
+  'gb': ['en-GB', 'en'],
+  'au': ['en-AU', 'en'],
+  'nz': ['en', 'ms', 'zh-Hans'], // Added some common langs for NZ as example
+  'ie': ['en', 'ga'],
   'cn': ['zh-Hans'],
   'tw': ['zh-Hant'],
   'hk': ['zh-Hant', 'en'],
@@ -113,6 +254,19 @@ export const COUNTRY_LANGUAGES: Record<string, string[]> = {
   'pt': ['pt'],
   'br': ['pt'],
   'ru': ['ru'],
+  'mx': ['es'],
+  'ar': ['es'],
+  'cl': ['es'],
+  'co': ['es'],
+  'pe': ['es'],
+  'at': ['de'],
+  'ch': ['de', 'fr', 'it', 'en'],
+  'be': ['nl', 'fr', 'de', 'en'],
+  'nl': ['nl'],
+  'se': ['sv'],
+  'no': ['nb'],
+  'fi': ['fi', 'sv'],
+  'dk': ['da'],
   'kz': ['kk', 'ru'],
   'uz': ['uz', 'ru'],
   'kg': ['ky', 'ru'],
@@ -120,6 +274,9 @@ export const COUNTRY_LANGUAGES: Record<string, string[]> = {
   'tm': ['tk', 'ru'],
   'vn': ['vi'],
   'th': ['th'],
+  'id': ['id'],
+  'my': ['ms', 'en'],
+  'ph': ['tl', 'en'],
   'in': ['hi', 'en', 'bn', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa', 'ur'],
   'za': ['en', 'af', 'zu', 'xh'],
   'pk': ['ur', 'en', 'pa'],
@@ -131,6 +288,10 @@ export const COUNTRY_LANGUAGES: Record<string, string[]> = {
   'mv': ['dv', 'en'],
   'sa': ['ar'],
   'ae': ['ar', 'en'],
+  'qa': ['ar'],
+  'kw': ['ar'],
+  'om': ['ar'],
+  'bh': ['ar'],
   'tr': ['tr'],
   'ir': ['fa'],
   'il': ['he', 'en'],
@@ -139,12 +300,186 @@ export const COUNTRY_LANGUAGES: Record<string, string[]> = {
   'jo': ['ar'],
   'lb': ['ar', 'fr'],
   'ye': ['ar'],
-  'om': ['ar'],
-  'kw': ['ar'],
-  'qa': ['ar'],
-  'bh': ['ar'],
-  'ch': ['de', 'fr', 'it', 'en'],
-  'be': ['nl', 'fr', 'de', 'en'],
+  'eg': ['ar'],
+  'ma': ['ar', 'fr'],
+  'dz': ['ar', 'fr'],
+  'tn': ['ar', 'fr'],
+  'ly': ['ar'],
+  'sd': ['ar', 'en'],
+  'ps': ['ar'],
+  'ge': ['ka'],
+  'am': ['hy'],
+  'az': ['az'],
+  'ng': ['en'],
+  'ke': ['en', 'sw'],
+  'et': ['am'],
+  'gh': ['en'],
+  'ci': ['fr'],
+  'sn': ['fr', 'wo'],
+  'tz': ['sw', 'en'],
+  'ug': ['en', 'sw'],
+  'zm': ['en'],
+  'zw': ['en', 'sn', 'nd'],
+  'ao': ['pt'],
+  'mz': ['pt'],
+  'mg': ['mg', 'fr'],
+  'cm': ['fr', 'en'],
+  'cd': ['fr', 'sw'],
+  'cg': ['fr'],
+  'ga': ['fr'],
+  'ml': ['fr', 'bm'],
+  'bf': ['fr'],
+  'ne': ['fr'],
+  'td': ['fr', 'ar'],
+  'cf': ['fr', 'sg'],
+  'ss': ['en'],
+  'so': ['so', 'ar'],
+  'dj': ['fr', 'ar'],
+  'er': ['ti', 'ar', 'en'],
+  'rw': ['rw', 'fr', 'en'],
+  'bi': ['rn', 'fr'],
+  'mw': ['en', 'ny'],
+  'na': ['en', 'af', 'de'],
+  'bw': ['en', 'tn'],
+  'ls': ['st', 'en'],
+  'sz': ['ss', 'en'],
+  'mu': ['en', 'fr', 'mfe'],
+  'sc': ['fr', 'en', 'crs'],
+  'km': ['ar', 'fr', 'zdj'],
+  'cv': ['pt'],
+  'st': ['pt'],
+  'gq': ['es', 'fr', 'pt'],
+  'gn': ['fr'],
+  'gw': ['pt'],
+  'sl': ['en'],
+  'lr': ['en'],
+  'bj': ['fr'],
+  'tg': ['fr'],
+  'mr': ['ar', 'fr'],
+  'gm': ['en'],
+  're': ['fr'],
+  'yt': ['fr'],
+  'sh': ['en'],
+  'ac': ['en'],
+  'ta': ['en'],
+  'eh': ['ar', 'es'],
+  'fj': ['en', 'fj', 'hi'],
+  'pg': ['en', 'tpi', 'ho'],
+  'sb': ['en'],
+  'vu': ['bi', 'en', 'fr'],
+  'ws': ['sm', 'en'],
+  'to': ['to', 'en'],
+  'ki': ['en', 'gil'],
+  'mh': ['en', 'mh'],
+  'fm': ['en'],
+  'pw': ['en', 'pau'],
+  'nr': ['en', 'na'],
+  'tv': ['en', 'tvl'],
+  'ck': ['en', 'rar'],
+  'nu': ['en', 'niu'],
+  'nc': ['fr'],
+  'pf': ['fr', 'ty'],
+  'wf': ['fr', 'wls', 'fud'],
+  'as': ['en', 'sm'],
+  'gu': ['en', 'ch'],
+  'mp': ['en', 'ch', 'cal'],
+  'cx': ['en'],
+  'cc': ['en'],
+  'nf': ['en', 'pih'],
+  'tk': ['tkl', 'en'],
+  'pn': ['en', 'pih'],
+  'io': ['en'],
+  'tf': ['fr'],
+  'xk': ['sq', 'sr'],
+  'crim': ['ru', 'uk', 'crh'],
+  'donb': ['ru', 'uk'],
+  'kash': ['hi', 'ur', 'ks', 'en'],
+  'trnc': ['tr'],
+  'slnd': ['so', 'ar', 'en'],
+  'pmr': ['ru', 'uk', 'ro'],
+  'gt': ['es'],
+  'bz': ['en', 'es'],
+  'sv': ['es'],
+  'hn': ['es'],
+  'ni': ['es'],
+  'cr': ['es'],
+  'pa': ['es'],
+  'cu': ['es'],
+  'jm': ['en'],
+  'ht': ['fr', 'ht'],
+  'do': ['es'],
+  'pr': ['es', 'en'],
+  'bs': ['en'],
+  'aw': ['nl', 'pap', 'en', 'es'],
+  'cw': ['pap', 'nl', 'en'],
+  'sx': ['en', 'nl'],
+  'bq': ['nl', 'en', 'pap'],
+  'gp': ['fr'],
+  'mq': ['fr'],
+  'mf': ['fr'],
+  'bl': ['fr'],
+  'bb': ['en'],
+  'tt': ['en'],
+  'dm': ['en', 'fr'],
+  'lc': ['en'],
+  'vc': ['en'],
+  'gd': ['en'],
+  'ag': ['en'],
+  'kn': ['en'],
+  'vg': ['en'],
+  'ky': ['en'],
+  'ms': ['en'],
+  'tc': ['en'],
+  'ai': ['en'],
+  've': ['es'],
+  'ec': ['es'],
+  'bo': ['es', 'ay', 'qu'],
+  'py': ['es', 'gn'],
+  'uy': ['es'],
+  'gy': ['en'],
+  'sr': ['nl', 'en'],
+  'gf': ['fr'],
+  'fk': ['en'],
+  'gs': ['en'],
+  'is': ['is'],
+  'ee': ['et'],
+  'lv': ['lv'],
+  'lt': ['lt'],
+  'by': ['be', 'ru'],
+  'md': ['ro', 'ru'],
+  'bg': ['bg'],
+  'sk': ['sk'],
+  'hr': ['hr'],
+  'rs': ['sr'],
+  'ba': ['bs', 'hr', 'sr'],
+  'al': ['sq'],
+  'mk': ['mk', 'sq'],
+  'si': ['sl'],
+  'me': ['cnr'],
+  'lu': ['lb', 'fr', 'de'],
+  'mt': ['mt', 'en'],
+  'cy': ['el', 'tr', 'en'],
+  'ad': ['ca'],
+  'mc': ['fr'],
+  'li': ['de'],
+  'sm': ['it'],
+  'va': ['it', 'la'],
+  'je': ['en', 'fr'],
+  'gg': ['en', 'fr'],
+  'im': ['en', 'gv'],
+  'gi': ['en', 'es'],
+  'fo': ['fo', 'da'],
+  'sj': ['no'],
+  'ua': ['uk'],
+  'pl': ['pl'],
+  'cz': ['cs'],
+  'hu': ['hu'],
+  'mn': ['mn'],
+  'la': ['lo'],
+  'kh': ['km'],
+  'mm': ['my'],
+  'gl': ['kl', 'da'],
+  'ax': ['sv'],
   'sg': ['en', 'zh-Hans', 'ms', 'ta']
 };
 

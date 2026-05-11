@@ -149,7 +149,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
             exit={{ opacity: 0, y: -20 }}
             className={cn(
               "bg-white shadow-xl border-slate-200 pointer-events-auto flex flex-col transition-all duration-300 ease-in-out max-h-full overflow-hidden",
-              isSearchFocused ? "h-full rounded-none md:rounded-none" : "h-[48px] md:h-[56px] rounded-none md:rounded-none shadow-md border"
+              isSearchFocused ? "h-full rounded-2xl md:rounded-3xl shadow-xl" : "h-[48px] md:h-[56px] rounded-2xl md:rounded-3xl shadow-md border"
             )}
           >
             {/* Search Bar Header */}
@@ -163,7 +163,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     setShowMenu(true);
                   }
                 }}
-                className="p-2 md:p-2.5 hover:bg-slate-100 rounded-none transition-colors text-slate-600"
+                className="p-2 md:p-2.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
               >
                 {isSearchFocused ? (
                   <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
@@ -182,54 +182,53 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   className="flex-1 bg-transparent px-2 md:px-3 py-2 md:py-2.5 focus:outline-none text-slate-800 placeholder-slate-400 font-medium text-sm md:text-base min-w-0"
                 />
 
-                <div className="flex items-center shrink-0">
+                <div className="flex items-center shrink-0 ml-1">
                   <button
                     type="button"
                     onClick={startQrScanner}
-                    className="p-2 text-slate-400 hover:text-blue-500 transition-colors"
+                    className="p-1.5 md:p-2 text-slate-400 hover:text-blue-500 transition-colors"
                     title="Camera Scan"
                   >
-                    <Camera className="w-5 h-5" />
+                    <Camera className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => qrFileRef.current?.click()}
-                    className="p-2 text-slate-400 hover:text-purple-500 transition-colors"
+                    className="p-1.5 md:p-2 text-slate-400 hover:text-purple-500 transition-colors"
                     title="Upload QR"
                   >
-                    <QrCode className="w-5 h-5" />
+                    <QrCode className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
-                </div>
-                
-                {searchQuery && (
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSearchResults([]);
-                      if (!searchResults.length) setIsSearchFocused(false);
-                    }}
-                    className="p-1.5 md:p-2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                
-                <div className="hidden md:block w-[1px] h-6 bg-slate-200 mx-1" />
-                
-                {!isSearchFocused && !searchQuery ? null : (
+                  
+                  {searchQuery && (
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSearchResults([]);
+                        if (!searchResults.length) setIsSearchFocused(false);
+                      }}
+                      className="p-1.5 md:p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+
                   <button 
                     type="submit"
                     disabled={isSearching}
-                    className="p-2 md:p-2.5 text-blue-500 hover:bg-blue-50 rounded-none disabled:opacity-50 transition-all active:scale-95"
+                    className="ml-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-blue-600 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95 shadow-sm flex items-center justify-center gap-1.5 min-w-[36px] md:min-w-[80px]"
                   >
                     {isSearching ? (
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Search className="w-5 h-5" />
+                      <>
+                        <Search className="w-3.5 h-3.5" />
+                        <span className="hidden md:inline">{t('search_button')}</span>
+                      </>
                     )}
                   </button>
-                )}
+                </div>
               </form>
             </div>
 
@@ -247,8 +246,8 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     {searchResults.length > 0 && (
                       <div className="flex flex-col">
                         <div className="px-5 py-3 bg-slate-50/40 border-b border-slate-100 flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Search Results</span>
-                          <span className="text-[10px] font-bold text-blue-500">{searchResults.length} found</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('search_results')}</span>
+                          <span className="text-[10px] font-bold text-blue-500">{t('results_found').replace('{{count}}', String(searchResults.length))}</span>
                         </div>
                         {searchResults.map((result, idx) => (
                           <div key={idx} className="flex items-center hover:bg-blue-50/50 transition-all border-b border-slate-50 last:border-0 group">
@@ -259,7 +258,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                             >
                               <div className="flex items-center gap-2">
                                 <div className={cn(
-                                  "p-2 rounded-none transition-all shadow-sm",
+                                  "p-2 rounded-xl transition-all shadow-sm",
                                   result.type === 'saved_qr' ? "bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white" : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
                                 )}>
                                   {result.type === 'saved_qr' ? <QrCode className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
@@ -269,14 +268,14 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                                     {result.display_name.split(',')[0]}
                                   </span>
                                   <span className="text-[10px] text-slate-400 truncate leading-tight">
-                                    {result.display_name.split(',').slice(1).join(',').trim() || (result.type === 'saved_qr' ? 'Saved QR' : result.type)}
+                                    {result.display_name.split(',').slice(1).join(',').trim() || (result.type === 'saved_qr' ? t('saved_qr') : result.type)}
                                   </span>
                                 </div>
                                 {result.source === 'local_db' && (
-                                  <span className="text-[8px] font-black bg-emerald-100 text-emerald-600 px-1.5 rounded-none uppercase tracking-tighter shrink-0">Native</span>
+                                  <span className="text-[8px] font-black bg-emerald-100 text-emerald-600 px-1.5 rounded-lg uppercase tracking-tighter shrink-0">Native</span>
                                 )}
                                 {result.source === 'local_qrs' && (
-                                  <span className="text-[8px] font-black bg-purple-100 text-purple-600 px-1.5 rounded-none uppercase tracking-tighter shrink-0">Saved</span>
+                                  <span className="text-[8px] font-black bg-purple-100 text-purple-600 px-1.5 rounded-lg uppercase tracking-tighter shrink-0">Saved</span>
                                 )}
                               </div>
                             </button>
@@ -297,11 +296,11 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                                   setIsSearchFocused(false);
                                   
                                   if (userLocation) {
-                                    setOrigin({ lat: userLocation.lat, lng: userLocation.lng, name: "My Location" });
-                                    setOriginQuery("My Location");
+                                    setOrigin({ lat: userLocation.lat, lng: userLocation.lng, name: t('my_location') });
+                                    setOriginQuery(t('my_location'));
                                   }
                                 }}
-                                className="p-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-none transition-all shadow-md shadow-blue-200 flex items-center gap-2"
+                                className="p-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all shadow-md shadow-blue-200 flex items-center gap-2"
                                 title={t('get_directions')}
                               >
                                 <ArrowUpRight className="w-5 h-5" />
@@ -319,7 +318,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                         <div className="flex items-center justify-between px-5 py-2 bg-white">
                           <div className="flex items-center gap-2">
                             <History className="w-3.5 h-3.5 text-blue-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recent Activity</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('recent_activity')}</span>
                           </div>
                           <button 
                             type="button"
@@ -328,9 +327,9 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                               e.stopPropagation();
                               clearHistory();
                             }}
-                            className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors px-2 py-0.5 rounded-none hover:bg-red-50"
+                            className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors px-2 py-0.5 rounded-lg hover:bg-red-50"
                           >
-                            Clear
+                            {t('clear')}
                           </button>
                         </div>
                         {searchHistory.map((query, idx) => (
@@ -343,7 +342,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                               }}
                               className="flex-1 px-3 py-1.5 text-left flex items-center gap-3"
                             >
-                              <div className="p-1 bg-slate-100 rounded-none text-slate-400 group-hover/history:bg-blue-100 group-hover/history:text-blue-600 transition-all">
+                              <div className="p-1 bg-slate-100 rounded-lg text-slate-400 group-hover/history:bg-blue-100 group-hover/history:text-blue-600 transition-all">
                                 <Clock className="w-3 h-3" />
                               </div>
                               <span className="text-sm font-medium text-slate-600 truncate">{query}</span>
@@ -369,7 +368,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                       <div className="flex flex-col">
                         <div className="px-5 py-4 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-amber-500" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Explore Nearby</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('explore_nearby')}</span>
                         </div>
                         <div className="grid grid-cols-1 gap-1 px-3 pb-4">
                           {[
@@ -386,14 +385,14 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                                 setSearchQuery(place.name);
                                 performSearch(place.name);
                               }}
-                              className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-slate-50 transition-all rounded-none group border border-transparent hover:border-slate-100"
+                              className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-slate-50 transition-all rounded-2xl group border border-transparent hover:border-slate-100"
                             >
-                              <div className={cn("p-2.5 rounded-none transition-all shadow-sm group-hover:scale-110", place.color)}>
+                              <div className={cn("p-2.5 rounded-xl transition-all shadow-sm group-hover:scale-110", place.color)}>
                                 {place.icon}
                               </div>
                               <div className="flex flex-col items-start">
                                 <span className="text-sm font-bold text-slate-700">{place.name}</span>
-                                <span className="text-[10px] text-slate-400 font-medium">Quick Discovery</span>
+                                <span className="text-[10px] text-slate-400 font-medium">{t('quick_discovery')}</span>
                               </div>
                               <ChevronRight className="w-4 h-4 ml-auto text-slate-200 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
                             </button>
@@ -414,12 +413,12 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   onClick={() => {
                     setIsRoutePlanning(true);
                     if (!destination && userLocation) {
-                      setOrigin({ ...userLocation, name: "My Location" });
-                      setOriginQuery("My Location");
+                      setOrigin({ ...userLocation, name: t('my_location') });
+                      setOriginQuery(t('my_location'));
                     }
                   }}
-                  className="p-2.5 text-blue-500 hover:bg-blue-50 rounded-none transition-all active:scale-95"
-                  title="Directions"
+                  className="p-2.5 text-blue-500 hover:bg-blue-50 rounded-xl transition-all active:scale-95"
+                  title={t('directions')}
                 >
                   <ArrowUpRight className="w-5 h-5" />
                 </button>
@@ -430,10 +429,10 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   type="button"
                   onClick={toggleTracking}
                   className={cn(
-                    "p-2.5 transition-all rounded-none active:scale-95 relative group",
+                    "p-2.5 transition-all rounded-xl active:scale-95 relative group",
                     isTracking ? "text-blue-600 bg-blue-50" : "text-slate-400 hover:bg-slate-50 hover:text-blue-600"
                   )}
-                  title={isTracking ? "Stop Tracking" : "Use Current Location"}
+                  title={isTracking ? t('stop_tracking') : t('use_my_location')}
                 >
                   <Navigation className={cn("w-5 h-5", (isLocating || isTracking) && "animate-pulse text-blue-600")} />
                 </button>
@@ -454,11 +453,11 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="bg-white/95 backdrop-blur-xl rounded-none shadow-2xl border border-slate-200 pointer-events-auto p-4 flex flex-col gap-4 w-full"
+            className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-slate-200 pointer-events-auto p-4 flex flex-col gap-4 w-full"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-none">
+                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
                   <Navigation className="w-4 h-4" />
                 </div>
                 <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{t('routing')}</span>
@@ -466,7 +465,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => openExternalMap(defaultNavApp)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-none hover:bg-blue-700 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-95"
                 >
                   <ExternalLink className="w-3 h-3" />
                   {t('navigation')}
@@ -477,7 +476,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     setIsNavigating(false);
                     setRouteData(null);
                   }}
-                  className="p-1.5 hover:bg-slate-100 rounded-none transition-colors text-slate-400 hover:text-slate-600"
+                  className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -487,18 +486,18 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
             <div className="flex gap-3">
               {/* Visual Connector */}
               <div className="flex flex-col items-center py-2 gap-1 translate-y-3">
-                <div className="w-3 h-3 rounded-none border-2 border-slate-300 bg-white" />
+                <div className="w-3 h-3 rounded-full border-2 border-slate-300 bg-white" />
                 <div className="w-0.5 flex-1 border-l-2 border-dotted border-slate-300" />
-                <div className="w-3 h-3 rounded-none bg-blue-600" />
+                <div className="w-3 h-3 rounded-full bg-blue-600" />
               </div>
 
               <div className="flex-1 flex flex-col gap-3">
                 <div className="flex items-center justify-between mb-2 gap-4 overflow-x-auto pb-1 scrollbar-hide">
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-none shrink-0">
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl shrink-0">
                     <button 
                       onClick={() => setRoutingMode('driving')}
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-1 rounded-none transition-all",
+                        "flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all",
                         routingMode === 'driving' ? "bg-white text-blue-600 shadow-sm font-black" : "text-slate-500 hover:text-slate-700 font-bold"
                       )}
                     >
@@ -508,7 +507,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     <button 
                       onClick={() => setRoutingMode('walking')}
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-1 rounded-none transition-all",
+                        "flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all",
                         routingMode === 'walking' ? "bg-white text-blue-600 shadow-sm font-black" : "text-slate-500 hover:text-slate-700 font-bold"
                       )}
                     >
@@ -520,7 +519,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   <button 
                     onClick={() => setUseBidirectionalDijkstra(!useBidirectionalDijkstra)}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-none transition-all border shrink-0 ml-auto",
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all border shrink-0 ml-auto",
                       useBidirectionalDijkstra 
                         ? "bg-blue-50 border-blue-200 text-blue-700 shadow-sm" 
                         : "bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100"
@@ -528,7 +527,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   >
                     <Zap className={cn("w-3.5 h-3.5", useBidirectionalDijkstra && "fill-current text-blue-500")} />
                     <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
-                      {useBidirectionalDijkstra ? "BD ON" : "ADV"}
+                      {useBidirectionalDijkstra ? t('bd_on') : t('advanced')}
                     </span>
                   </button>
                 </div>
@@ -539,7 +538,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     value={originQuery}
                     onChange={(e) => setOriginQuery(e.target.value)}
                     placeholder={t('starting_point')}
-                    className="w-full bg-slate-50 px-4 py-2.5 rounded-none text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
+                    className="w-full bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
                   />
                   {originQuery && (
                     <button 
@@ -552,8 +551,8 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   <button 
                     onClick={() => {
                        if (userLocation) {
-                         setOrigin({ ...userLocation, name: "My Location" });
-                         setOriginQuery("My Location");
+                         setOrigin({ ...userLocation, name: t('my_location') });
+                         setOriginQuery(t('my_location'));
                        }
                     }}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-blue-600"
@@ -568,7 +567,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 mt-1 bg-white rounded-none shadow-2xl border border-slate-100 overflow-hidden z-[60]"
+                        className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[60]"
                       >
                         {originResults.map((f, i) => (
                           <button key={i} onClick={() => selectOrigin(f)} className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 border-b border-slate-50 last:border-0">
@@ -587,7 +586,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                     value={destinationQuery}
                     onChange={(e) => setDestinationQuery(e.target.value)}
                     placeholder={t('destination')}
-                    className="w-full bg-slate-50 px-4 py-2.5 rounded-none text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
+                    className="w-full bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10"
                   />
                   {destinationQuery && (
                     <button 
@@ -605,7 +604,7 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 mt-1 bg-white rounded-none shadow-2xl border border-slate-100 overflow-hidden z-[60]"
+                        className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[60]"
                       >
                         {destinationResults.map((f, i) => (
                           <button key={i} onClick={() => selectDestination(f)} className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 border-b border-slate-50 last:border-0">
@@ -635,14 +634,14 @@ export const SearchSidebar: React.FC<SearchSidebarProps> = ({
                   }
                 }}
                 disabled={!(origin || userLocation) || !destination}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white py-2.5 rounded-none text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-200 active:scale-95"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-200 active:scale-95"
               >
                 {routeData ? t('update_route') : t('show_route')}
               </button>
               {routeData && (
                 <button 
                   onClick={() => setIsGuidanceActive(true)}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-none text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-200 active:scale-95"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-200 active:scale-95"
                 >
                   {t('start_guidance')}
                 </button>

@@ -219,6 +219,21 @@ const CYRILLIC_MAP: Record<string, string> = {
 };
 
 /**
+ * Greek Transliteration (ISO 843)
+ * Examples: Αθήνα -> Athina, Θεσσαλονίκη -> Thessaloniki
+ */
+const GREEK_MAP: Record<string, string> = {
+  'Α': 'A', 'α': 'a', 'Β': 'V', 'β': 'v', 'Γ': 'G', 'γ': 'g',
+  'Δ': 'D', 'δ': 'd', 'Ε': 'E', 'ε': 'e', 'Ζ': 'Z', 'ζ': 'z',
+  'Η': 'I', 'η': 'i', 'Θ': 'Th', 'θ': 'th', 'Ι': 'I', 'ι': 'i',
+  'Κ': 'K', 'κ': 'k', 'Λ': 'L', 'λ': 'l', 'Μ': 'M', 'μ': 'm',
+  'Ν': 'N', 'ν': 'n', 'Ξ': 'X', 'ξ': 'x', 'Ο': 'O', 'ο': 'o',
+  'Π': 'P', 'π': 'p', 'Ρ': 'R', 'ρ': 'r', 'Σ': 'S', 'σ': 's', 'ς': 's',
+  'Τ': 'T', 'τ': 't', 'Υ': 'Y', 'υ': 'y', 'Φ': 'Ph', 'φ': 'ph',
+  'Χ': 'Ch', 'χ': 'ch', 'Ψ': 'Ps', 'ψ': 'ps', 'Ω': 'O', 'ω': 'o'
+};
+
+/**
  * Chinese Pinyin (Simplified Heuristic)
  * Standard: ISO 7098
  */
@@ -261,13 +276,27 @@ export function transliterateCyrillic(text: string): string {
   return text.split('').map(char => CYRILLIC_MAP[char] || char).join('');
 }
 
+export function transliterateGreek(text: string): string {
+  if (!text) return "";
+  return text.split('').map(char => GREEK_MAP[char] || char).join('');
+}
+
+/**
+ * Deaccentuation for Latin-based languages (e.g. Polish, Czech, Hungarian)
+ */
+export function deaccent(text: string): string {
+  if (!text) return "";
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+}
+
 /**
  * Unified Transliteration Engine
  */
 export function transliterate(text: string, lang: string): string {
   if (!text) return "";
   
-  switch (lang.toLowerCase()) {
+  const l = lang.toLowerCase();
+  switch (l) {
     case 'ja': return transliterateJapanese(text);
     case 'zh':
     case 'zh-hans':
@@ -281,8 +310,27 @@ export function transliterate(text: string, lang: string): string {
     case 'sr':
     case 'mk':
       return transliterateCyrillic(text);
-    // Add more cases as needed - for complex ones like Arabic/Thai/Chinese/Hindi,
-    // we rely on Gemini to ensure ISO compliance as rule-based would be too large to package locally.
-    default: return text;
+    case 'el':
+      return transliterateGreek(text);
+    case 'pl':
+    case 'cs':
+    case 'hu':
+    case 'ro':
+    case 'sk':
+    case 'sl':
+    case 'is':
+    case 'et':
+    case 'lv':
+    case 'lt':
+    case 'tr':
+    case 'vn':
+      return deaccent(text);
+    // Add more cases as needed
+    default: 
+      // General fallback for any other language: attempt deaccentuation if it looks like Latin-extended
+      if (/[À-ž]/.test(text)) {
+        return deaccent(text);
+      }
+      return text;
   }
 }

@@ -253,6 +253,23 @@ export default function App() {
       return saved !== null ? JSON.parse(saved) : true;
     } catch { return true; }
   });
+  // Language & Format Defaults - MOVED UP
+  const [appLanguage, setAppLanguage] = useState<string>(() => {
+    try {
+      return localStorage.getItem('agid_app_language') || 'ja';
+    } catch { return 'ja'; }
+  });
+  const [addressLanguage, setAddressLanguage] = useState<string>(() => {
+    try {
+      return localStorage.getItem('agid_address_language') || 'en';
+    } catch { return 'en'; }
+  });
+  const [defaultAddrTab, setDefaultAddrTab] = useState<'local' | 'en'>(() => {
+    try {
+      return (localStorage.getItem('agid_default_addr_tab') as 'local' | 'en') || 'local';
+    } catch { return 'local'; }
+  });
+
   const [navigationTarget, setNavigationTarget] = useState<{ lat: number, lng: number } | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isGuidanceActive, setIsGuidanceActive] = useState(false);
@@ -290,12 +307,21 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [clickedAddressDetails, setClickedAddressDetails] = useState<any>(null);
   const [clickedAddressMap, setClickedAddressMap] = useState<Record<string, string>>({});
-  const [clickedActiveLangs, setClickedActiveLangs] = useState<string[]>(['en']);
+  const [clickedActiveLangs, setClickedActiveLangs] = useState<string[]>(() => {
+    const base = ['en'];
+    if (addressLanguage && addressLanguage !== 'en' && addressLanguage !== 'local') {
+      base.push(addressLanguage);
+    }
+    return base;
+  });
   const [settingsTab, setSettingsTab] = useState<'main' | 'home' | 'app' | 'location' | 'offline' | 'about' | 'app-language' | 'address-language' | 'help' | 'export'>('main');
   const [activeLegalDoc, setActiveLegalDoc] = useState<'privacy' | 'terms' | null>(null);
   const [showLicenses, setShowLicenses] = useState(false);
   const [clickedAddressLang, setClickedAddressLang] = useState<string>("Local");
-  const [clickedAddressTab, setClickedAddressTab] = useState<string>('en');
+  const [clickedAddressTab, setClickedAddressTab] = useState<string>(() => {
+    if (addressLanguage === 'local') return 'local';
+    return addressLanguage || 'en';
+  });
   const [copied, setCopied] = useState<string | null>(null);
   const [savedAgids, setSavedAgids] = useState<any[]>(() => {
     try {
@@ -453,24 +479,15 @@ export default function App() {
       return (localStorage.getItem('agid_coord_format') as 'decimal' | 'dms') || 'decimal';
     } catch { return 'decimal'; }
   });
-  const [defaultAddrTab, setDefaultAddrTab] = useState<'local' | 'en'>(() => {
-    try {
-      return (localStorage.getItem('agid_default_addr_tab') as 'local' | 'en') || 'local';
-    } catch { return 'local'; }
-  });
-  const [appLanguage, setAppLanguage] = useState<string>(() => {
-    try {
-      return localStorage.getItem('agid_app_language') || 'ja';
-    } catch { return 'ja'; }
-  });
-  const [addressLanguage, setAddressLanguage] = useState<string>(() => {
-    try {
-      return localStorage.getItem('agid_address_language') || 'en';
-    } catch { return 'en'; }
-  });
 
-  const t = React.useCallback((key: TranslationKey) => {
-    return TRANSLATIONS[appLanguage]?.[key] || TRANSLATIONS['en']?.[key] || key;
+  const t = React.useCallback((key: TranslationKey, params?: Record<string, string | number>) => {
+    let str = (TRANSLATIONS as any)[appLanguage]?.[key] || (TRANSLATIONS as any)['en']?.[key] || key;
+    if (params && typeof str === 'string') {
+      Object.entries(params).forEach(([k, v]) => {
+        str = str.replace(`{{${k}}}`, String(v));
+      });
+    }
+    return str;
   }, [appLanguage]);
   const [showFullSeaRegistry, setShowFullSeaRegistry] = useState(false);
   const [showFullCountryRegistry, setShowFullCountryRegistry] = useState(false);
@@ -584,6 +601,16 @@ export default function App() {
 
     return () => { isMounted = false; };
   }, [clickedAddress, clickedActiveLangs.join(','), translateAddress, clickedAddressLang, addressLanguage]);
+
+  // Sync tab with preferred address language when it changes
+  useEffect(() => {
+    if (addressLanguage) {
+      setClickedAddressTab(addressLanguage);
+      if (addressLanguage !== 'local' && addressLanguage !== 'en' && !clickedActiveLangs.includes(addressLanguage)) {
+        setClickedActiveLangs(prev => [...prev, addressLanguage]);
+      }
+    }
+  }, [addressLanguage]);
 
   const [showHubs, setShowHubs] = useState(() => {
     try {
@@ -916,6 +943,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('agid_coord_format', coordFormat); }, [coordFormat]);
   useEffect(() => { localStorage.setItem('agid_default_addr_tab', defaultAddrTab); }, [defaultAddrTab]);
   useEffect(() => { localStorage.setItem('agid_app_language', appLanguage); }, [appLanguage]);
+  useEffect(() => { localStorage.setItem('agid_address_language', addressLanguage); }, [addressLanguage]);
   useEffect(() => { localStorage.setItem('agid_theme_mode', themeMode); }, [themeMode]);
   useEffect(() => { localStorage.setItem('agid_distance_unit', distanceUnit); }, [distanceUnit]);
   useEffect(() => { localStorage.setItem('agid_3d_enabled', JSON.stringify(is3DEnabled)); }, [is3DEnabled]);
@@ -1440,11 +1468,13 @@ export default function App() {
         await new Promise(resolve => setTimeout(resolve, 1100));
       }
       
-      const data = await regionalReverseGeocode(l, n, langCode, countryCode);
+      const actualLangCode = langCode.startsWith('en_') ? 'en' : langCode;
+      const data = await regionalReverseGeocode(l, n, actualLangCode, countryCode);
       if (data && data.address) {
-        const formatted = await formatAddress(data.address, langCode, { 
+        const formatted = await formatAddress(data.address, actualLangCode, { 
           shipping: isShippingMode,
-          isHighPrecision 
+          isHighPrecision,
+          forceDomestic: langCode === 'en_domestic'
         });
 
         // Special handling for dual formats (Domestic vs International)
@@ -1499,25 +1529,25 @@ export default function App() {
       let langs: string[] = [];
       if (isSeaLoc) {
         langs = ['en'];
-        if (ALLOWED_STRICT_LANGS.includes(appLanguage) && appLanguage !== 'en') {
-          langs.push(appLanguage);
-        }
       } else {
         const cc = prefix.toLowerCase();
-        // For terrestrial, we still allow the country's main language if it's one of the widely supported ones
-        // or we just fallback to 'en' if it's considered outside the 厳格なプロトコル (Strict Protocol)
         const countryLangs = COUNTRY_LANGUAGES[cc] || ['en'];
-        langs = countryLangs.filter(code => ALLOWED_STRICT_LANGS.includes(code));
-        
-        // If no country lang is in allowed list, use English as standard
-        if (langs.length === 0) langs = ['en'];
-        
-        // Always ensure English is first or present for global standard
-        if (!langs.includes('en')) langs.push('en');
+        const isPrimaryEn = countryLangs[0] === 'en';
+
+        if (isPrimaryEn) {
+          // English-speaking country: Domestic vs International, plus other local langs
+          langs = ['en_domestic', ...countryLangs.filter(l => l !== 'en'), 'en'];
+        } else {
+          // Non-English primary country: Local(s) vs English
+          langs = [...countryLangs];
+          if (!langs.includes('en')) langs.push('en');
+        }
       }
 
       // Final unique filter and validation
-      langs = Array.from(new Set(langs)).filter(code => LANGUAGES.some(lang => lang.code === code));
+      langs = Array.from(new Set(langs)).filter(code => 
+        code === 'en_domestic' || LANGUAGES.some(lang => lang.code === code)
+      );
       if (langs.length === 0) langs = ['en'];
 
       const primaryLang = langs[0];
@@ -4393,7 +4423,7 @@ export default function App() {
               </div>
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">AGID Maps</h3>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">{t('app_title')}</h3>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">{appLanguage === 'ja' ? '世界のすべてに、究極の番地を。' : 'Connecting the Global Grid...'}</p>
             </div>
           </div>
@@ -4425,14 +4455,14 @@ export default function App() {
           onClick={() => { setActiveLegalDoc('privacy'); }}
           className="pointer-events-auto hover:text-slate-600 transition-colors"
         >
-          Privacy Policy
+          {t('privacy_policy')}
         </button>
         <span className="opacity-30">•</span>
         <button 
           onClick={() => { setActiveLegalDoc('terms'); }}
           className="pointer-events-auto hover:text-slate-600 transition-colors"
         >
-          Terms of Service
+          {t('terms_of_service')}
         </button>
       </div>
 
@@ -4519,8 +4549,10 @@ export default function App() {
         savedAgids={savedAgids}
         setSavedAgids={setSavedAgids}
         searchHistory={searchHistory}
+        clearHistory={clearHistory}
         clickedAgid={clickedAgid}
         showConfirm={(title, message, onConfirm) => setConfirmConfig({ show: true, title, message, onConfirm })}
+        showAlert={showAlert}
         setActiveLegalDoc={setActiveLegalDoc}
         isQualityLoading={isQualityLoading}
         fetchQualityReport={fetchQualityReport}
@@ -4547,6 +4579,9 @@ export default function App() {
         handleShare={handleShare}
         isSearchVisible={false} // Placeholder
         setSearchVisible={() => {}} // Placeholder
+        appLanguage={appLanguage}
+        setAppLanguage={setAppLanguage}
+        t={t}
       />
 
       <div className={cn(
@@ -4580,6 +4615,7 @@ export default function App() {
           setClickedAddressTab={setClickedAddressTab}
           clickedActiveLangs={clickedActiveLangs}
           clickedAddressTranslated={clickedAddressTranslated}
+          clickedAddressDetails={clickedAddressDetails}
           setClickedAddress={setClickedAddress}
           fetchAddressForLang={fetchAddressForLang}
           fastJapaneseTransliterate={fastJapaneseTransliterate}
@@ -4617,11 +4653,11 @@ export default function App() {
                 <Ruler className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Distance</p>
+                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">{t('distance')}</p>
                 <p className="text-lg font-black text-slate-900 tracking-tight">
                   {rulerPoints.length === 2 
                     ? formatDistance(calculateDistance(rulerPoints[0][1], rulerPoints[0][0], rulerPoints[1][1], rulerPoints[1][0]), distanceUnit)
-                    : "Select second point"}
+                    : t('select_second_point')}
                 </p>
               </div>
             </div>
@@ -4632,7 +4668,7 @@ export default function App() {
                   <Compass className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Bearing</p>
+                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{t('bearing')}</p>
                   <p className="text-lg font-black text-slate-900 tracking-tight">
                     {calculateBearing(rulerPoints[0][1], rulerPoints[0][0], rulerPoints[1][1], rulerPoints[1][0]).toFixed(1)}°
                   </p>
@@ -4643,7 +4679,7 @@ export default function App() {
             <button 
               onClick={() => setRulerPoints([])}
               className="ml-4 p-2 hover:bg-slate-100 rounded-none text-slate-400 hover:text-red-500 transition-colors"
-              title="Clear Points"
+              title={t('clear_points')}
             >
               <Trash2 className="w-5 h-5" />
             </button>

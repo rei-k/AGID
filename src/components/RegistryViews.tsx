@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { 
@@ -63,24 +64,28 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
 
   return (
     <motion.div
-      initial={{ y: '100%', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
-      className="fixed inset-0 bg-slate-50 z-[1000] flex flex-col"
-      style={{ 
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-0 md:p-8 lg:p-12 pointer-events-none"
     >
-      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm pointer-events-auto"
+      />
+      <motion.div 
+        initial={{ y: '100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '100%', opacity: 0 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
+        className="relative w-full h-full md:max-w-6xl md:h-[90dvh] bg-slate-50 shadow-2xl md:rounded-3xl overflow-hidden flex flex-col pointer-events-auto"
+      >
+        {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-3 md:py-4 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-4">
           <button 
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-none transition-colors text-slate-500 active:scale-90"
+            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-xl transition-colors text-slate-500 active:scale-90"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -93,7 +98,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
         </div>
         <button 
           onClick={onClose}
-          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-none transition-colors text-slate-400 active:scale-90"
+          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-xl transition-colors text-slate-400 active:scale-90"
         >
           <X className="w-5 h-5" />
         </button>
@@ -109,7 +114,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
               placeholder="Search by name, IHO code, or prefix..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-none py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           
@@ -118,7 +123,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
               <button
                 key={type}
                 onClick={() => setTypeFilter(type as any)}
-                className={`whitespace-nowrap px-4 py-2 rounded-none text-[10px] font-black uppercase tracking-widest border transition-all ${
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                   typeFilter === type 
                     ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' 
                     : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
@@ -134,7 +139,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
             <select 
               value={areaFilter}
               onChange={(e) => setAreaFilter(e.target.value)}
-              className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-none text-[10px] font-black uppercase tracking-widest text-slate-600 focus:outline-none min-w-[140px]"
+              className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 focus:outline-none min-w-[140px]"
             >
               <option value="all">All Oceans</option>
               {areas.map(area => (
@@ -155,7 +160,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
               <button
                 key={opt.id}
                 onClick={() => setSortBy(opt.id as any)}
-                className={`px-3 py-1.5 rounded-none border transition-all ${
+                className={`px-3 py-1.5 rounded-lg border transition-all ${
                   sortBy === opt.id 
                     ? 'bg-slate-900 border-slate-900 text-white' 
                     : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'
@@ -175,14 +180,14 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
             <button
               key={`${item.id}-${item.prefix}-${idx}`}
               onClick={() => onSelect(item)}
-              className="group bg-white p-4 rounded-none border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left flex items-center justify-between gap-4"
+              className="group bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left flex items-center justify-between gap-4"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-none font-mono text-[11px] font-black border border-blue-100 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
+                  <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg font-mono text-[11px] font-black border border-blue-100 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
                     {item.prefix}
                   </span>
-                  <span className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-none font-mono text-[11px] font-black border border-slate-100">
+                  <span className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg font-mono text-[11px] font-black border border-slate-100">
                     {item.id}
                   </span>
                 </div>
@@ -218,6 +223,7 @@ export function FullSeaRegistryView({ registry, onClose, onSelect }: { registry:
           </div>
         )}
       </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -246,24 +252,28 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
 
   return (
     <motion.div
-      initial={{ y: '100%', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
-      className="fixed inset-0 bg-slate-50 z-[1000] flex flex-col"
-      style={{ 
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-0 md:p-8 lg:p-12 pointer-events-none"
     >
-      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm pointer-events-auto"
+      />
+      <motion.div 
+        initial={{ y: '100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '100%', opacity: 0 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 1 }}
+        className="relative w-full h-full md:max-w-6xl md:h-[90dvh] bg-slate-50 shadow-2xl md:rounded-3xl overflow-hidden flex flex-col pointer-events-auto"
+      >
+        {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-3 md:py-4 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-4">
           <button 
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-none transition-colors text-slate-500 active:scale-90"
+            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-xl transition-colors text-slate-500 active:scale-90"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -276,7 +286,7 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
         </div>
         <button 
           onClick={onClose}
-          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-none transition-colors text-slate-400 active:scale-90"
+          className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-xl transition-colors text-slate-400 active:scale-90"
         >
           <X className="w-5 h-5" />
         </button>
@@ -290,7 +300,7 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
               <button
                 key={cat.id}
                 onClick={() => setCategoryFilter(cat.id)}
-                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-none text-[10px] font-black uppercase tracking-widest border transition-all ${
+                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                   categoryFilter === cat.id 
                     ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200 scale-105' 
                     : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'
@@ -310,11 +320,11 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
                 placeholder={`Search entities in ${categoryFilter}...`}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-none py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
               />
             </div>
             
-            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-none border border-slate-200">
+            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
               {[
                 { id: 'name', label: 'By Name' },
                 { id: 'id', label: 'By Code' }
@@ -322,7 +332,7 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
                 <button
                   key={opt.id}
                   onClick={() => setSortBy(opt.id as any)}
-                  className={`px-4 py-1.5 rounded-none text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
                     sortBy === opt.id 
                       ? 'bg-white border-slate-200 text-slate-900 shadow-sm' 
                       : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -343,11 +353,11 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
             <button
               key={`${item.id}-${idx}`}
               onClick={() => onSelect(item)}
-              className="group bg-white p-4 rounded-none border border-slate-200 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/5 transition-all text-left flex items-center justify-between gap-4"
+              className="group bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/5 transition-all text-left flex items-center justify-between gap-4"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-none font-mono text-sm font-black border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
+                  <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-mono text-sm font-black border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
                     {item.id}
                   </span>
                 </div>
@@ -369,6 +379,7 @@ export function FullCountryRegistryView({ registry, onClose, onSelect }: { regis
           </div>
         )}
       </div>
+      </motion.div>
     </motion.div>
   );
 }
