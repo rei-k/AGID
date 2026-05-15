@@ -1,20 +1,14 @@
-import { 
-  getCellPolygon,
-  encodeAGID
-} from './agid';
-
-// We'll use the same K/M constants implicitly through agid helpers
 const K = 2097152;
 const M = 2097151;
 
 self.onmessage = (e: MessageEvent) => {
-  const { lat, lon, zoom, bounds, isLargeGrid } = e.data;
+  const { lat, lon, zoom, bounds } = e.data;
   
-  const features = getGridFeaturesWorker(zoom, bounds, isLargeGrid, lat, lon);
+  const features = getGridFeaturesWorker(zoom, bounds, lat, lon);
   self.postMessage(features);
 };
 
-function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, lat: number, lon: number) {
+function getGridFeaturesWorker(zoom: number, bounds: any, lat: number, lon: number) {
   if (!bounds) return { gridLines: [], gridCells: [] };
 
   const gridCells: any[] = [];
@@ -35,12 +29,12 @@ function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, 
 
   const { face, qx, qy } = (self as any).getQuantizedInternal(lat, lon);
   
-  let idealStep = zoom < 10 ? Math.pow(2, Math.floor(18 - zoom)) : 1;
+  // Calculate ideal step based on zoom
+  let idealStep = Math.pow(2, Math.max(0, Math.floor(18.5 - zoom)));
   let finalStep = 1;
-  while (finalStep * 2 <= idealStep && finalStep < 65536) finalStep *= 2;
+  while (finalStep * 2 <= idealStep && finalStep < 131072) finalStep *= 2;
   
-  const range = zoom > 18 ? 120 : (zoom > 15 ? 80 : 40); 
-  const halfStep = finalStep / 2;
+  const range = zoom > 18 ? 100 : (zoom > 15 ? 70 : 40); 
   
   const startQX = Math.max(0, Math.floor(qx / finalStep) * finalStep - (finalStep * Math.floor(range/2)));
   const endQX = Math.min(M, startQX + (finalStep * range));
@@ -51,21 +45,22 @@ function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, 
     for (let x = startQX; x < endQX; x += finalStep) {
       const cellId = `${face}_${x}_${y}_${finalStep}`;
 
-      // Get 8 boundary points + close
+      // Get 4 corners
       const p1 = getPointCached(face, x, y);
-      const p1_2 = getPointCached(face, x + halfStep, y);
       const p2 = getPointCached(face, x + finalStep, y);
-      const p2_3 = getPointCached(face, x + finalStep, y + halfStep);
       const p3 = getPointCached(face, x + finalStep, y + finalStep);
-      const p3_4 = getPointCached(face, x + halfStep, y + finalStep);
       const p4 = getPointCached(face, x, y + finalStep);
-      const p4_1 = getPointCached(face, x, y + halfStep);
 
-      const poly = [
-        [p1.lon, p1.lat], [p1_2.lon, p1_2.lat], [p2.lon, p2.lat],
-        [p2_3.lon, p2_3.lat], [p3.lon, p3.lat], [p3_4.lon, p3_4.lat],
-        [p4.lon, p4.lat], [p4_1.lon, p4_1.lat], [p1.lon, p1.lat]
-      ];
+      const pts = [p1, p2, p3, p4];
+      const refLon = p1.lon;
+      const adjusted = pts.map(p => {
+        let shiftLon = p.lon;
+        if (shiftLon - refLon > 180) shiftLon -= 360;
+        else if (shiftLon - refLon < -180) shiftLon += 360;
+        return [shiftLon, p.lat];
+      });
+
+      const poly = [...adjusted, adjusted[0]];
 
       gridCells.push({
         type: 'Feature',
@@ -73,18 +68,16 @@ function getGridFeaturesWorker(zoom: number, bounds: any, isLargeGrid: boolean, 
         properties: { id: cellId, step: finalStep, isFocus: finalStep === 1 }
       });
 
-      // Add lines for grid visualization (8 segments per cell, deduplicated via lineCache)
-      const points = [p1, p1_2, p2, p2_3, p3, p3_4, p4, p4_1, p1];
-      for (let i = 0; i < 8; i++) {
-        const ptA = points[i];
-        const ptB = points[i+1];
-        // Create a unique key for the segment to avoid drawing twice
-        const segmentKey = ptA.lat < ptB.lat || (ptA.lat === ptB.lat && ptA.lon < ptB.lon) 
-          ? `${ptA.lat}_${ptA.lon}_${ptB.lat}_${ptB.lon}`
-          : `${ptB.lat}_${ptB.lon}_${ptA.lat}_${ptA.lon}`;
+      for (let i = 0; i < 4; i++) {
+        const ptA = poly[i];
+        const ptB = poly[i+1];
+        // Create a unique key for the segment
+        const segmentKey = ptA[0] < ptB[0] || (ptA[0] === ptB[0] && ptA[1] < ptB[1])
+          ? `${ptA[0].toFixed(8)}_${ptA[1].toFixed(8)}_${ptB[0].toFixed(8)}_${ptB[1].toFixed(8)}`
+          : `${ptB[0].toFixed(8)}_${ptB[1].toFixed(8)}_${ptA[0].toFixed(8)}_${ptA[1].toFixed(8)}`;
           
         if (!lineCache.has(segmentKey)) {
-          gridLines.push([[ptA.lon, ptA.lat], [ptB.lon, ptB.lat]]);
+          gridLines.push([ptA, ptB]);
           lineCache.add(segmentKey);
         }
       }

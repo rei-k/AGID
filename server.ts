@@ -305,8 +305,15 @@ async function startServer() {
   // --- Nominatim Geocoding Mirrors ---
   const NOMINATIM_MIRRORS = [
     'https://nominatim.openstreetmap.org/reverse',      // Official
-    'https://nominatim.qwant.com/reverse',              // Qwant
-    'https://photon.komoot.io/reverse',                 // Photon
+    'https://nominatim.openstreetmap.fr/reverse',       // France (Stable)
+    'https://nominatim.osm.ch/reverse',                 // Switzerland (High Quality)
+    'https://nominatim.openstreetmap.de/reverse',       // Germany
+    'https://nominatim.openstreetmap.be/reverse',       // Belgium
+    'https://nominatim.openstreetmap.ie/reverse',       // Ireland
+    'https://nominatim.openstreetmap.se/reverse',       // Sweden
+    'https://nominatim.openstreetmap.no/reverse',       // Norway
+    'https://nominatim.openstreetmap.org.tr/reverse',    // Turkey
+    'https://photon.komoot.io/reverse',                 // Photon (Fallback)
   ];
 
   const nominatimBlacklist = new Map<string, number>();
@@ -316,7 +323,7 @@ async function startServer() {
   /**
    * Robust reverse geocoding using multiple mirrors
    */
-  async function performOsmReverse(lat: number, lon: number, lang: string = 'en', zoom: number = 18) {
+  async function performOsmReverse(lat: number, lon: number, lang: string = 'en', zoom: number = 18, countryCode?: string) {
     const now = Date.now();
     let mirrors = NOMINATIM_MIRRORS.filter(m => {
       const until = nominatimBlacklist.get(m);
@@ -328,18 +335,32 @@ async function startServer() {
       mirrors = [...NOMINATIM_MIRRORS];
     }
 
-    // Sort: Official first, then stable regional, then Photon
+    // Sort mirrors with prioritization
     mirrors.sort((a, b) => {
       const aOfficial = a.includes('openstreetmap.org/reverse');
       const bOfficial = b.includes('openstreetmap.org/reverse');
       const aPhoton = a.includes('photon');
       const bPhoton = b.includes('photon');
+
+      // 1. Prioritize Country-specific mirror if CC is provided
+      if (countryCode) {
+        const cc = countryCode.toLowerCase();
+        const aMatch = a.includes(`.${cc}/`) || a.includes(`.${cc}.`);
+        const bMatch = b.includes(`.${cc}/`) || b.includes(`.${cc}.`);
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+      }
       
+      // 2. Official mirror is usually best but heavily rate limited
       if (aOfficial && !bOfficial) return -1;
       if (!aOfficial && bOfficial) return 1;
+      
+      // 3. Photon is a fallback search engine, keep it last
       if (aPhoton && !bPhoton) return 1;
       if (!aPhoton && bPhoton) return -1;
-      return 0;
+      
+      // 4. Randomize the middle regional mirrors to distribute load
+      return Math.random() - 0.5;
     });
 
     const errors: string[] = [];
@@ -1077,7 +1098,7 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const data = await performOsmReverse(lat, lon, 'de', 18);
+      const data = await performOsmReverse(lat, lon, 'de', 18, 'de');
       res.json(data);
     } catch (error: any) {
       res.status(502).json({ error: error.message || 'German address not found' });
@@ -1089,7 +1110,7 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const data = await performOsmReverse(lat, lon, 'nl,fr,de', 18);
+      const data = await performOsmReverse(lat, lon, 'nl,fr,de', 18, 'be');
       res.json(data);
     } catch (error: any) {
       res.status(502).json({ error: error.message || 'Belgian address not found' });
@@ -1117,7 +1138,7 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const data = await performOsmReverse(lat, lon, 'de-AT', 18);
+      const data = await performOsmReverse(lat, lon, 'de-AT', 18, 'at');
       res.json(data);
     } catch (error: any) {
       res.status(502).json({ error: error.message || 'Austrian address not found' });
@@ -1129,7 +1150,7 @@ async function startServer() {
     const lat = parseFloat(req.query.lat as string);
     const lon = parseFloat(req.query.lon as string);
     try {
-      const data = await performOsmReverse(lat, lon, 'sv', 18);
+      const data = await performOsmReverse(lat, lon, 'sv', 18, 'se');
       res.json(data);
     } catch (error: any) {
       res.status(502).json({ error: error.message || 'Swedish address not found' });
@@ -1425,7 +1446,7 @@ async function startServer() {
     const lon = parseFloat(req.query.lon as string);
     if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
     try {
-      const data = await performOsmReverse(lat, lon, 'ar,en', 18);
+      const data = await performOsmReverse(lat, lon, 'ar,en', 18, 'eg');
       res.json(data);
     } catch (error: any) {
       res.status(502).json({ error: error.message || 'Egyptian address not found' });
@@ -1469,14 +1490,15 @@ async function startServer() {
 
   // --- Nominatim Proxy ---
   app.get('/api/nominatim/reverse', async (req, res) => {
-    const { lat, lon, zoom, addressdetails, lang } = req.query;
+    const { lat, lon, zoom, addressdetails, lang, cc } = req.query;
     try {
       const l = parseFloat(lat as string);
       const n = parseFloat(lon as string);
       const z = zoom ? parseInt(zoom as string) : 18;
       const ln = lang ? (lang as string) : 'en';
+      const countryCode = cc ? (cc as string) : undefined;
 
-      const data = await performOsmReverse(l, n, ln, z);
+      const data = await performOsmReverse(l, n, ln, z, countryCode);
       res.json(data);
     } catch (error: any) {
       console.error('[API] Nominatim Reverse Error:', error);
@@ -1673,9 +1695,10 @@ async function startServer() {
   // --- Nominatim Search Mirrors ---
   const NOMINATIM_SEARCH_MIRRORS = [
     'https://nominatim.openstreetmap.org/search',
+    'https://nominatim.openstreetmap.fr/search',
+    'https://nominatim.osm.ch/search',
     'https://nominatim.qwant.com/search',
     'https://nominatim.openstreetmap.de/search',
-    'https://nominatim.openstreetmap.fr/search',
   ];
 
   /**
@@ -2167,7 +2190,7 @@ async function startServer() {
 
   // Nominatim Reverse Proxy (Global Fallback)
   app.get('/api/osm-reverse', async (req, res) => {
-    const { lat, lon, lang, zoom } = req.query;
+    const { lat, lon, lang, zoom, cc } = req.query;
     if (!lat || !lon) return res.status(400).json({ error: 'Missing coordinates' });
     
     try {
@@ -2175,8 +2198,9 @@ async function startServer() {
       const n = parseFloat(lon as string);
       const z = zoom ? parseInt(zoom as string) : 18;
       const ln = lang ? (lang as string) : 'en';
+      const countryCode = cc ? (cc as string) : undefined;
 
-      const data = await performOsmReverse(l, n, ln, z);
+      const data = await performOsmReverse(l, n, ln, z, countryCode);
       res.json(data);
     } catch (error: any) {
       console.error('[API] OSM Reverse Error:', error);

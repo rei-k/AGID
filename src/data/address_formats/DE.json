@@ -3,14 +3,15 @@
   "name": "Germany",
   "native": {
     "name": "Deutschland",
-    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}",
+    "addressFormat": "{{organization}}\n{{street}} {{houseNumber}}\n{{postcode}} {{city}}\n{{state}}",
     "ordering": "small-to-big",
     "fields": [
       { "key": "organization", "label": "Firma/Organisation", "placeholder": "", "required": false, "type": "text" },
       { "key": "street", "label": "Straße", "placeholder": "Hauptstraße", "required": true, "type": "text" },
       { "key": "houseNumber", "label": "Hausnummer", "placeholder": "1", "required": true, "type": "text" },
       { "key": "postcode", "label": "Postleitzahl", "placeholder": "10115", "required": true, "type": "text" },
-      { "key": "city", "label": "Stadt", "placeholder": "Berlin", "required": true, "type": "text" }
+      { "key": "city", "label": "Stadt", "placeholder": "Berlin", "required": true, "type": "text" },
+      { "key": "state", "label": "Bundesland", "placeholder": "Berlin", "required": false, "type": "text" }
     ]
   },
   "english": {

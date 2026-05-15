@@ -352,6 +352,7 @@ export default function App() {
   const [isQrVisible, setIsQrVisible] = useState(false);
   const [showLocationAnalysis, setShowLocationAnalysis] = useState(false);
   const [isAgidPanelCollapsed, setIsAgidPanelCollapsed] = useState(false);
+
   const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
   const qrFileRef = useRef<HTMLInputElement>(null);
   const [showSaved, setShowSaved] = useState(false);
@@ -403,7 +404,7 @@ export default function App() {
   // Territory Lab Statistics Logic
   useEffect(() => {
     if (isTerritoryLabOpen && clickedAgid) {
-      const cc = clickedAgid.id.split('-')[0];
+      const cc = clickedAgid.prefix;
       if (labCountryStats?.country_code === cc) return; // Prevent loop
       
       setIsLoadingLabStats(true);
@@ -422,7 +423,7 @@ export default function App() {
 
   useEffect(() => {
     if (clickedAgid) {
-      const pattern = getPatternForPrefix(clickedAgid.id.split('-')[0]) || {
+      const pattern = getPatternForPrefix(clickedAgid.prefix) || {
         country: 'Experimental',
         format: 'N'.repeat(postalDigitCount),
         regex: /.*/,
@@ -435,12 +436,12 @@ export default function App() {
         const adjustedPattern = { ...pattern, format: 'N'.repeat(postalDigitCount) };
         code = applySmartPattern(clickedAgid.id, adjustedPattern);
       } else if (postalLabStyle === 'numeric') {
-        const hash = clickedAgid.id.split('-')[1] || '0';
-        code = `${clickedAgid.id.split('-')[0]}-${parseInt(hash, 36).toString().slice(0, postalDigitCount)}`;
+        const hash = clickedAgid.hash;
+        code = `${clickedAgid.prefix}${parseInt(hash, 36).toString().slice(0, postalDigitCount)}`;
       } else if (postalLabStyle === 'alphanumeric') {
-        code = `${clickedAgid.id.split('-')[0]}-${clickedAgid.id.split('-')[1]?.slice(0, postalDigitCount).toUpperCase()}`;
+        code = `${clickedAgid.prefix}${clickedAgid.hash.slice(0, postalDigitCount).toUpperCase()}`;
       } else {
-        code = `${clickedAgid.id.split('-')[0]}·${clickedAgid.id.split('-')[1]?.slice(0, postalDigitCount).toUpperCase()}·XP`;
+        code = `${clickedAgid.prefix}·${clickedAgid.hash.slice(0, postalDigitCount).toUpperCase()}·XP`;
       }
       setLabGeneratedCode(code);
     }
@@ -724,6 +725,410 @@ export default function App() {
   // Custom UI for alerts and confirms
   const [alertConfig, setAlertConfig] = useState<{ show: boolean, title: string, message: string } | null>(null);
   const [confirmConfig, setConfirmConfig] = useState<{ show: boolean, title: string, message: string, onConfirm: () => void } | null>(null);
+
+  const ensureSourceAndLayer = React.useCallback((id: string, type: string, data: any, paint: any, layout: any = {}, filter?: any, beforeId?: string) => {
+    if (!map.current || !map.current.isStyleLoaded()) return;
+
+    const sourceId = id;
+    const layerId = id + '-layer';
+
+    try {
+      if (!map.current.getSource(sourceId)) {
+        map.current.addSource(sourceId, { type: 'geojson', data });
+        const layerConfig: any = { id: layerId, type: type as any, source: id, paint, layout };
+        if (filter !== undefined) layerConfig.filter = filter;
+        
+        map.current.addLayer(layerConfig, (beforeId && map.current.getLayer(beforeId)) ? beforeId : undefined);
+      } else {
+        const source: any = map.current.getSource(sourceId);
+        if (source.setData) source.setData(data);
+
+        // Diff and update props ONLY if they changed to avoid MapLibre overhead
+        const prevProps = lastPropsRef.current[layerId];
+        const propsChanged = !prevProps || JSON.stringify(prevProps.paint) !== JSON.stringify(paint) || JSON.stringify(prevProps.layout) !== JSON.stringify(layout);
+
+        if (propsChanged) {
+          Object.entries(paint).forEach(([key, value]) => {
+            map.current?.setPaintProperty(layerId, key, value);
+          });
+          Object.entries(layout).forEach(([key, value]) => {
+            map.current?.setLayoutProperty(layerId, key, value);
+          });
+          if (filter !== undefined) map.current.setFilter(layerId, filter);
+          lastPropsRef.current[layerId] = { paint, layout };
+        }
+        
+        // Ensure manual selection/hover layers always stay on top
+        if ((id.includes('selected') || id.includes('selection')) && map.current.getLayer(layerId)) {
+          map.current.moveLayer(layerId);
+        }
+      }
+    } catch (e) {
+      console.warn(`Layer sync error for ${id}:`, e);
+    }
+  }, [mapStyle]);
+
+  const updateGrid = React.useCallback((activeResult?: AGIDResult, selectedResult?: AGIDResult, gridSize: number = 4, refreshGrid: boolean = true) => {
+    if (!map.current || !map.current.isStyleLoaded()) return;
+
+    // If we are zoomed in enough, always use 4m grid for detail, even in sea
+    let effectiveGridSize = gridSize;
+    if (zoom >= 15) {
+      effectiveGridSize = 4;
+    }
+
+    const sourceId = 'agid-grid';
+    const activeSourceId = 'active-cell';
+    const selectedSourceId = 'selected-cell';
+
+    const shouldShow = isGridVisible && gridOpacityLevel > 0;
+    const shouldShowHighlight = true;
+
+    // Use cell bounds for active/selected cell
+    const activeBounds = activeResult?.bounds;
+    const selectedBounds = selectedResult?.bounds;
+
+    const isSatellite = mapStyle === 'satellite';
+    const isDark = mapStyle.includes('dark');
+    const isSeaGrid = activeResult?.isSea && zoom < 15;
+
+    // 1) Update Active Cell
+    const activeData: any = (shouldShowHighlight && activeResult?.polygon) ? {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [activeResult.polygon]
+      },
+      properties: {}
+    } : { type: 'FeatureCollection', features: [] };
+
+    // Active Highlight (Red for Land, White/Cyan for Sea)
+    ensureSourceAndLayer(activeSourceId, 'fill', activeData, {
+      'fill-color': isSeaGrid ? '#ffffff' : '#ef4444', 
+      'fill-opacity': isSeaGrid ? 0.35 : 0.4,
+      'fill-outline-color': isSeaGrid ? '#cbd5e1' : '#dc2626'
+    });
+
+    // 2) Update Selected Cell
+    const selectedData: any = (shouldShowHighlight && selectedResult?.polygon) ? {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [selectedResult.polygon]
+      },
+      properties: {}
+    } : { type: 'FeatureCollection', features: [] };
+
+    // Selection Fill
+    ensureSourceAndLayer(selectedSourceId, 'fill', selectedData, {
+      'fill-color': '#ef4444',
+      'fill-opacity': 0.45,
+    });
+
+    // Selection Outline
+    const selectedOutlineData: any = (shouldShowHighlight && selectedResult?.polygon) ? {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [selectedResult.polygon]
+      },
+      properties: {}
+    } : { type: 'FeatureCollection', features: [] };
+
+    ensureSourceAndLayer(selectedSourceId + '-outline', 'line', {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: selectedResult?.polygon || []
+      },
+      properties: {}
+    }, {
+      'line-color': '#dc2626',
+      'line-width': 3,
+      'line-opacity': 0.9
+    });
+
+    // 3) Restore selection indicators (glow point and label)
+    const selectionPointData: any = (shouldShowHighlight && selectedResult) ? {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [selectedResult.lon, selectedResult.lat]
+      },
+      properties: { title: selectedResult.id }
+    } : { type: 'FeatureCollection', features: [] };
+
+    ensureSourceAndLayer('selection-point-glow', 'circle', selectionPointData, {
+      'circle-radius': [
+        'interpolate', ['linear'], ['zoom'],
+        15, 4,
+        20, 12
+      ],
+      'circle-color': '#ef4444',
+      'circle-opacity': 0.5,
+      'circle-blur': 0.8
+    });
+
+    ensureSourceAndLayer('selection-label', 'symbol', selectionPointData, {
+      'text-color': '#dc2626',
+      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
+      'text-halo-width': 2
+    }, {
+      'text-field': ['get', 'title'],
+      'text-font': ['Open Sans Bold'],
+      'text-size': [
+        'interpolate', ['linear'], ['zoom'],
+        15, 9,
+        18, 12
+      ],
+      'text-offset': [0, -2],
+      'text-anchor': 'bottom',
+      'text-letter-spacing': 0.1
+    });
+
+    if (!shouldShow) {
+      ensureSourceAndLayer(sourceId, 'line', { type: 'FeatureCollection', features: [] }, {});
+      ensureSourceAndLayer('grid-cells', 'fill', { type: 'FeatureCollection', features: [] }, {});
+      ensureSourceAndLayer('grid-cells-focus', 'fill', { type: 'FeatureCollection', features: [] }, {});
+      return;
+    }
+
+    if (!refreshGrid) return;
+
+    const opacityMultiplier = gridOpacityLevel / 3; 
+    const gridColor = isSatellite || isDark ? '#94a3b8' : '#475569';
+    
+    const dynamicGridOpacity = [
+      'interpolate', ['linear'], ['zoom'],
+      1, 0.3 * opacityMultiplier, 
+      8, 0.4 * opacityMultiplier,
+      14, 0.5 * opacityMultiplier,
+      18, 0.7 * opacityMultiplier,
+      20, 0.8 * opacityMultiplier
+    ];
+
+    const dynamicGridWidth = [
+      'interpolate', ['linear'], ['zoom'],
+      1, 0.2,
+      10, 0.4,
+      15, 0.6,
+      18, 0.8,
+      20, 1.2
+    ];
+
+    if (gridWorker.current) {
+      setIsGridRegenerating(true);
+      const isLargeGrid = effectiveGridSize >= 1000;
+      
+      gridWorker.current.onmessage = (e) => {
+        const { gridLines, gridCells } = e.data;
+        if (!gridLines || gridLines.length === 0) {
+          setIsGridRegenerating(false);
+          return;
+        }
+
+        ensureSourceAndLayer(sourceId, 'line', {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            geometry: { type: 'MultiLineString', coordinates: gridLines },
+            properties: {}
+          }]
+        }, {
+          'line-color': gridColor,
+          'line-width': dynamicGridWidth,
+          'line-opacity': dynamicGridOpacity
+        });
+
+        const cellsData = { type: 'FeatureCollection', features: gridCells };
+
+        ensureSourceAndLayer('grid-cells', 'fill', cellsData, {
+          'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569', 
+          'fill-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 0.15 * opacityMultiplier,
+            10, 0.25 * opacityMultiplier,
+            14, 0.35 * opacityMultiplier,
+            17, 0.55 * opacityMultiplier,
+            20, 0.75 * opacityMultiplier
+          ]
+        }, {}, ['!=', ['get', 'isFocus'], true], activeSourceId + '-layer');
+
+        ensureSourceAndLayer('grid-cells-focus', 'fill', cellsData, {
+          'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569',
+          'fill-opacity': 0.4 * opacityMultiplier
+        }, {}, ['==', ['get', 'isFocus'], true], activeSourceId + '-layer');
+        
+        setIsGridRegenerating(false);
+      };
+
+      let bounds = map.current.getBounds().toArray();
+      if (mapPitch > 30) {
+        const sw = bounds[0];
+        const ne = bounds[1];
+        const lngPad = (ne[0] - sw[0]) * 0.5; 
+        const latPad = (ne[1] - sw[1]) * 1.5; 
+        bounds = [[sw[0] - lngPad, sw[1] - latPad * 0.2], [ne[0] + lngPad, ne[1] + latPad]];
+      }
+
+      gridWorker.current.postMessage({
+        lat, lon: lng, zoom, isLargeGrid,
+        bounds: bounds
+      });
+    }
+  }, [lat, lng, zoom, mapPitch, mapStyle, isGridVisible, gridOpacityLevel, ensureSourceAndLayer]);
+
+  const updateMapScene = React.useCallback(() => {
+    if (!map.current || !map.current.isStyleLoaded()) return;
+
+    const sourceId = 'nautical-regions';
+    const labelLayerId = 'nautical-regions-labels';
+
+    if (!isNauticalMode && !isSeaTypeMode) {
+      ['nautical-regions-layer', 'nautical-regions-layer-land-mask', 'nautical-regions-layer-outline', labelLayerId].forEach(l => {
+        if (map.current?.getLayer(l)) map.current.removeLayer(l);
+      });
+      if (map.current?.getSource(sourceId)) map.current.removeSource(sourceId);
+    } else {
+      // Find a layer to insert before
+      const layers = map.current.getStyle().layers;
+      let beforeId = 'active-cell-layer';
+      if (layers) {
+        const firstLandLayer = layers.find(l => 
+          l.id.includes('land') || l.id.includes('building') || l.id.includes('road') || 
+          l.id.includes('label') || l.id.includes('poi') || l.id.includes('symbol') || 
+          l.id.includes('boundary') || l.id.includes('place')
+        );
+        if (firstLandLayer) beforeId = firstLandLayer.id;
+      }
+
+      const features = [
+        ...COUNTRY_REGIONS.flatMap(reg => {
+          const coords = reg.polygon ? reg.polygon.map((p: [number, number]) => [p[1], p[0]]) : [[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]];
+          return [{
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [coords] },
+            properties: { id: reg.code, name: reg.name, isLand: true }
+          }];
+        }),
+        ...SEA_REGIONS.flatMap(reg => {
+          const polygons: any[] = [];
+          if (reg.polygon) {
+            polygons.push(reg.polygon.map((p: [number, number]) => [p[1], p[0]]));
+          } else if (reg.w > reg.e) {
+            polygons.push([[reg.w, reg.s], [180, reg.s], [180, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
+            polygons.push([[-180, reg.s], [reg.e, reg.s], [reg.e, reg.n], [-180, reg.n], [-180, reg.s]]);
+          } else {
+            polygons.push([[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
+          }
+
+          return polygons.map((coords) => ({
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [coords] },
+            properties: {
+              id: reg.id,
+              name: reg.name,
+              isSea: true,
+              color: isSeaTypeMode 
+                ? `hsl(${(reg.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 137) % 360}, 80%, 60%)`
+                : `hsl(${(reg.id.split('').reduce((acc, char) => acc + char.charCodeAt(0) , 0) * 137) % 360}, 70%, 50%)`
+            }
+          }));
+        }),
+        ...LAND_REGIONS.flatMap(reg => {
+          const polygons = (reg.w > reg.e) ? [
+            [[reg.w, reg.s], [180, reg.s], [180, reg.n], [reg.w, reg.n], [reg.w, reg.s]],
+            [[-180, reg.s], [reg.e, reg.s], [reg.e, reg.n], [-180, reg.n], [-180, reg.s]]
+          ] : [
+            [[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]]
+          ];
+
+          return polygons.map((coords) => ({
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [coords] },
+            properties: { id: reg.id, name: reg.name, isLand: true }
+          }));
+        })
+      ];
+
+      ensureSourceAndLayer(sourceId, 'fill', { type: 'FeatureCollection', features }, {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': isSeaTypeMode ? 0.3 : 0.1,
+        'fill-outline-color': ['get', 'color']
+      }, {}, ['==', ['get', 'isSea'], true], beforeId);
+
+      ensureSourceAndLayer(sourceId + '-land-mask', 'fill', { type: 'FeatureCollection', features }, {
+        'fill-color': mapStyle === 'satellite' ? 'transparent' : '#f8f9fa',
+        'fill-opacity': mapStyle === 'satellite' ? 0 : 1
+      }, {}, ['==', ['get', 'isLand'], true], beforeId);
+
+      ensureSourceAndLayer(sourceId + '-outline', 'line', { type: 'FeatureCollection', features }, {
+        'line-color': ['get', 'color'],
+        'line-width': 2,
+        'line-opacity': 0.8,
+        'line-dasharray': [2, 2]
+      }, {
+        'visibility': isSeaTypeMode ? 'visible' : 'none'
+      }, ['==', ['get', 'isSea'], true], beforeId);
+    }
+
+    // --- Markers Logic ---
+    const finalDestination = destination || navigationTarget;
+    if (finalDestination) {
+      ensureSourceAndLayer('nav-target-source', 'circle', {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [finalDestination.lng, finalDestination.lat] },
+        properties: {}
+      }, {
+        'circle-radius': 10, 'circle-color': '#ef4444', 'circle-stroke-width': 4, 'circle-stroke-color': '#ffffff'
+      });
+      ensureSourceAndLayer('nav-target-dot', 'circle', {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [finalDestination.lng, finalDestination.lat] },
+        properties: {}
+      }, { 'circle-radius': 3, 'circle-color': '#ffffff' });
+    } else {
+      if (map.current?.getLayer('nav-target-source-layer')) map.current.removeLayer('nav-target-source-layer');
+      if (map.current?.getLayer('nav-target-dot-layer')) map.current.removeLayer('nav-target-dot-layer');
+    }
+
+    if (origin && origin.name !== "My Location") {
+      ensureSourceAndLayer('origin-source', 'circle', {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [origin.lng, origin.lat] },
+        properties: {}
+      }, {
+        'circle-radius': 8, 'circle-color': '#3b82f6', 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff'
+      });
+    } else {
+      if (map.current?.getLayer('origin-source-layer')) map.current.removeLayer('origin-source-layer');
+    }
+
+    if (userLocation) {
+      const userPoint = { type: 'Feature', geometry: { type: 'Point', coordinates: [userLocation.lng, userLocation.lat] }, properties: {} };
+      ensureSourceAndLayer('user-location-halo', 'circle', userPoint, { 'circle-radius': 18, 'circle-color': '#4285F4', 'circle-opacity': 0.2 });
+      ensureSourceAndLayer('user-location-layer', 'circle', userPoint, { 'circle-radius': 8, 'circle-color': '#4285F4', 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' });
+    } else {
+      if (map.current?.getLayer('user-location-layer-layer')) map.current.removeLayer('user-location-layer-layer');
+      if (map.current?.getLayer('user-location-halo-layer')) map.current.removeLayer('user-location-halo-layer');
+    }
+
+    if (routeData) {
+      ensureSourceAndLayer('route-glow', 'line', routeData, { 'line-color': '#4285F4', 'line-width': 14, 'line-opacity': 0.2, 'line-blur': 4 }, { 'line-join': 'round', 'line-cap': 'round' }, ['==', ['geometry-type'], 'LineString']);
+      ensureSourceAndLayer('route-casing', 'line', routeData, { 'line-color': '#ffffff', 'line-width': 10, 'line-opacity': 1 }, { 'line-join': 'round', 'line-cap': 'round' }, ['==', ['geometry-type'], 'LineString']);
+      ensureSourceAndLayer('route', 'line', routeData, { 'line-color': '#4285F4', 'line-width': 6, 'line-opacity': 1 }, { 'line-join': 'round', 'line-cap': 'round' }, ['==', ['geometry-type'], 'LineString']);
+      ensureSourceAndLayer('route-points', 'circle', routeData, {
+        'circle-radius': 6,
+        'circle-color': ['match', ['get', 'type'], 'start', '#ffffff', 'end', '#EA4335', '#ffffff'],
+        'circle-stroke-width': 3,
+        'circle-stroke-color': ['match', ['get', 'type'], 'start', '#4285F4', 'end', '#ffffff', '#4285F4']
+      }, {}, ['==', ['geometry-type'], 'Point']);
+    } else {
+      ['route-layer', 'route-casing-layer', 'route-glow-layer', 'route-points-layer'].forEach(l => {
+        if (map.current?.getLayer(l)) map.current.removeLayer(l);
+      });
+    }
+  }, [isNauticalMode, isSeaTypeMode, mapStyle, routeData, destination, origin, navigationTarget, userLocation, ensureSourceAndLayer]);
 
   const showAlert = (title: string, message: string) => {
     setAlertConfig({ show: true, title, message });
@@ -1525,7 +1930,13 @@ export default function App() {
 
     try {
       // Determine languages based on AGID prefix and sea status
-      const ALLOWED_STRICT_LANGS = ['ja', 'en', 'zh-Hans', 'zh-Hant', 'ko', 'fr', 'de', 'es', 'pt', 'it', 'ru'];
+      const ALLOWED_STRICT_LANGS = [
+        'ja', 'en', 'zh-Hans', 'zh-Hant', 'ko', 'fr', 'fr-SN', 'fr-CD', 'fr-CI', 
+        'de', 'es', 'es-MX', 'es-AR', 'es-CL', 'es-CO', 'es-PE', 'es-VE', 'es-EC', 'es-BO', 'es-PY', 'es-UY', 'es-GQ',
+        'pt-BR', 'pt-PT', 'pt-AO', 'pt-MZ', 'pt-CV', 'pt-GW', 'pt-ST', 
+        'ar', 'ar-SA', 'ar-EG', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-OM', 'ar-PS', 'ar-QA', 'ar-SD', 'ar-SY', 'ar-YE', 'ar-AE', 'ar-BH', 'ar-MR', 'ar-SO', 'ar-DJ', 'ar-KM',
+        'it', 'ru'
+      ];
       let langs: string[] = [];
       if (isSeaLoc) {
         langs = ['en'];
@@ -2101,7 +2512,7 @@ export default function App() {
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: mapStyle,
+      style: mapStyle === 'satellite' ? SATELLITE_STYLE : mapStyle,
       center: [lng, lat],
       zoom: zoom,
       pitch: mapPitch,
@@ -2862,30 +3273,32 @@ export default function App() {
           });
 
           // Click handler
-          map.current.on('click', sourceId + '-summits', (e) => {
-            if (!e.features || !e.features[0]) return;
-            const feature = e.features[0];
-            const coordinates = (feature.geometry as any).coordinates.slice();
-            const name = feature.properties?.name;
-            const ele = feature.properties?.ele;
+          if (map.current) {
+            map.current.on('click', sourceId + '-summits', (e) => {
+              if (!e.features || !e.features[0]) return;
+              const feature = e.features[0];
+              const coordinates = (feature.geometry as any).coordinates.slice();
+              const name = feature.properties?.name;
+              const ele = feature.properties?.ele;
 
-            new maplibregl.Popup()
-              .setLngLat(coordinates)
-              .setHTML(`
-                <div style="padding: 10px; font-family: sans-serif;">
-                  <h4 style="margin: 0 0 5px 0; font-weight: 900; text-transform: uppercase; font-size: 12px; color: #1e293b;">${name}</h4>
-                  <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 900; background: #f1f5f9; color: #0f172a;">標高: ${ele ? ele + 'm' : '不明'}</span>
-                </div>
-              `)
-              .addTo(map.current!);
-          });
+              new maplibregl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`
+                  <div style="padding: 10px; font-family: sans-serif;">
+                    <h4 style="margin: 0 0 5px 0; font-weight: 900; text-transform: uppercase; font-size: 12px; color: #1e293b;">${name}</h4>
+                    <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 900; background: #f1f5f9; color: #0f172a;">標高: ${ele ? ele + 'm' : '不明'}</span>
+                  </div>
+                `)
+                .addTo(map.current as maplibregl.Map);
+            });
 
-          map.current.on('mouseenter', sourceId + '-summits', () => {
-            if (map.current) map.current.getCanvas().style.cursor = 'pointer';
-          });
-          map.current.on('mouseleave', sourceId + '-summits', () => {
-            if (map.current) map.current.getCanvas().style.cursor = '';
-          });
+            map.current.on('mouseenter', sourceId + '-summits', () => {
+              if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+            });
+            map.current.on('mouseleave', sourceId + '-summits', () => {
+              if (map.current) map.current.getCanvas().style.cursor = '';
+            });
+          }
         }
       } catch (err: any) {
         if (err.name === 'AbortError') return;
@@ -3008,18 +3421,20 @@ export default function App() {
             }
           });
 
-          map.current.on('click', sourceId + '-layer', (e) => {
-            if (!e.features || !e.features[0]) return;
-            const feature = e.features[0];
-            const coordinates = (feature.geometry as any).coordinates.slice();
-            const name = feature.properties?.name;
-            const type = feature.properties?.type;
-            const cat = feature.properties?.category;
-            const sub = feature.properties?.subcategory;
-            new maplibregl.Popup().setLngLat(coordinates).setHTML(`<div style="padding:10px;font-family:sans-serif;"><h4 style="margin:0 0 5px 0;font-weight:900;text-transform:uppercase;font-size:12px;color:#1e293b;">${name}</h4><span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:900;background:#f1f5f9;color:#475569;">${cat} > ${sub}</span><br/><span style="font-size:10px;color:#64748b;">Type: ${type}</span></div>`).addTo(map.current!);
-          });
-          map.current.on('mouseenter', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = 'pointer'; });
-          map.current.on('mouseleave', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = ''; });
+          if (map.current) {
+            map.current.on('click', sourceId + '-layer', (e) => {
+              if (!e.features || !e.features[0]) return;
+              const feature = e.features[0];
+              const coordinates = (feature.geometry as any).coordinates.slice();
+              const name = feature.properties?.name;
+              const type = feature.properties?.type;
+              const cat = feature.properties?.category;
+              const sub = feature.properties?.subcategory;
+              new maplibregl.Popup().setLngLat(coordinates).setHTML(`<div style="padding:10px;font-family:sans-serif;"><h4 style="margin:0 0 5px 0;font-weight:900;text-transform:uppercase;font-size:12px;color:#1e293b;">${name}</h4><span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:900;background:#f1f5f9;color:#475569;">${cat} > ${sub}</span><br/><span style="font-size:10px;color:#64748b;">Type: ${type}</span></div>`).addTo(map.current as maplibregl.Map);
+            });
+            map.current.on('mouseenter', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = 'pointer'; });
+            map.current.on('mouseleave', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = ''; });
+          }
         }
       } catch (err: any) { 
         if (err.name === 'AbortError') return;
@@ -3169,17 +3584,19 @@ export default function App() {
             }
           });
 
-          map.current.on('click', sourceId + '-layer', (e) => {
-            if (!e.features || !e.features[0]) return;
-            const feature = e.features[0];
-            const coordinates = (feature.geometry as any).coordinates.slice();
-            const name = feature.properties?.name;
-            const type = feature.properties?.type;
-            const rType = feature.properties?.regionalType;
-            new maplibregl.Popup().setLngLat(coordinates).setHTML(`<div style="padding:10px;font-family:sans-serif;"><h4 style="margin:0 0 5px 0;font-weight:900;text-transform:uppercase;font-size:12px;color:#1e293b;">${name}</h4><span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:900;background:#f1f5f9;color:#475569;">Regional: ${rType}</span><br/><span style="font-size:10px;color:#64748b;">Type: ${type}</span></div>`).addTo(map.current!);
-          });
-          map.current.on('mouseenter', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = 'pointer'; });
-          map.current.on('mouseleave', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = ''; });
+          if (map.current) {
+            map.current.on('click', sourceId + '-layer', (e) => {
+              if (!e.features || !e.features[0]) return;
+              const feature = e.features[0];
+              const coordinates = (feature.geometry as any).coordinates.slice();
+              const name = feature.properties?.name;
+              const type = feature.properties?.type;
+              const rType = feature.properties?.regionalType;
+              new maplibregl.Popup().setLngLat(coordinates).setHTML(`<div style="padding:10px;font-family:sans-serif;"><h4 style="margin:0 0 5px 0;font-weight:900;text-transform:uppercase;font-size:12px;color:#1e293b;">${name}</h4><span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:900;background:#f1f5f9;color:#475569;">Regional: ${rType}</span><br/><span style="font-size:10px;color:#64748b;">Type: ${type}</span></div>`).addTo(map.current as maplibregl.Map);
+            });
+            map.current.on('mouseenter', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = 'pointer'; });
+            map.current.on('mouseleave', sourceId + '-layer', () => { if (map.current) map.current.getCanvas().style.cursor = ''; });
+          }
         }
       } catch (err: any) { 
         if (err.name === 'AbortError') return;
@@ -3269,31 +3686,32 @@ export default function App() {
             }
           });
 
-          // Click handler for emergency infra
-          map.current.on('click', sourceId + '-layer', (e) => {
-            if (!e.features || !e.features[0]) return;
-            const feature = e.features[0];
-            const coordinates = (feature.geometry as any).coordinates.slice();
-            const name = feature.properties?.name;
-            const type = feature.properties?.type;
+          if (map.current) {
+            map.current.on('click', sourceId + '-layer', (e) => {
+              if (!e.features || !e.features[0]) return;
+              const feature = e.features[0];
+              const coordinates = (feature.geometry as any).coordinates.slice();
+              const name = feature.properties?.name;
+              const type = feature.properties?.type;
 
-            new maplibregl.Popup()
-              .setLngLat(coordinates)
-              .setHTML(`
-                <div style="padding: 10px; font-family: sans-serif;">
-                  <h4 style="margin: 0 0 5px 0; font-weight: 900; text-transform: uppercase; font-size: 12px; color: #1e293b;">${name}</h4>
-                  <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; background: #f1f5f9; color: #64748b; text-transform: uppercase;">${type}</span>
-                </div>
-              `)
-              .addTo(map.current!);
-          });
+              new maplibregl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`
+                  <div style="padding: 10px; font-family: sans-serif;">
+                    <h4 style="margin: 0 0 5px 0; font-weight: 900; text-transform: uppercase; font-size: 12px; color: #1e293b;">${name}</h4>
+                    <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; background: #f1f5f9; color: #64748b; text-transform: uppercase;">${type}</span>
+                  </div>
+                `)
+                .addTo(map.current as maplibregl.Map);
+            });
 
-          map.current.on('mouseenter', sourceId + '-layer', () => {
-            if (map.current) map.current.getCanvas().style.cursor = 'pointer';
-          });
-          map.current.on('mouseleave', sourceId + '-layer', () => {
-            if (map.current) map.current.getCanvas().style.cursor = '';
-          });
+            map.current.on('mouseenter', sourceId + '-layer', () => {
+              if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+            });
+            map.current.on('mouseleave', sourceId + '-layer', () => {
+              if (map.current) map.current.getCanvas().style.cursor = '';
+            });
+          }
         }
       } catch (err: any) {
         if (err.name === 'AbortError') return;
@@ -3679,732 +4097,9 @@ export default function App() {
     }
   }, [rulerPoints, isMapLoaded]);
 
-  const updateGrid = (activeResult?: AGIDResult, selectedResult?: AGIDResult, gridSize: number = 4, refreshGrid: boolean = true) => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
-
-    // If we are zoomed in enough, always use 4m grid for detail, even in sea
-    let effectiveGridSize = gridSize;
-    if (zoom >= 15) {
-      effectiveGridSize = 4;
-    }
-
-    const sourceId = 'agid-grid';
-    const activeSourceId = 'active-cell';
-    const selectedSourceId = 'selected-cell';
-
-    // Dynamic zoom threshold based on grid size
-    const isLargeGrid = effectiveGridSize >= 1000;
-    const zoomThreshold = 1; // Lowered to 1 for persistent visibility
-
-    const shouldShow = isGridVisible && gridOpacityLevel > 0;
-    const shouldShowHighlight = true;
-
-    // Use cell bounds for active/selected cell
-    const activeBounds = activeResult?.bounds;
-    const selectedBounds = selectedResult?.bounds;
-
-    const isSatellite = mapStyle === 'satellite';
-    const isDark = mapStyle.includes('dark');
-    const isSeaGrid = activeResult?.isSea && zoom < 15;
-
-    // Ensure sources exist, then update data
-    const ensureSourceAndLayer = (id: string, type: string, data: any, paint: any, layout: any = {}, filter?: any, beforeId?: string) => {
-      if (!map.current || !map.current.isStyleLoaded()) return;
-      const layerId = id + '-layer';
-      const source = map.current.getSource(id) as maplibregl.GeoJSONSource;
-      
-      const propKey = `${layerId}-props`;
-      const currentProps = { paint, layout, filter };
-      const prevProps = lastPropsRef.current[propKey];
-      const propsChanged = JSON.stringify(currentProps) !== JSON.stringify(prevProps);
-
-      if (source) {
-        // Only update data if it changed (optimization: compare some ID or stringified data if necessary, 
-        // but setData itself is relatively optimized internally compared to property changes)
-        source.setData(data);
-        
-        if (propsChanged) {
-          // Update paint properties only if they changed
-          Object.entries(paint).forEach(([key, value]) => {
-            if (!prevProps || JSON.stringify(prevProps.paint[key]) !== JSON.stringify(value)) {
-              map.current?.setPaintProperty(layerId, key, value);
-            }
-          });
-          // Update layout properties only if they changed
-          Object.entries(layout).forEach(([key, value]) => {
-            if (!prevProps || JSON.stringify(prevProps.layout?.[key]) !== JSON.stringify(value)) {
-              map.current?.setLayoutProperty(layerId, key, value);
-            }
-          });
-          // Update filter only if it changed
-          if (filter !== undefined && (!prevProps || JSON.stringify(prevProps.filter) !== JSON.stringify(filter))) {
-            map.current?.setFilter(layerId, filter);
-          }
-          lastPropsRef.current[propKey] = currentProps;
-        }
-      } else {
-        // Fallback for missing source (map switching style)
-        try {
-          map.current.addSource(id, { type: 'geojson', data });
-          const layerConfig: any = {
-            id: layerId,
-            type: type as any,
-            source: id,
-            paint: paint,
-            layout: layout
-          };
-          
-          if (filter !== undefined) {
-            layerConfig.filter = filter;
-          }
-
-          map.current.addLayer(layerConfig, (beforeId && map.current.getLayer(beforeId)) ? beforeId : undefined);
-          
-          if ((id.includes('selected') || id.includes('selection')) && map.current.getLayer(layerId)) {
-            map.current.moveLayer(layerId);
-          }
-          lastPropsRef.current[propKey] = currentProps;
-        } catch (e) {
-          console.warn("Failed to add source/layer during updateGrid", e);
-        }
-      }
-    };
-
-    // 1) Update Active Cell
-    const activeData: any = (shouldShowHighlight && activeResult?.polygon) ? {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [activeResult.polygon]
-      },
-      properties: {}
-    } : { type: 'FeatureCollection', features: [] };
-
-    // Active Highlight (Red for Land, White/Cyan for Sea)
-    ensureSourceAndLayer(activeSourceId, 'fill', activeData, {
-      'fill-color': isSeaGrid ? '#ffffff' : '#ef4444', 
-      'fill-opacity': isSeaGrid ? 0.35 : 0.4,
-      'fill-outline-color': isSeaGrid ? '#cbd5e1' : '#dc2626'
-    });
-
-    // 2) Update Selected Cell
-    const selectedData: any = (shouldShowHighlight && selectedResult?.polygon) ? {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [selectedResult.polygon]
-      },
-      properties: {}
-    } : { type: 'FeatureCollection', features: [] };
-
-    // Selection Fill
-    ensureSourceAndLayer(selectedSourceId, 'fill', selectedData, {
-      'fill-color': '#ef4444',
-      'fill-opacity': 0.45,
-    });
-
-    // Selection Outline
-    const selectedOutlineData: any = (shouldShowHighlight && selectedResult?.polygon) ? {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: selectedResult.polygon
-      },
-      properties: {}
-    } : { type: 'FeatureCollection', features: [] };
-
-    ensureSourceAndLayer(selectedSourceId + '-outline', 'line', selectedOutlineData, {
-      'line-color': '#dc2626',
-      'line-width': 3,
-      'line-opacity': 0.9
-    });
-
-    // 3) Restore selection indicators (glow point and label)
-    const selectionPointData: any = (shouldShowHighlight && selectedResult) ? {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [selectedResult.lon, selectedResult.lat]
-      },
-      properties: { title: selectedResult.id }
-    } : { type: 'FeatureCollection', features: [] };
-
-    ensureSourceAndLayer('selection-point-glow', 'circle', selectionPointData, {
-      'circle-radius': [
-        'interpolate', ['linear'], ['zoom'],
-        15, 4,
-        20, 12
-      ],
-      'circle-color': '#ef4444',
-      'circle-opacity': 0.5,
-      'circle-blur': 0.8
-    });
-
-    ensureSourceAndLayer('selection-label', 'symbol', selectionPointData, {
-      'text-color': '#dc2626',
-      'text-halo-color': 'rgba(255, 255, 255, 0.9)',
-      'text-halo-width': 2
-    }, {
-      'text-field': ['get', 'title'],
-      'text-font': ['Open Sans Bold'],
-      'text-size': [
-        'interpolate', ['linear'], ['zoom'],
-        15, 9,
-        18, 12
-      ],
-      'text-offset': [0, -2],
-      'text-anchor': 'bottom',
-      'text-letter-spacing': 0.1
-    });
-
-    const opacityMultiplier = gridOpacityLevel / 3; 
-    const gridColor = isSatellite || isDark ? '#94a3b8' : '#475569'; // Slate-400 or Slate-600 (Blue-gray)
-    
-    // Smooth interpolation for grid width and opacity based on zoom
-    // Refined for a professional and subtle look across all zoom levels
-    const dynamicGridOpacity = [
-      'interpolate',
-      ['linear'],
-      ['zoom'],
-      1, 0.3 * opacityMultiplier, 
-      8, 0.4 * opacityMultiplier,
-      14, 0.5 * opacityMultiplier,
-      18, 0.7 * opacityMultiplier,
-      20, 0.8 * opacityMultiplier
-    ];
-
-    const dynamicGridWidth = [
-      'interpolate',
-      ['linear'],
-      ['zoom'],
-      1, 0.1,
-      10, 0.2,
-      15, 0.3,
-      18, 0.5,
-      20, 0.7
-    ];
-
-    if (shouldShow && refreshGrid) {
-      if (gridWorker.current) {
-        setIsGridRegenerating(true);
-        gridWorker.current.onmessage = (e) => {
-          const { gridLines, gridCells } = e.data;
-          
-          if (!gridLines || gridLines.length === 0) {
-            setIsGridRegenerating(false);
-            return;
-          }
-
-          const gridData = {
-            type: 'FeatureCollection',
-            features: [{
-              type: 'Feature',
-              geometry: { type: 'MultiLineString', coordinates: gridLines },
-              properties: {}
-            }]
-          };
-
-          const cellsData = {
-            type: 'FeatureCollection',
-            features: gridCells
-          };
-
-          ensureSourceAndLayer(sourceId, 'line', gridData, {
-            'line-color': gridColor,
-            'line-width': dynamicGridWidth,
-            'line-opacity': dynamicGridOpacity
-          });
-
-          // General Grid Cells (non-focus area) - Filled with Blue-Gray
-          ensureSourceAndLayer('grid-cells', 'fill', cellsData, {
-            'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569', 
-            'fill-opacity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              1, 0.15 * opacityMultiplier,
-              10, 0.25 * opacityMultiplier,
-              14, 0.35 * opacityMultiplier,
-              17, 0.55 * opacityMultiplier,
-              20, 0.75 * opacityMultiplier
-            ]
-          }, {}, ['!=', ['get', 'isFocus'], true], activeSourceId + '-layer');
-
-          // Focus Grid Cells (Surrounding red highlight)
-          ensureSourceAndLayer('grid-cells-focus', 'fill', cellsData, {
-            'fill-color': isSatellite || isDark ? '#94a3b8' : '#475569',
-            'fill-opacity': 0.4 * opacityMultiplier
-          }, {}, ['==', ['get', 'isFocus'], true], activeSourceId + '-layer');
-          
-          const labelLayerId = 'grid-labels-layer';
-          if (map.current!.getLayer(labelLayerId)) {
-            map.current!.removeLayer(labelLayerId);
-            map.current!.removeSource(labelLayerId);
-          }
-
-          // Order adjustment (Bottom to Top): Grid Cells -> Grid Lines -> Highlights
-          if (map.current!.getLayer('grid-cells-layer')) map.current!.moveLayer('grid-cells-layer');
-          if (map.current!.getLayer('grid-cells-focus-layer')) map.current!.moveLayer('grid-cells-focus-layer');
-          if (map.current!.getLayer(sourceId + '-layer')) map.current!.moveLayer(sourceId + '-layer');
-          
-          // Highlights ALWAYS on very top
-          if (map.current!.getLayer(activeSourceId + '-layer')) map.current!.moveLayer(activeSourceId + '-layer');
-          if (map.current!.getLayer(selectedSourceId + '-layer')) map.current!.moveLayer(selectedSourceId + '-layer');
-          if (map.current!.getLayer(selectedSourceId + '-outline-layer')) map.current!.moveLayer(selectedSourceId + '-outline-layer');
-          if (map.current!.getLayer('selection-point-glow-layer')) map.current!.moveLayer('selection-point-glow-layer');
-          if (map.current!.getLayer('selection-label-layer')) map.current!.moveLayer('selection-label-layer');
-          
-          setIsGridRegenerating(false);
-        };
-
-        let bounds = map.current?.getBounds().toArray();
-        
-        // Expand bounds for tilted views to cover horizon, but keep it stable
-        if (bounds && mapPitch > 30) {
-          const sw = bounds[0];
-          const ne = bounds[1];
-          const lngPad = (ne[0] - sw[0]) * 0.5; 
-          const latPad = (ne[1] - sw[1]) * 1.5; 
-          bounds = [
-            [sw[0] - lngPad, sw[1] - latPad * 0.2], 
-            [ne[0] + lngPad, ne[1] + latPad]      
-          ];
-        }
-
-        gridWorker.current.postMessage({
-          lat, lon: lng, zoom, isLargeGrid,
-          bounds: bounds
-        });
-      }
-    } else {
-      ensureSourceAndLayer(sourceId, 'line', { type: 'FeatureCollection', features: [] }, {});
-      ensureSourceAndLayer('grid-cells', 'fill', { type: 'FeatureCollection', features: [] }, {});
-      ensureSourceAndLayer('grid-cells-focus', 'fill', { type: 'FeatureCollection', features: [] }, {});
-    }
-  };
-
-  const updateNauticalLayer = () => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
-
-    const sourceId = 'nautical-regions';
-    const layerId = 'nautical-regions-layer';
-    const labelLayerId = 'nautical-regions-labels';
-
-    // Find a layer to insert before (usually before roads/labels)
-    const layers = map.current.getStyle().layers;
-    let beforeId = 'active-cell-layer';
-    if (layers) {
-      const firstLandLayer = layers.find(l => 
-        l.id.includes('land') || 
-        l.id.includes('building') || 
-        l.id.includes('road') || 
-        l.id.includes('label') ||
-        l.id.includes('poi') ||
-        l.id.includes('symbol') ||
-        l.id.includes('boundary') ||
-        l.id.includes('place')
-      );
-      if (firstLandLayer) beforeId = firstLandLayer.id;
-    }
-
-    if (!isNauticalMode && !isSeaTypeMode) {
-      if (map.current.getLayer(layerId)) map.current.removeLayer(layerId);
-      if (map.current.getLayer(layerId + '-land-mask')) map.current.removeLayer(layerId + '-land-mask');
-      if (map.current.getLayer(layerId + '-outline')) map.current.removeLayer(layerId + '-outline');
-      if (map.current.getLayer(labelLayerId)) map.current.removeLayer(labelLayerId);
-      if (map.current.getSource(sourceId)) map.current.removeSource(sourceId);
-      return;
-    }
-
-    const landPolygons = [
-      ...COUNTRY_REGIONS.flatMap(reg => {
-        if (reg.polygon) return [polygon([reg.polygon.map(p => [p[1], p[0]])])];
-        return [bboxPolygon([reg.w, reg.s, reg.e, reg.n])];
-      }),
-      ...LAND_REGIONS.flatMap(reg => {
-        if (reg.w > reg.e) {
-          return [
-            bboxPolygon([reg.w, reg.s, 180, reg.n]),
-            bboxPolygon([-180, reg.s, reg.e, reg.n])
-          ];
-        }
-        return [bboxPolygon([reg.w, reg.s, reg.e, reg.n])];
-      })
-    ];
-
-    const features = [
-      ...SEA_REGIONS.flatMap(reg => {
-        const polygons: any[] = [];
-        if (reg.polygon) {
-          polygons.push(reg.polygon.map((p: [number, number]) => [p[1], p[0]]));
-        } else if (reg.w > reg.e) {
-          polygons.push([[reg.w, reg.s], [180, reg.s], [180, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
-          polygons.push([[-180, reg.s], [reg.e, reg.s], [reg.e, reg.n], [-180, reg.n], [-180, reg.s]]);
-        } else {
-          polygons.push([[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
-        }
-
-        return polygons.map((coords) => {
-          let seaFeat: any = polygon([coords]);
-          
-          // Subtract land from sea
-          if (isSeaTypeMode && landPolygons.length > 0) {
-            try {
-              // In Turf v7, difference accepts a FeatureCollection where the first feature is the base
-              // and subsequent features are subtracted.
-              const diff = difference(featureCollection([seaFeat, ...landPolygons]));
-              if (diff) seaFeat = diff;
-              else return null;
-            } catch (e) {
-              console.warn("Turf difference error:", e);
-            }
-          }
-
-          const areaValue = area(seaFeat);
-          
-          return {
-            ...seaFeat,
-            properties: {
-              id: reg.id,
-              name: reg.name,
-              isSea: true,
-              area: areaValue,
-              color: isSeaTypeMode 
-                ? `hsl(${(reg.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 137) % 360}, 80%, 60%)`
-                : `hsl(${(reg.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 137) % 360}, 70%, 50%)`
-            }
-          };
-        }).filter(f => f !== null);
-      }),
-      ...COUNTRY_REGIONS.flatMap(reg => {
-        const polygons: any[] = [];
-        if (reg.polygon) {
-          const coords = reg.polygon.map((p: [number, number]) => [p[1], p[0]]);
-          polygons.push(coords);
-        } else {
-          polygons.push([[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
-        }
-
-        return polygons.map((coords) => ({
-          type: 'Feature',
-          geometry: { type: 'Polygon', coordinates: [coords] },
-          properties: {
-            id: reg.code,
-            name: reg.name,
-            isLand: true
-          }
-        }));
-      }),
-      ...LAND_REGIONS.flatMap(reg => {
-        const polygons: any[] = [];
-        if (reg.w > reg.e) {
-          polygons.push([[reg.w, reg.s], [180, reg.s], [180, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
-          polygons.push([[-180, reg.s], [reg.e, reg.s], [reg.e, reg.n], [-180, reg.n], [-180, reg.s]]);
-        } else {
-          polygons.push([[reg.w, reg.s], [reg.e, reg.s], [reg.e, reg.n], [reg.w, reg.n], [reg.w, reg.s]]);
-        }
-
-        return polygons.map((coords) => ({
-          type: 'Feature',
-          geometry: { type: 'Polygon', coordinates: [coords] },
-          properties: {
-            id: reg.id,
-            name: reg.name,
-            isLand: true
-          }
-        }));
-      })
-    ];
-
-    const data: any = {
-      type: 'FeatureCollection',
-      features
-    };
-
-    if (map.current.getSource(sourceId)) {
-      (map.current.getSource(sourceId) as maplibregl.GeoJSONSource).setData(data);
-      
-      // Update land mask color if it exists
-      if (map.current.getLayer(layerId + '-land-mask')) {
-        map.current.setPaintProperty(layerId + '-land-mask', 'fill-color', mapStyle === 'satellite' ? 'transparent' : '#f8f9fa');
-        map.current.setPaintProperty(layerId + '-land-mask', 'fill-opacity', mapStyle === 'satellite' ? 0 : 1);
-      }
-      
-      // Update sea layer opacity based on mode
-      if (map.current.getLayer(layerId)) {
-        map.current.setPaintProperty(layerId, 'fill-opacity', isSeaTypeMode ? 0.3 : 0.1);
-        map.current.setPaintProperty(layerId, 'fill-color', ['get', 'color']);
-      }
-
-      // Navigation Target Marker
-      const finalDestination = destination || navigationTarget;
-      if (finalDestination) {
-        const targetPoint = {
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [finalDestination.lng, finalDestination.lat] },
-          properties: {}
-        };
-        if (map.current.getSource('nav-target-source')) {
-          (map.current.getSource('nav-target-source') as maplibregl.GeoJSONSource).setData(targetPoint as any);
-        } else {
-          map.current.addSource('nav-target-source', {
-            type: 'geojson',
-            data: targetPoint as any
-          });
-          map.current.addLayer({
-            id: 'nav-target-layer',
-            type: 'circle',
-            source: 'nav-target-source',
-            paint: {
-              'circle-radius': 10,
-              'circle-color': '#ef4444',
-              'circle-stroke-width': 4,
-              'circle-stroke-color': '#ffffff'
-            }
-          }, beforeId);
-          // Add a small white dot in the center for a "pin" look
-          map.current.addLayer({
-            id: 'nav-target-dot',
-            type: 'circle',
-            source: 'nav-target-source',
-            paint: {
-              'circle-radius': 3,
-              'circle-color': '#ffffff'
-            }
-          }, beforeId);
-        }
-      } else {
-        if (map.current.getLayer('nav-target-layer')) map.current.removeLayer('nav-target-layer');
-        if (map.current.getLayer('nav-target-dot')) map.current.removeLayer('nav-target-dot');
-        if (map.current.getSource('nav-target-source')) map.current.removeSource('nav-target-source');
-      }
-
-      // Origin Marker (if not user location)
-      if (origin && origin.name !== "My Location") {
-        const originPoint = {
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [origin.lng, origin.lat] },
-          properties: {}
-        };
-        if (map.current.getSource('origin-source')) {
-          (map.current.getSource('origin-source') as maplibregl.GeoJSONSource).setData(originPoint as any);
-        } else {
-          map.current.addSource('origin-source', {
-            type: 'geojson',
-            data: originPoint as any
-          });
-          map.current.addLayer({
-            id: 'origin-layer',
-            type: 'circle',
-            source: 'origin-source',
-            paint: {
-              'circle-radius': 8,
-              'circle-color': '#3b82f6',
-              'circle-stroke-width': 3,
-              'circle-stroke-color': '#ffffff'
-            }
-          }, beforeId);
-        }
-      } else {
-        if (map.current.getLayer('origin-layer')) map.current.removeLayer('origin-layer');
-        if (map.current.getSource('origin-source')) map.current.removeSource('origin-source');
-      }
-
-      // User Location Marker
-      if (userLocation) {
-        const userPoint = {
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [userLocation.lng, userLocation.lat] },
-          properties: {}
-        };
-        if (map.current.getSource('user-location-source')) {
-          (map.current.getSource('user-location-source') as maplibregl.GeoJSONSource).setData(userPoint as any);
-        } else {
-          map.current.addSource('user-location-source', {
-            type: 'geojson',
-            data: userPoint as any
-          });
-          // User Location Halo (Pulsing effect look)
-          map.current.addLayer({
-            id: 'user-location-halo',
-            type: 'circle',
-            source: 'user-location-source',
-            paint: {
-              'circle-radius': 18,
-              'circle-color': '#4285F4',
-              'circle-opacity': 0.2
-            }
-          }, beforeId);
-          // User Location Main Dot
-          map.current.addLayer({
-            id: 'user-location-layer',
-            type: 'circle',
-            source: 'user-location-source',
-            paint: {
-              'circle-radius': 8,
-              'circle-color': '#4285F4',
-              'circle-stroke-width': 3,
-              'circle-stroke-color': '#ffffff'
-            }
-          }, beforeId);
-        }
-      } else {
-        if (map.current.getLayer('user-location-layer')) map.current.removeLayer('user-location-layer');
-        if (map.current.getLayer('user-location-halo')) map.current.removeLayer('user-location-halo');
-        if (map.current.getSource('user-location-source')) map.current.removeSource('user-location-source');
-      }
-
-      // Navigation Route Layer
-      if (routeData) {
-        if (map.current.getSource('route-source')) {
-          (map.current.getSource('route-source') as maplibregl.GeoJSONSource).setData(routeData);
-        } else {
-          map.current.addSource('route-source', {
-            type: 'geojson',
-            data: routeData
-          });
-          
-          // Route Glow (Soft shadow)
-          map.current.addLayer({
-            id: 'route-layer-glow',
-            type: 'line',
-            source: 'route-source',
-            filter: ['==', ['geometry-type'], 'LineString'],
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: {
-              'line-color': '#4285F4',
-              'line-width': 14,
-              'line-opacity': 0.2,
-              'line-blur': 4
-            }
-          }, beforeId);
-
-          // Route Casing (White border)
-          map.current.addLayer({
-            id: 'route-layer-casing',
-            type: 'line',
-            source: 'route-source',
-            filter: ['==', ['geometry-type'], 'LineString'],
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: {
-              'line-color': '#ffffff',
-              'line-width': 10,
-              'line-opacity': 1
-            }
-          }, beforeId);
-
-          // Main Route Line (Google Maps Blue)
-          map.current.addLayer({
-            id: 'route-layer',
-            type: 'line',
-            source: 'route-source',
-            filter: ['==', ['geometry-type'], 'LineString'],
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: {
-              'line-color': '#4285F4',
-              'line-width': 6,
-              'line-opacity': 1
-            }
-          }, beforeId);
-
-          // Route Start/End Points
-          map.current.addLayer({
-            id: 'route-points',
-            type: 'circle',
-            source: 'route-source',
-            filter: ['==', ['geometry-type'], 'Point'],
-            paint: {
-              'circle-radius': 6,
-              'circle-color': ['match', ['get', 'type'], 'start', '#ffffff', 'end', '#EA4335', '#ffffff'],
-              'circle-stroke-width': 3,
-              'circle-stroke-color': ['match', ['get', 'type'], 'start', '#4285F4', 'end', '#ffffff', '#4285F4']
-            }
-          }, beforeId);
-        }
-      } else {
-        if (map.current.getLayer('route-points')) map.current.removeLayer('route-points');
-        if (map.current.getLayer('route-layer')) map.current.removeLayer('route-layer');
-        if (map.current.getLayer('route-layer-casing')) map.current.removeLayer('route-layer-casing');
-        if (map.current.getLayer('route-layer-glow')) map.current.removeLayer('route-layer-glow');
-        if (map.current.getSource('route-source')) map.current.removeSource('route-source');
-      }
-    } else {
-      map.current.addSource(sourceId, {
-        type: 'geojson',
-        data
-      });
-
-      // Sea Layer
-      map.current.addLayer({
-        id: layerId,
-        type: 'fill',
-        source: sourceId,
-        filter: ['==', ['get', 'isSea'], true],
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': isSeaTypeMode ? 0.3 : 0.1,
-          'fill-outline-color': ['get', 'color']
-        }
-      }, beforeId);
-
-      // Land Mask Layer (to hide sea color on land)
-      map.current.addLayer({
-        id: layerId + '-land-mask',
-        type: 'fill',
-        source: sourceId,
-        filter: ['==', ['get', 'isLand'], true],
-        paint: {
-          'fill-color': mapStyle === 'satellite' ? 'transparent' : '#f8f9fa',
-          'fill-opacity': mapStyle === 'satellite' ? 0 : 1
-        }
-      }, beforeId);
-
-      map.current.addLayer({
-        id: layerId + '-outline',
-        type: 'line',
-        source: sourceId,
-        filter: ['==', ['get', 'isSea'], true],
-        layout: {
-          'visibility': isSeaTypeMode ? 'visible' : 'none'
-        },
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': 2,
-          'line-opacity': 0.8,
-          'line-dasharray': [2, 2]
-        }
-      }, beforeId);
-
-      // Nautical labels layer remains for context if needed, but suppressed based on user preference for "No IDs"
-      /* 
-      map.current.addLayer({
-        id: labelLayerId,
-        type: 'symbol',
-        source: sourceId,
-        filter: ['==', ['get', 'isSea'], true],
-        layout: {
-          'text-field': ['get', 'name'],
-          'text-size': 12,
-          'text-allow-overlap': false,
-          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-          'text-transform': 'uppercase',
-          'text-letter-spacing': 0.1,
-          'visibility': isSeaTypeMode ? 'visible' : 'none'
-        },
-        paint: {
-          'text-color': ['get', 'color'],
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
-          'text-opacity': 0.9
-        }
-      });
-      */
-    }
-  };
-
   useEffect(() => {
     if (isMapLoaded) {
-      updateNauticalLayer();
+      updateMapScene();
     }
   }, [isNauticalMode, isSeaTypeMode, isMapLoaded, mapStyle, routeData, navigationTarget, userLocation, isGuidanceActive]);
 
@@ -4589,52 +4284,56 @@ export default function App() {
         isAgidPanelCollapsed && "bottom-2"
       )}>
         {/* Selected Location Panel - Improved UX */}
-        <GridDetailPanel 
-          clickedAgid={clickedAgid}
-          setClickedAgid={setClickedAgid}
-          isAgidPanelCollapsed={isAgidPanelCollapsed}
-          setIsAgidPanelCollapsed={setIsAgidPanelCollapsed}
-          isManualSelection={isManualSelection}
-          setIsManualSelection={setIsManualSelection}
-          isAgidPinnedToGps={isAgidPinnedToGps}
-          setIsAgidPinnedToGps={setIsAgidPinnedToGps}
-          userLocation={userLocation}
-          reverseGeocode={reverseGeocode}
-          showAlert={showAlert}
-          setIsQrVisible={setIsQrVisible}
-          isQrVisible={isQrVisible}
-          clickedAddress={clickedAddress}
-          setDestination={setDestination}
-          setDestinationQuery={setDestinationQuery}
-          setIsRoutePlanning={setIsRoutePlanning}
-          setIsNavigating={setIsNavigating}
-          setOrigin={setOrigin}
-          setOriginQuery={setOriginQuery}
-          clickedAddressMap={clickedAddressMap}
-          clickedAddressTab={clickedAddressTab}
-          setClickedAddressTab={setClickedAddressTab}
-          clickedActiveLangs={clickedActiveLangs}
-          clickedAddressTranslated={clickedAddressTranslated}
-          clickedAddressDetails={clickedAddressDetails}
-          setClickedAddress={setClickedAddress}
-          fetchAddressForLang={fetchAddressForLang}
-          fastJapaneseTransliterate={fastJapaneseTransliterate}
-          saveAgid={saveAgid}
-          setShowLocationAnalysis={setShowLocationAnalysis}
-          showLocationAnalysis={showLocationAnalysis}
-          saveQrCode={saveQrCode}
-          showPostalCodeLab={showPostalCodeLab}
-          setShowPostalCodeLab={setShowPostalCodeLab}
-          showGeoArchitect={showGeoArchitect}
-          setShowGeoArchitect={setShowGeoArchitect}
-          mapRef={map}
-          mapPitch={mapPitch}
-          getDeviceZoom={getDeviceZoom}
-          encodeAGID={encodeAGID}
-          copied={copied}
-          setCopied={setCopied}
-          t={t}
-        />
+        <AnimatePresence>
+          {clickedAgid && (
+            <GridDetailPanel 
+              clickedAgid={clickedAgid}
+              setClickedAgid={setClickedAgid}
+              isAgidPanelCollapsed={isAgidPanelCollapsed}
+              setIsAgidPanelCollapsed={setIsAgidPanelCollapsed}
+              isManualSelection={isManualSelection}
+              setIsManualSelection={setIsManualSelection}
+              isAgidPinnedToGps={isAgidPinnedToGps}
+              setIsAgidPinnedToGps={setIsAgidPinnedToGps}
+              userLocation={userLocation}
+              reverseGeocode={reverseGeocode}
+              showAlert={showAlert}
+              setIsQrVisible={setIsQrVisible}
+              isQrVisible={isQrVisible}
+              clickedAddress={clickedAddress}
+              setDestination={setDestination}
+              setDestinationQuery={setDestinationQuery}
+              setIsRoutePlanning={setIsRoutePlanning}
+              setIsNavigating={setIsNavigating}
+              setOrigin={setOrigin}
+              setOriginQuery={setOriginQuery}
+              clickedAddressMap={clickedAddressMap}
+              clickedAddressTab={clickedAddressTab}
+              setClickedAddressTab={setClickedAddressTab}
+              clickedActiveLangs={clickedActiveLangs}
+              clickedAddressTranslated={clickedAddressTranslated}
+              clickedAddressDetails={clickedAddressDetails}
+              setClickedAddress={setClickedAddress}
+              fetchAddressForLang={fetchAddressForLang}
+              fastJapaneseTransliterate={fastJapaneseTransliterate}
+              saveAgid={saveAgid}
+              setShowLocationAnalysis={setShowLocationAnalysis}
+              showLocationAnalysis={showLocationAnalysis}
+              saveQrCode={saveQrCode}
+              showPostalCodeLab={showPostalCodeLab}
+              setShowPostalCodeLab={setShowPostalCodeLab}
+              showGeoArchitect={showGeoArchitect}
+              setShowGeoArchitect={setShowGeoArchitect}
+              mapRef={map}
+              mapPitch={mapPitch}
+              getDeviceZoom={getDeviceZoom}
+              encodeAGID={encodeAGID}
+              copied={copied}
+              setCopied={setCopied}
+              t={t}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
 

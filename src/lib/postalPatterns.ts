@@ -46,6 +46,118 @@ export const POSTAL_PATTERNS: Record<string, PostalPattern> = {
     description: '5-digit code where the first two digits indicate the department.',
     history: 'Implemented in 1964. The structure ties directly to the Napoleonic department system, making it both a postal and an administrative identifier.'
   },
+  'CA': {
+    country: 'Canada',
+    format: 'ANA NAN',
+    regex: /^[A-Z]\d[A-Z] ?\d[A-Z]\d$/,
+    example: 'K1A 0B1',
+    description: 'Alphanumeric Forward Sortation Area (FSA) and Local Delivery Unit (LDU).',
+    history: 'Phased in between 1971-1974. The alphanumeric nature was chosen to provide vast capacity for a geographically massive yet sparsely populated country.'
+  },
+  'AU': {
+    country: 'Australia',
+    format: 'NNNN',
+    regex: /^\d{4}$/,
+    example: '2000',
+    description: '4-digit code where the first digit usually indicates the State or Territory.',
+    history: 'Introduced in 1967. Australia Post moved to a numeric system to facilitate mechanized sorting across various vast states.'
+  },
+  'NZ': {
+    country: 'New Zealand',
+    format: 'NNNN',
+    regex: /^\d{4}$/,
+    example: '6011',
+    description: '4-digit code identifying specific urban delivery rounds or post boxes.',
+    history: 'A comprehensive 4-digit system was implemented in 2006, replacing old district-based numbering to improve automated sorting accuracy.'
+  },
+  'IE': {
+    country: 'Ireland',
+    format: 'A65 AAAA',
+    regex: /^[A-Z][0-9][0-9W] [A-Z0-9]{4}$/,
+    example: 'D02 X285',
+    description: 'Eircode: A 7-character alphanumeric code unique to every individual address.',
+    history: 'Launched in 2015 as the worlds first nationwide alphanumeric postal code system that identifies individual premises unique identities.'
+  },
+  'IN': {
+    country: 'India',
+    format: 'NNNNNN',
+    regex: /^\d{6}$/,
+    example: '110001',
+    description: 'PIN (Postal Index Number) where the first digit indicates the region.',
+    history: 'Introduced in 1972 by Shriram Bhikaji Velankar to simplify routing across the linguistically diverse and vast Indian subcontinent.'
+  },
+  'ZA': {
+    country: 'South Africa',
+    format: 'NNNN',
+    regex: /^\d{4}$/,
+    example: '0001',
+    description: '4-digit code where the first two digits indicate the mailing region.',
+    history: 'Rolled out in 1973 as part of a massive postal infrastructure program to modernize the sorting process in the post-independence era.'
+  },
+  'SG': {
+    country: 'Singapore',
+    format: 'NNNNNN',
+    regex: /^\d{6}$/,
+    example: '048582',
+    description: '6-digit code unique to every building in Singapore.',
+    history: 'Expanded from 4-digit codes in 1995 to provide 6 decimals, ensuring every single residential and commercial building gets a unique ID.'
+  },
+  'PH': {
+    country: 'Philippines',
+    format: 'NNNN',
+    regex: /^\d{4}$/,
+    example: '1000',
+    description: '4-digit ZIP code primarily used for post offices and larger municipalities.',
+    history: 'Adopted a system similar to the US ZIP codes but simplified to 4 digits to match the scale of Philippine postal regions.'
+  },
+  'NG': {
+    country: 'Nigeria',
+    format: 'NNNNNN',
+    regex: /^\d{6}$/,
+    example: '100001',
+    description: '6-digit POSTCODE where the first digit represents the regional hub.',
+    history: 'NIPOST established the 6-digit Nigerian Postal Code in the late 20th century to improve mail circulation efficiency.'
+  },
+  'GH': {
+    country: 'Ghana',
+    format: 'AA-NNN-NNNN',
+    regex: /^[A-Z]{2}-\d{3}-\d{4}$/,
+    example: 'GA-107-1111',
+    description: 'Ghana Post GPS digital addressing system unique to every 10x10 meter plot.',
+    history: 'Launched in 2017, this system provides every location in Ghana with a unique digital address using the Ghana Post GPS app.'
+  },
+  'KE': {
+    country: 'Kenya',
+    format: 'NNNNN',
+    regex: /^\d{5}$/,
+    example: '00100',
+    description: '5-digit postal code where the first two digits indicate the regional sorting hub.',
+    history: 'Modernized in 1993 to streamline the delivery processes across the East African nations growing urban centers.'
+  },
+  'PK': {
+    country: 'Pakistan',
+    format: 'NNNNN',
+    regex: /^\d{5}$/,
+    example: '44000',
+    description: '5-digit code identifying specific post offices and delivery areas.',
+    history: 'The current 5-digit indexing was established in 1988 to transition from purely name-based sorting to numerical hubs.'
+  },
+  'BD': {
+    country: 'Bangladesh',
+    format: 'NNNN',
+    regex: /^\d{4}$/,
+    example: '1000',
+    description: '4-digit code identifying larger districts and specific post offices.',
+    history: 'Expanded from old colonial systems to a modern 4-digit national index as the nation built its postal independent network.'
+  },
+  'LK': {
+    country: 'Sri Lanka',
+    format: 'NNNNN',
+    regex: /^\d{5}$/,
+    example: '00100',
+    description: '5-digit code identifying specific delivery areas and post offices.',
+    history: 'Established in the mid-20th century to provide a precise mapping of the islands diverse geographic regions.'
+  },
   // ... adding a base generic for experimental use in no-zip countries
   'GENERIC_numeric': {
     country: 'Custom Numeric',
@@ -592,7 +704,7 @@ export function getPatternForPrefix(prefix: string): PostalPattern | null {
  * mapping that "feels" like it learned the structure.
  */
 export function applySmartPattern(agid: string, pattern: PostalPattern): string {
-  const hash = agid.split('-')[1] || '';
+  const hash = agid.length === 12 ? agid.slice(2) : (agid.split('-')[1] || '');
   const format = pattern.format;
   let result = '';
   let hashIdx = 0;

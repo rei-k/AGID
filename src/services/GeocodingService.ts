@@ -136,7 +136,23 @@ export function normalizeAddress(text: string): string {
     "ne": "northeast",
     "nw": "northwest",
     "se": "southeast",
-    "sw": "southwest"
+    "sw": "southwest",
+    // Spanish Abbreviations (libpostal/GeoNames style)
+    "cl": "calle",
+    "av": "avenida",
+    "pza": "plaza",
+    "cra": "carrera",
+    "diag": "diagonal",
+    "tv": "transversal",
+    "urb": "urbanización",
+    "cond": "condominio",
+    "col": "colonia",
+    "barr": "barrio",
+    "esq": "esquina",
+    "dto": "departamento",
+    "piso": "piso",
+    "nro": "número",
+    "no": "número"
   };
 
   const words = normalized.split(/\s+/);
@@ -465,7 +481,7 @@ export async function regionalReverseGeocode(lat: number, lon: number, langCode:
 
   try {
     const promises: Promise<any>[] = [
-      fetchWithRetry(`/api/osm-reverse?lat=${lat}&lon=${lon}&lang=${langCode}`, { timeout: 120000 }),
+      fetchWithRetry(`/api/osm-reverse?lat=${lat}&lon=${lon}&lang=${langCode}&cc=${cc}`, { timeout: 120000 }),
       fetchWithRetry(`/api/elevation?lat=${lat}&lon=${lon}`, { timeout: 120000 }),
       fetchWithRetry(`/api/water-risk?lat=${lat}&lon=${lon}`, { timeout: 120000 }),
       fetchWithRetry(`/api/mountain/nearby?lat=${lat}&lon=${lon}`, { timeout: 120000 }),

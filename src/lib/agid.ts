@@ -409,28 +409,28 @@ export function encodeAGID(lat: number, lon: number): AGIDResult {
  * Bounds Calculation for Cubed Sphere
  */
 export function getCellPolygon(face: number, quantX: number, quantY: number, step: number = 1): number[][] {
-  // To make the grid look more like "right-angled squares" on a sphere,
-  // we sample midpoints of each edge. This makes the lines look curved/orthogonal.
-  const half = step / 2;
   const p1 = getFromQuantized(face, quantX, quantY);
-  const p1_2 = getFromQuantized(face, quantX + half, quantY);
   const p2 = getFromQuantized(face, quantX + step, quantY);
-  const p2_3 = getFromQuantized(face, quantX + step, quantY + half);
   const p3 = getFromQuantized(face, quantX + step, quantY + step);
-  const p3_4 = getFromQuantized(face, quantX + half, quantY + step);
   const p4 = getFromQuantized(face, quantX, quantY + step);
-  const p4_1 = getFromQuantized(face, quantX, quantY + half);
+
+  const pts = [p1, p2, p3, p4];
+  const refLon = p1.lon;
+  
+  // Handle Longitudinal Wrap (IDL)
+  const adjusted = pts.map(p => {
+    let shiftedLon = p.lon;
+    if (shiftedLon - refLon > 180) shiftedLon -= 360;
+    else if (shiftedLon - refLon < -180) shiftedLon += 360;
+    return [shiftedLon, p.lat];
+  });
 
   return [
-    [p1.lon, p1.lat],
-    [p1_2.lon, p1_2.lat],
-    [p2.lon, p2.lat],
-    [p2_3.lon, p2_3.lat],
-    [p3.lon, p3.lat],
-    [p3_4.lon, p3_4.lat],
-    [p4.lon, p4.lat],
-    [p4_1.lon, p4_1.lat],
-    [p1.lon, p1.lat]
+    adjusted[0],
+    adjusted[1],
+    adjusted[2],
+    adjusted[3],
+    adjusted[0]
   ];
 }
 
@@ -544,21 +544,18 @@ function getSpatialCell(lat: number, lon: number) {
  * Includes a bounding box pre-check for performance.
  */
 function isPointInPolygon(lat: number, lon: number, polygon: [number, number][] | [number, number][][], bounds?: { n: number, s: number, w: number, e: number }) {
-  const EPS = 1e-9;
+  const EPS = 1e-10;
   
   // Bounding box pre-check
-  let inBounds = false;
   if (bounds) {
     const inLon = bounds.w <= bounds.e 
       ? (lon >= bounds.w - EPS && lon <= bounds.e + EPS) 
       : (lon >= bounds.w - EPS || lon <= bounds.e + EPS);
     if (lat < bounds.s - EPS || lat > bounds.n + EPS || !inLon) return false;
-    inBounds = true;
   }
 
   // If no polygon data is provided but we matched the bounds, we treat it as a hit.
-  // This is critical for countries defined only by their bounding boxes in our JSON.
-  if (!polygon) return inBounds;
+  if (!polygon) return true;
 
   const polygons = (Array.isArray(polygon) && Array.isArray(polygon[0]) && Array.isArray(polygon[0][0]))
     ? polygon as [number, number][][]
@@ -567,11 +564,9 @@ function isPointInPolygon(lat: number, lon: number, polygon: [number, number][] 
   for (const poly of polygons) {
     let inside = false;
     for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const xi = poly[i][1], yi = poly[i][0];
-      const xj = poly[j][1], yj = poly[j][0];
-      
-      // Check if point is exactly on a vertex
-      if (Math.abs(xi - lon) < EPS && Math.abs(yi - lat) < EPS) return true;
+      // Data in JSON is [LAT, LON]
+      const yi = poly[i][0], xi = poly[i][1];
+      const yj = poly[j][0], xj = poly[j][1];
       
       const intersect = ((yi > lat) !== (yj > lat)) &&
         (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
@@ -620,7 +615,7 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   while (normLon < -180) normLon += 360;
 
   // 1. POLAR SPECIAL RULE (Fast exit)
-  if (lat > 89.95) return { prefix: "ARCT", isSea: true, gridSize: 4.4, name: "North Pole", polygon: [[89.9,-180],[90,-180],[90,180],[89.9,180],[89.9,-180]] };
+  if (lat > 89.95) return { prefix: "ARCT", isSea: true, gridSize: 4.4, name: "North Pole", polygon: [[-180, 89.9],[-180, 90],[180, 90],[180, 89.9],[-180, 89.9]] };
   if (lat < -85.0) return { prefix: "AQ", isSea: false, gridSize: 4.4, name: "Antarctica" };
 
   // 2. GRID LOOKUP (Narrow down to 1-3 candidates)
@@ -644,17 +639,29 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   const others = cell.countries.filter(c => !HIGH_PRIORITY_CODES.includes(c.code));
 
   for (const c of prioritized) {
-    const poly = (c as any).polygons || c.polygon;
-    if (poly && isPointInPolygon(lat, normLon, poly, c)) {
-      const res = { prefix: c.code, isSea: false, gridSize: 4.4, name: c.name, polygon: c.polygons?.[0] || c.polygon };
+    const polyRaw = (c as any).polygons || c.polygon;
+    if (isPointInPolygon(lat, normLon, polyRaw, c)) {
+      // Extract the first ring of the first polygon
+      let polySet = polyRaw;
+      while (Array.isArray(polySet) && Array.isArray(polySet[0]) && Array.isArray(polySet[0][0])) {
+        polySet = polySet[0];
+      }
+      
+      const res = { 
+        prefix: c.code, 
+        isSea: false, 
+        gridSize: 4.4, 
+        name: c.name, 
+        polygon: polySet ? (polySet as [number, number][]).map(p => [p[1], p[0]]) : undefined 
+      };
       LAST_LAT = lat; LAST_LON = normLon; LAST_RESULT = res as any;
       return res;
     }
   }
 
   for (const c of others) {
-    const poly = (c as any).polygons || c.polygon;
-    if (poly && isPointInPolygon(lat, normLon, poly, c)) {
+    const polyRaw = (c as any).polygons || c.polygon;
+    if (isPointInPolygon(lat, normLon, polyRaw, c)) {
       const area = getArea(c.n, c.s, c.w, c.e);
       if (area < countryMinArea) {
         countryMinArea = area;
@@ -664,7 +671,19 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   }
 
   if (countryMatch) {
-    const res = { prefix: countryMatch.code, isSea: false, gridSize: 4.4, name: countryMatch.name, polygon: countryMatch.polygons?.[0] || countryMatch.polygon };
+    const polyRaw = countryMatch.polygons?.[0] || countryMatch.polygon;
+    let polySet = polyRaw;
+    while (Array.isArray(polySet) && Array.isArray(polySet[0]) && Array.isArray(polySet[0][0])) {
+      polySet = polySet[0];
+    }
+
+    const res = { 
+      prefix: countryMatch.code, 
+      isSea: false, 
+      gridSize: 4.4, 
+      name: countryMatch.name, 
+      polygon: polySet ? (polySet as [number, number][]).map(p => [p[1], p[0]]) : undefined 
+    };
     LAST_LAT = lat; LAST_LON = normLon; LAST_RESULT = res as any;
     return res;
   }
@@ -674,8 +693,8 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   let seaMinArea = Infinity;
 
   for (const s of cell.seas) {
-    const poly = (s as any).polygons || s.polygon;
-    if (poly && isPointInPolygon(lat, normLon, poly, s)) {
+    const polyRaw = (s as any).polygons || s.polygon;
+    if (isPointInPolygon(lat, normLon, polyRaw, s)) {
       const area = getArea(s.n, s.s, s.w, s.e);
       if (area < seaMinArea) {
         seaMinArea = area;
@@ -685,7 +704,19 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   }
 
   if (seaMatch) {
-    const res = { prefix: seaMatch.id, isSea: true, gridSize: 4.4, name: seaMatch.name, polygon: seaMatch.polygons?.[0] || seaMatch.polygon };
+    const polyRaw = seaMatch.polygons?.[0] || seaMatch.polygon;
+    let polySet = polyRaw;
+    while (Array.isArray(polySet) && Array.isArray(polySet[0]) && Array.isArray(polySet[0][0])) {
+      polySet = polySet[0];
+    }
+
+    const res = { 
+      prefix: seaMatch.id, 
+      isSea: true, 
+      gridSize: 4.4, 
+      name: seaMatch.name, 
+      polygon: polySet ? (polySet as [number, number][]).map(p => [p[1], p[0]]) : undefined 
+    };
     LAST_LAT = lat; LAST_LON = normLon; LAST_RESULT = res as any;
     return res;
   }
@@ -711,17 +742,23 @@ export function getRegionInfo(lat: number, lon: number): { prefix: string, isSea
   const lonBand = Math.floor(normLon / lonStep) * lonStep;
   
   const subCode = `O_${o.id}_${latBand}_${Math.floor(lonBand)}`;
+  const normalizeLon = (l: number) => {
+    while (l > 180) l -= 360;
+    while (l < -180) l += 360;
+    return l;
+  };
+
   const res = { 
     prefix: subCode, 
     isSea: true, 
     gridSize: 4.4, 
     name: `${o.name} (${Math.abs(latBand)}${latBand >= 0 ? 'N' : 'S'} ${Math.abs(Math.floor(lonBand))}${lonBand >= 0 ? 'E' : 'W'})`,
     polygon: [
-      [latBand, lonBand],
-      [latBand + 9, lonBand],
-      [latBand + 9, lonBand + lonStep],
-      [latBand, lonBand + lonStep],
-      [latBand, lonBand]
+      [lonBand, latBand],
+      [lonBand, latBand + 9],
+      [normalizeLon(lonBand + lonStep), latBand + 9],
+      [normalizeLon(lonBand + lonStep), latBand],
+      [lonBand, latBand]
     ]
   };
   LAST_LAT = lat; LAST_LON = normLon; LAST_RESULT = res as any;
@@ -868,11 +905,7 @@ export function getGridFeatures(lat: number, lon: number, range: number) {
       gridLines.push([polyCoords[0], polyCoords[1]]);
       gridLines.push([polyCoords[1], polyCoords[2]]);
       gridLines.push([polyCoords[2], polyCoords[3]]);
-      gridLines.push([polyCoords[3], polyCoords[4]]);
-      gridLines.push([polyCoords[4], polyCoords[5]]);
-      gridLines.push([polyCoords[5], polyCoords[6]]);
-      gridLines.push([polyCoords[6], polyCoords[7]]);
-      gridLines.push([polyCoords[7], polyCoords[0]]);
+      gridLines.push([polyCoords[3], polyCoords[0]]);
 
       gridCells.push({
         type: 'Feature',

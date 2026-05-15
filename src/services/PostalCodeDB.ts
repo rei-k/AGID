@@ -10,8 +10,8 @@ import * as geokdbush from 'geokdbush';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(process.cwd(), 'data', 'postal_codes');
 
-// Supported countries for this feature (East/Southeast Asia)
-const SUPPORTED_COUNTRIES = ['JP', 'KR', 'CN', 'SG', 'TH', 'MY', 'ID', 'PH'];
+// Supported countries for this feature (Asia, Spanish-speaking regions)
+const SUPPORTED_COUNTRIES = ['JP', 'KR', 'CN', 'SG', 'TH', 'MY', 'ID', 'PH', 'ES', 'MX', 'CO', 'AR', 'CL'];
 
 interface PostalRecord {
   countryCode: string;
@@ -182,6 +182,12 @@ async function downloadFileWithRetry(url: string, dest: string, retries: number 
       }
       
       if (i === retries - 1) throw err;
+      
+      // Don't retry on 404 errors
+      if (err.message && err.message.includes('Status 404')) {
+        throw err;
+      }
+
       console.warn(`Download failed for ${currentUrl} (attempt ${i + 1}/${retries}): ${err.message}. Retrying in 15s...`);
       await new Promise(resolve => setTimeout(resolve, 15000));
     }

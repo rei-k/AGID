@@ -233,24 +233,15 @@ const GREEK_MAP: Record<string, string> = {
   'Χ': 'Ch', 'χ': 'ch', 'Ψ': 'Ps', 'ψ': 'ps', 'Ω': 'O', 'ω': 'o'
 };
 
-/**
- * Chinese Pinyin (Simplified Heuristic)
- * Standard: ISO 7098
- */
-const PINYIN_COMMON: Record<string, string> = {
-  '北': 'Bei', '京': 'jing', '上': 'Shang', '海': 'hai', 
-  '广': 'Guang', '州': 'zhou', '深': 'Shen', '圳': 'zhen',
-  '省': ' Province', '市': ' City', '区': ' District', '路': ' Rd',
-  '街': ' St', '道': ' Ave', '号': ' No.', '楼': ' Bldg'
-};
+import { pinyin } from 'pinyin-pro';
 
 export function transliterateChinese(text: string): string {
   if (!text) return "";
-  let result = text;
-  Object.entries(PINYIN_COMMON).forEach(([zh, en]) => {
-    result = result.replace(new RegExp(zh, 'g'), en);
-  });
-  return result;
+  // Use pinyin-pro for high-quality Pinyin
+  return pinyin(text, { toneType: 'none' })
+    .split(' ')
+    .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(' ');
 }
 
 /**

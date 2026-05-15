@@ -123,18 +123,36 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
   const countryCode = countryCodeFromPrefix || countryCodeFromDetails || countryCodeFromId || "";
   
   const officialLangs = React.useMemo(() => {
-    const langs = [...(COUNTRY_LANGUAGES[countryCode] || ['en'])];
-    if ((countryCode === 'jp' || countryCodeFromDetails === 'jp') && !langs.includes('ja')) {
-      langs.unshift('ja');
+    const rawLangs = [...(COUNTRY_LANGUAGES[countryCode] || ['en'])];
+    if ((countryCode === 'jp' || countryCodeFromDetails === 'jp') && !rawLangs.includes('ja')) {
+      rawLangs.unshift('ja');
     }
-    return langs;
+    
+    // Deduplicate by base language to avoid multiple "English" tabs
+    const seenBase = new Set<string>();
+    const uniqueLangs: string[] = [];
+    
+    for (const code of rawLangs) {
+      const base = code.startsWith('en') ? 'en' : code;
+      if (!seenBase.has(base)) {
+        seenBase.add(base);
+        uniqueLangs.push(code);
+      }
+    }
+    
+    return uniqueLangs;
   }, [countryCode, countryCodeFromDetails]);
 
-  const displayTabs = React.useMemo(() => Array.from(new Set([
-    ...officialLangs,
-    'intl_en',
-    'carrier'
-  ])), [officialLangs]);
+  const displayTabs = React.useMemo(() => {
+    const tabs = [...officialLangs];
+    
+    // Always add 'carrier' as the shipping-optimized English tab
+    if (!tabs.includes('carrier')) {
+      tabs.push('carrier');
+    }
+    
+    return Array.from(new Set(tabs));
+  }, [officialLangs]);
 
   React.useEffect(() => {
     if (clickedAddressTab === 'shipping_label' && clickedAddressDetails) {
@@ -177,15 +195,18 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
 
   const getTabLabel = (langCode: string) => {
     if (langCode === 'intl_en') return "English (Intl)";
-    if (langCode === 'en') return "English";
+    if (langCode.startsWith('en')) return "English";
+    
+    // For carrier tab, label it as English for international/shipping use
+    if (langCode === 'carrier') {
+      const hasOtherEnglish = officialLangs.some(l => l.startsWith('en'));
+      return hasOtherEnglish ? "English (Intl)" : "English";
+    }
     
     const lang = LANGUAGES.find(l => l.code === langCode);
     if (lang) return lang.name;
     
-    switch (langCode) {
-      case 'carrier': return t('tab_carrier');
-      default: return langCode.toUpperCase();
-    }
+    return langCode.toUpperCase();
   };
 
   return (
@@ -198,8 +219,8 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
         "bg-slate-900/90 backdrop-blur-xl shadow-2xl border pointer-events-auto text-white transition-all duration-500 overflow-hidden mx-auto",
         clickedAgid.id.startsWith('IN') ? "border-orange-500/30" : clickedAgid.id.startsWith('ZA') ? "border-green-500/30" : "border-slate-800",
         isAgidPanelCollapsed 
-           ? "w-14 h-14 rounded-2xl flex items-center justify-center p-0 cursor-pointer hover:bg-slate-800 hover:scale-110 active:scale-95 shadow-red-500/20 shadow-lg" 
-           : "w-full rounded-[2rem] p-4"
+           ? "w-14 h-14 rounded-xl flex items-center justify-center p-0 cursor-pointer hover:bg-slate-800 hover:scale-110 active:scale-95 shadow-red-500/20 shadow-lg" 
+           : "w-full rounded-2xl p-4"
       )}
       onClick={isAgidPanelCollapsed ? () => setIsAgidPanelCollapsed(false) : undefined}
     >
@@ -211,7 +232,7 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
             className="flex items-center justify-center"
            >
                <div className="relative">
-                <div className="w-4 h-4 bg-red-500 rounded-md shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
+                <div className="w-4 h-4 bg-red-500 rounded-sm shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
                 <div className={cn(
                   "absolute -top-1.5 -right-1.5 w-2.5 h-2.5 rounded-full animate-pulse",
                   isAgidPinnedToGps ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
@@ -375,7 +396,7 @@ export const GridDetailPanel: React.FC<GridDetailPanelProps> = ({
                       <span className="text-[9px] font-black text-blue-200">{clickedAgid.regionName}</span>
                     </div>
                  )}
-
+ 
                  {/* Address Area */}
                  <div className="group relative bg-white/5 rounded-2xl p-3 border border-white/10 hover:bg-white/[0.08] transition-colors">
                   <div className="flex flex-col gap-2">

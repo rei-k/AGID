@@ -43,12 +43,19 @@ const formatModules = (import.meta as any).glob('./*.json');
  * This improves initial loading speed by not bundling all formats at once.
  */
 export async function getAddressFormat(countryCode: string): Promise<AddressFormat | null> {
-  const code = countryCode.toUpperCase();
-  const path = `./${code}.json`;
+  let code = countryCode.toUpperCase();
+  let path = `./${code}.json`;
   
   if (!(path in formatModules)) {
-    console.warn(`Address format for ${code} not found.`);
-    return null;
+    // Try base code fallback for sub-regions (e.g. DE-BY -> DE, ES_BAL -> ES)
+    const baseCode = code.split(/[-_]/)[0];
+    const basePath = `./${baseCode}.json`;
+    if (basePath in formatModules) {
+      path = basePath;
+    } else {
+      console.warn(`Address format for ${code} not found.`);
+      return null;
+    }
   }
 
   try {

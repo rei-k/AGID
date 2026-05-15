@@ -1,6 +1,15 @@
 
 import { transliterate } from './transliteration';
 import { applyShippingAbbreviations } from './addressUtils';
+import { 
+  renderDomesticCN, 
+  renderInternationalCN, 
+  renderTW, 
+  renderHK, 
+  renderMO,
+  toSimplified, 
+  toTraditional 
+} from './chineseAddressUtils';
 
 export interface CanonicalAddress {
   country_code: string;
@@ -33,19 +42,34 @@ export function normalizeUnicode(text: string): string {
  * Creates a Canonical Address object from raw API details
  */
 export function createCanonicalAddress(details: any): CanonicalAddress {
-  return {
-    country_code: (details.country_code || "").toUpperCase(),
+  const parts = {
+    poi: details.amenity || details.shop || details.office || details.tourism || details.leisure || details.railway || details.aeroway || details.historic || details.station || details.healthcare || "",
     country: details.country || "",
-    state: details.state || details.province || details.region || "",
-    city: details.city || details.town || details.village || "",
-    district: details.city_district || details.district || details.county || "",
-    subdistrict: details.subdistrict || details.suburb || details.neighbourhood || "",
-    suburb: details.suburb || details.hamlet || "",
-    road: details.road || details.street || "",
-    house_number: details.house_number || "",
-    building: details.building || details.organization || "",
+    country_code: (details.country_code || "").toUpperCase(),
     postcode: details.postcode || "",
-    poi: details.amenity || details.shop || details.tourism || ""
+    state: details.state || details.province || details.region || details.department || details.governorate || details.emirate || "",
+    city: details.city || details.town || details.village || details.municipality || "",
+    district: details.city_district || details.district || details.county || details.subdivision || "",
+    subdistrict: details.subdistrict || details.suburb || details.neighbourhood || details.quarter || details.colonia || details.bairro || details.hamlet || "",
+    suburb: details.suburb || details.hamlet || details.colonia || details.bairro || "",
+    road: details.road || details.street || details.square || details.avenue || details.place || "",
+    house_number: details.house_number || details.houseNumber || "",
+    building: details.building || details.organization || details.flats || ""
+  };
+
+  return {
+    country_code: parts.country_code,
+    country: parts.country,
+    state: parts.state,
+    city: parts.city,
+    district: parts.district,
+    subdistrict: parts.subdistrict,
+    suburb: parts.suburb,
+    road: parts.road,
+    house_number: parts.house_number,
+    building: parts.building,
+    postcode: parts.postcode,
+    poi: parts.poi
   };
 }
 
@@ -84,11 +108,41 @@ export class AddressRenderer {
    * Renders address based on the specified language code
    */
   private static renderByLanguage(lang: string, data: CanonicalAddress): string {
-    const isEastAsian = ['JP', 'CN', 'TW', 'HK', 'MO', 'KR', 'KP', 'VN', 'HU'].includes(data.country_code);
-    const isEnglish = lang.startsWith('en');
+    const isEnglish = lang.startsWith('en') || lang === 'international' || lang === 'romaji';
+    const c = data.country_code;
+
+    // Specialized Logic for Greater China (as requested)
+    if (c === 'CN') {
+      if (isEnglish) return renderInternationalCN(data);
+      return renderDomesticCN(data);
+    }
     
-    // If it's English domestic (inside an English country)
-    if (isEnglish && ['US', 'GB', 'CA', 'AU', 'NZ', 'IE'].includes(data.country_code)) {
+    if (c === 'TW') {
+      return renderTW(data, lang);
+    }
+    
+    if (c === 'HK') {
+      return renderHK(data, lang);
+    }
+
+    if (c === 'MO') {
+      return renderMO(data, lang);
+    }
+
+    // Specialized Logic for Latin America (Hispanosphere / Lusosphere)
+    if (c === 'CO' || c === 'MX' || c === 'AR' || c === 'CL' || c === 'BR') {
+      return this.renderLATAM(c, data, lang);
+    }
+
+    const isEastAsian = ['JP', 'KR', 'KP', 'VN', 'HU'].includes(c);
+    
+    // If it's English domestic (inside an English-speaking country)
+    const anglosphere = [
+      'US', 'GB', 'CA', 'AU', 'NZ', 'IE', 'ZA', 'IN', 'SG', 'PH', 
+      'JM', 'BS', 'BB', 'GY', 'TT', 'NG', 'GH', 'KE', 'BZ', 'MY', 
+      'PK', 'BD', 'LK', 'NP', 'MV', 'AG', 'KN', 'LC', 'VC', 'GD'
+    ];
+    if (isEnglish && anglosphere.includes(c)) {
       return this.renderDomesticEnglish(data);
     }
 
@@ -126,6 +180,39 @@ export class AddressRenderer {
       // Don't include country name in domestic view (except maybe for English intl)
       return parts.join(", ");
     }
+  }
+
+  /**
+   * Specialized Rendering for Latin American countries
+   */
+  private static renderLATAM(country: string, data: CanonicalAddress, lang: string): string {
+    const isEnglish = lang.startsWith('en') || lang === 'international' || lang === 'romaji';
+    const t = (val: string) => isEnglish ? (val ? transliterate(val, country.toLowerCase()) : "") : val;
+
+    let housePart = t(data.house_number);
+    let roadPart = t(data.road);
+    
+    // Colombia specific: Add # separator if it's a grid coordinate pattern
+    if (country === 'CO' && housePart && !housePart.includes('#') && /^\d/.test(housePart)) {
+      housePart = `# ${housePart}`;
+    }
+
+    const line1 = `${roadPart} ${housePart}`.trim();
+    
+    // Neighborhood is very important in MX (Colonia) and BR (Bairro)
+    const neighborhood = t(data.subdistrict || data.suburb);
+    
+    const parts = [
+      t(data.building),
+      line1,
+      neighborhood,
+      t(data.city),
+      t(data.state),
+      data.postcode,
+      isEnglish ? country.toUpperCase() : ""
+    ].filter(Boolean);
+
+    return parts.join(", ");
   }
 
   /**

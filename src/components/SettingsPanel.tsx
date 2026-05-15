@@ -172,6 +172,126 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     return !!r.isSea || !COUNTRY_REGIONS.some(c => c.id === r.id || c.code === (r.id || r.code));
   }
 
+  const [selectedBaseLang, setSelectedBaseLang] = React.useState<string | null>(null);
+
+  // Group languages by base code (e.g. 'en', 'es', 'ar')
+  const groupedLanguages = React.useMemo(() => {
+    const groups: Record<string, typeof LANGUAGES> = {};
+    const indianLangs = ['hi', 'bn', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa', 'ur'];
+    const saLangs = ['af', 'zu', 'xh'];
+    const deLangs = ['de', 'de-AT', 'de-CH', 'nds', 'hsb', 'dsb'];
+    const esRegionalLangs = ['ca', 'gl', 'eu'];
+    const itRegionalLangs = ['sc', 'fur', 'co'];
+    const euRegionalLangs = ['cy', 'gd', 'lb', 'rm', 'br', 'oc', 'wa', 'fy', 'ga', 'is', 'vls', 'li'];
+    const hispanosphereEs = ['es', 'es-MX', 'es-AR', 'es-CO', 'es-PE', 'es-VE', 'es-CL', 'es-EC', 'es-BO', 'es-PY', 'es-UY', 'es-PA', 'es-CR', 'es-NI', 'es-HN', 'es-SV', 'es-GT', 'es-DO', 'es-PR', 'es-CU', 'es-GQ'];
+    const lusospherePt = ['pt', 'pt-PT', 'pt-BR', 'pt-AO', 'pt-MZ', 'pt-CV', 'pt-GW', 'pt-ST'];
+    const arabicGlobal = [
+      'ar', 'ar-SA', 'ar-EG', 'ar-AE', 'ar-KW', 'ar-QA', 'ar-OM', 'ar-BH', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-YE', 
+      'ar-MA', 'ar-DZ', 'ar-TN', 'ar-LY', 'ar-SD', 'ar-PS', 'ar-MR', 'ar-SO', 'ar-DJ', 'ar-KM'
+    ];
+    const menaOther = ['fa', 'he', 'ps', 'ku', 'az'];
+
+    LANGUAGES.forEach(lang => {
+      let groupKey;
+      if (indianLangs.includes(lang.code)) {
+        groupKey = 'in-regional';
+      } else if (saLangs.includes(lang.code)) {
+        groupKey = 'za-regional';
+      } else if (deLangs.includes(lang.code)) {
+        groupKey = 'de-regional';
+      } else if (euRegionalLangs.includes(lang.code)) {
+        groupKey = 'eu-regional';
+      } else if (esRegionalLangs.includes(lang.code)) {
+        groupKey = 'es-regional';
+      } else if (itRegionalLangs.includes(lang.code)) {
+        groupKey = 'it-regional';
+      } else if (hispanosphereEs.includes(lang.code)) {
+        groupKey = 'hispanosphere';
+      } else if (lusospherePt.includes(lang.code)) {
+        groupKey = 'lusosphere';
+      } else if (arabicGlobal.includes(lang.code)) {
+        groupKey = 'arabic-global';
+      } else if (menaOther.includes(lang.code)) {
+        groupKey = 'mena-other';
+      } else if (lang.code.startsWith('zh-Hans')) {
+        groupKey = 'zh-Hans';
+      } else if (lang.code.startsWith('zh-Hant')) {
+        groupKey = 'zh-Hant';
+      } else {
+        groupKey = lang.code.split('-')[0];
+      }
+
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(lang);
+    });
+    return groups;
+  }, []);
+
+  const baseLanguages = React.useMemo(() => {
+    return Object.keys(groupedLanguages).map(base => {
+      const group = groupedLanguages[base];
+      
+      let name, flag;
+      if (base === 'in-regional') {
+        name = t('tab_indian_langs' as any) || 'Indian Languages';
+        flag = '🇮🇳';
+      } else if (base === 'za-regional') {
+        name = t('tab_sa_langs' as any) || 'South African Languages';
+        flag = '🇿🇦';
+      } else if (base === 'de-regional') {
+        name = t('tab_de_langs' as any) || 'Germanic Languages';
+        flag = '🇩🇪';
+      } else if (base === 'eu-regional') {
+        name = t('tab_regional_langs' as any) || 'Regional Languages';
+        flag = '🇪🇺';
+      } else if (base === 'es-regional') {
+        name = t('tab_es_regional' as any) || 'Spain Regions';
+        flag = '🇪🇸';
+      } else if (base === 'it-regional') {
+        name = t('tab_it_regional' as any) || 'Italy Regions';
+        flag = '🇮🇹';
+      } else if (base === 'hispanosphere') {
+        name = t('tab_latam_es' as any) || 'Español (Global)';
+        flag = '🌎';
+      } else if (base === 'lusosphere') {
+        name = t('tab_lusosphere' as any) || 'Português (Global)';
+        flag = '🌍';
+      } else if (base === 'arabic-global') {
+        name = t('tab_arabic_global' as any) || 'Arabic (Global)';
+        flag = '☪️';
+      } else if (base === 'mena-other') {
+        name = t('tab_mena_langs' as any) || 'MENA (Other)';
+        flag = '🕌';
+      } else if (base === 'zh-Hans') {
+        name = '简体中文';
+        flag = '🇨🇳';
+      } else if (base === 'zh-Hant') {
+        name = '繁體中文';
+        flag = '🇭🇰';
+      } else {
+        // Special case for English: prefer UK name/flag for the group
+        if (base === 'en') {
+          const uk = group.find(l => l.code === 'en-GB');
+          name = 'English';
+          flag = uk ? uk.flag : '🇬🇧';
+        } else {
+          // Prefer the one without a hyphen if it exists, otherwise the first one
+          const main = group.find(l => !l.code.includes('-')) || group[0];
+          name = main.name.split(' (')[0];
+          flag = main.flag;
+        }
+      }
+
+      return {
+        base,
+        name,
+        flag: flag,
+        count: group.length,
+        variants: group
+      };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [groupedLanguages, t]);
+
   return (
     <AnimatePresence>
       {show && (
@@ -963,29 +1083,97 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       exit={{ x: 20, opacity: 0 }}
                       className="p-5 md:p-6"
                     >
-                      <div className="grid gap-2">
-                        {LANGUAGES.filter(l => Object.keys(TRANSLATIONS).includes(l.code)).map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => {
-                              setAppLanguage(lang.code);
-                              setSettingsTab('main');
-                            }}
-                            className={cn(
-                              "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
-                              appLanguage === lang.code 
-                                ? "bg-blue-50 border-blue-200 text-blue-900 shadow-sm" 
-                                : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
-                            )}
+                      <AnimatePresence mode="wait">
+                        {!selectedBaseLang ? (
+                          <motion.div 
+                            key="bases"
+                            initial={{ x: -10, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -10, opacity: 0 }}
+                            className="grid gap-2"
                           >
-                            <div className="flex items-center gap-3">
-                              <span className="text-xl">{lang.flag}</span>
-                              <span className="text-sm font-bold">{lang.name}</span>
+                            {baseLanguages.filter(bl => bl.variants.some(l => Object.keys(TRANSLATIONS).includes(l.code))).map((bl) => (
+                              <button
+                                key={bl.base}
+                                onClick={() => {
+                                  if (bl.count > 1) {
+                                    setSelectedBaseLang(bl.base);
+                                  } else {
+                                    setAppLanguage(bl.variants[0].code);
+                                    setSettingsTab('main');
+                                  }
+                                }}
+                                className={cn(
+                                  "w-full p-4 rounded-2xl border flex items-center justify-between transition-all group",
+                                  appLanguage.startsWith(bl.base) 
+                                    ? "bg-blue-50 border-blue-200 text-blue-900 shadow-sm" 
+                                    : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xl">{bl.flag}</span>
+                                  <span className="text-sm font-bold">{bl.name}</span>
+                                  {bl.count > 1 && (
+                                    <span className="text-[10px] font-black text-blue-600 bg-blue-100/50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                                      {bl.count} Regions
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {appLanguage.startsWith(bl.base) && !selectedBaseLang && <Check className="w-4 h-4 text-blue-600" />}
+                                  {bl.count > 1 && <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />}
+                                </div>
+                              </button>
+                            ))}
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="variants"
+                            initial={{ x: 10, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 10, opacity: 0 }}
+                            className="space-y-4"
+                          >
+                            <button 
+                              onClick={() => setSelectedBaseLang(null)}
+                              className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors mb-4"
+                            >
+                              <ChevronRight className="w-3 h-3 rotate-180" />
+                              Back to Languages
+                            </button>
+                            
+                            <div className="grid gap-2">
+                              {groupedLanguages[selectedBaseLang].filter(l => Object.keys(TRANSLATIONS).includes(l.code)).map((lang) => (
+                                <button
+                                  key={lang.code}
+                                  onClick={() => {
+                                    setAppLanguage(lang.code);
+                                    setSettingsTab('main');
+                                    setSelectedBaseLang(null);
+                                  }}
+                                  className={cn(
+                                    "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
+                                    appLanguage === lang.code 
+                                      ? "bg-blue-600 border-blue-700 text-white shadow-lg" 
+                                      : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-xl">{lang.flag}</span>
+                                    <div className="text-left">
+                                      <p className="text-sm font-bold">{lang.name}</p>
+                                      <p className={cn("text-[10px] font-bold uppercase", appLanguage === lang.code ? "text-blue-200" : "text-slate-400")}>
+                                        {lang.country}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {appLanguage === lang.code && <Check className="w-4 h-4 text-white" />}
+                                </button>
+                              ))}
                             </div>
-                            {appLanguage === lang.code && <Check className="w-4 h-4 text-blue-600" />}
-                          </button>
-                        ))}
-                      </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   )}
 
@@ -997,48 +1185,116 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       exit={{ x: 20, opacity: 0 }}
                       className="p-5 md:p-6"
                     >
-                      <div className="grid gap-2">
-                        <button
-                          onClick={() => {
-                            setAddressLanguage('local');
-                            setSettingsTab('main');
-                          }}
-                          className={cn(
-                            "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
-                            addressLanguage === 'local' 
-                              ? "bg-emerald-50 border-emerald-200 text-emerald-900 shadow-sm" 
-                              : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl">📍</span>
-                            <span className="text-sm font-bold">{t('local_lang')}</span>
-                          </div>
-                          {addressLanguage === 'local' && <Check className="w-4 h-4 text-emerald-600" />}
-                        </button>
-
-                        {LANGUAGES.map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => {
-                              setAddressLanguage(lang.code);
-                              setSettingsTab('main');
-                            }}
-                            className={cn(
-                              "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
-                              addressLanguage === lang.code 
-                                ? "bg-blue-50 border-blue-200 text-blue-900 shadow-sm" 
-                                : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
-                            )}
+                      <AnimatePresence mode="wait">
+                        {!selectedBaseLang ? (
+                          <motion.div 
+                            key="bases"
+                            initial={{ x: -10, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -10, opacity: 0 }}
+                            className="grid gap-2"
                           >
-                            <div className="flex items-center gap-3">
-                              <span className="text-xl">{lang.flag}</span>
-                              <span className="text-sm font-bold">{lang.name}</span>
+                            <button
+                              onClick={() => {
+                                setAddressLanguage('local');
+                                setSettingsTab('main');
+                              }}
+                              className={cn(
+                                "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
+                                addressLanguage === 'local' 
+                                  ? "bg-emerald-50 border-emerald-200 text-emerald-900 shadow-sm" 
+                                  : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                              )}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">📍</span>
+                                <span className="text-sm font-bold">{t('local_lang')}</span>
+                              </div>
+                              {addressLanguage === 'local' && <Check className="w-4 h-4 text-emerald-600" />}
+                            </button>
+
+                            {baseLanguages.map((bl) => (
+                              <button
+                                key={bl.base}
+                                onClick={() => {
+                                  if (bl.count > 1) {
+                                    setSelectedBaseLang(bl.base);
+                                  } else {
+                                    setAddressLanguage(bl.variants[0].code);
+                                    setSettingsTab('main');
+                                  }
+                                }}
+                                className={cn(
+                                  "w-full p-4 rounded-2xl border flex items-center justify-between transition-all group",
+                                  addressLanguage.startsWith(bl.base) 
+                                    ? "bg-blue-50 border-blue-200 text-blue-900 shadow-sm" 
+                                    : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xl">{bl.flag}</span>
+                                  <span className="text-sm font-bold">{bl.name}</span>
+                                  {bl.count > 1 && (
+                                    <span className="text-[10px] font-black text-blue-600 bg-blue-100/50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                                      {bl.count} Regions
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {addressLanguage.startsWith(bl.base) && !selectedBaseLang && <Check className="w-4 h-4 text-blue-600" />}
+                                  {bl.count > 1 && <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />}
+                                </div>
+                              </button>
+                            ))}
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="variants"
+                            initial={{ x: 10, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 10, opacity: 0 }}
+                            className="space-y-4"
+                          >
+                            <button 
+                              onClick={() => setSelectedBaseLang(null)}
+                              className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors mb-4"
+                            >
+                              <ChevronRight className="w-3 h-3 rotate-180" />
+                              Back to Languages
+                            </button>
+                            
+                            <div className="grid gap-2">
+                              {groupedLanguages[selectedBaseLang].map((lang) => (
+                                <button
+                                  key={lang.code}
+                                  onClick={() => {
+                                    setAddressLanguage(lang.code);
+                                    setSettingsTab('main');
+                                    setSelectedBaseLang(null);
+                                  }}
+                                  className={cn(
+                                    "w-full p-4 rounded-2xl border flex items-center justify-between transition-all",
+                                    addressLanguage === lang.code 
+                                      ? "bg-blue-600 border-blue-700 text-white shadow-lg" 
+                                      : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-xl">{lang.flag}</span>
+                                    <div className="text-left">
+                                      <p className="text-sm font-bold">{lang.name}</p>
+                                      <p className={cn("text-[10px] font-bold uppercase", addressLanguage === lang.code ? "text-blue-200" : "text-slate-400")}>
+                                        {lang.country}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {addressLanguage === lang.code && <Check className="w-4 h-4 text-white" />}
+                                </button>
+                              ))}
                             </div>
-                            {addressLanguage === lang.code && <Check className="w-4 h-4 text-blue-600" />}
-                          </button>
-                        ))}
-                      </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   )}
                 </AnimatePresence>
