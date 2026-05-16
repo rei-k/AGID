@@ -18,6 +18,7 @@ An advanced, interactive geographic visualization tool built with React, MapLibr
 - **Frontend**: React 18, Vite, MapLibre GL, Tailwind CSS, Motion (framer-motion), Lucide React.
 - **Backend API**: Express (Node.js) acting as a proxy for elevation and marine data to avoid CORS issues.
 - **Worker Threads**: Off-canvas grid generation using Web Workers for smooth UI performance.
+- **Native Core (Optional)**: Rust (WASM) for AGID quantization/Hilbert encode-decode acceleration.
 
 ## Prerequisites
 
@@ -47,6 +48,11 @@ An advanced, interactive geographic visualization tool built with React, MapLibr
 4. **Build for Production**:
    ```bash
    npm run build
+   ```
+
+5. **Build Rust WASM Core (optional, for faster AGID core math)**:
+   ```bash
+   npm run build:rust-wasm
    ```
 
 ## Configuration
