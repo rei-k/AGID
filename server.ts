@@ -5,6 +5,16 @@ import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { initPostalCodeDB, getNearestPostalCode } from './src/services/PostalCodeDB';
+import { GoogleGenAI, Type } from "@google/genai";
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -313,10 +323,10 @@ async function startServer() {
         if (error?.name === 'AbortError') {
           console.error(`[API] Timeout after ${duration}ms: ${url}`);
         } else if (isMirrorUrl) {
-          // Silence mirror failures as they are handled by higher-level retry/fallback logic
-          // Only log if it's NOT a common network failure to help debug actual bugs
+          // Silent mirror failures as they are handled by higher-level retry/fallback logic
+          // Only log debug info for mirror failures
           if (!isNetworkError) {
-            console.warn(`[API] Mirror Fetch Error (${duration}ms): ${url} - ${fullError}`);
+            console.debug(`[API] Mirror Fetch Error (${duration}ms): ${url} - ${fullError}`);
           }
         } else {
           console.error(`[API] Fetch Error for ${url}: ${fullError}`);
@@ -333,7 +343,6 @@ async function startServer() {
     'https://nominatim.openstreetmap.fr/reverse',       // France
     'https://nominatim.osm.ch/reverse',                 // Switzerland
     'https://nominatim.openstreetmap.de/reverse',       // Germany
-    'https://nominatim.qwant.com/reverse',              // Qwant
     'https://nominatim.openstreetmap.be/reverse',       // Belgium
     'https://nominatim.openstreetmap.ie/reverse',       // Ireland
     'https://nominatim.openstreetmap.org.tr/reverse',    // Turkey
@@ -342,6 +351,107 @@ async function startServer() {
 
   const nominatimBlacklist = new Map<string, number>();
   const NOMINATIM_BLACKLIST_DURATION = 1000 * 60 * 30; // 30 mins
+  /**
+   * Ultimate fallback using Gemini AI for reverse geocoding
+   */
+  async function performGeminiReverseGeocode(lat: number, lon: number, lang: string = 'en') {
+    try {
+      const prompt = `Reverse geocode these coordinates: latitude ${lat}, longitude ${lon}.
+Return a JSON object ONLY with the following structure: 
+{ 
+  "place_id": 0, 
+  "display_name": "Full address string, e.g., Tokyo Station, Marunouchi, Chiyoda City, Tokyo 100-0005, Japan", 
+  "address": { 
+    "road": "Street/Place name", 
+    "city": "City/Sub-area", 
+    "state": "Prefecture/State", 
+    "postcode": "Postcode", 
+    "country": "Country", 
+    "country_code": "2-letter country code" 
+  } 
+}. 
+The primary language for address names should matches ${lang}. Use empty strings for missing fields. Output ONLY valid JSON.`;
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      const text = response.text;
+      if (text) {
+        const data = JSON.parse(text);
+        return {
+          ...data,
+          place_id: Math.floor(Math.random() * 1000000),
+          licence: "Gemini AI Reverse Geocoding",
+          osm_type: "node",
+          osm_id: 0,
+          lat: lat.toString(),
+          lon: lon.toString()
+        };
+      }
+    } catch (e) {
+      // Silent failure for Gemini fallback
+    }
+    return null;
+  }
+
+  /**
+   * Search fallback using Gemini AI
+   */
+  async function performGeminiSearch(q: string, lang: string = 'en', limit: number = 5) {
+    try {
+      const prompt = `Geocode the following search query: "${q}". 
+Return a JSON array of objects (max ${limit}) with the following structure: 
+[
+  { 
+    "place_id": 0, 
+    "display_name": "Full address string", 
+    "lat": "latitude as string", 
+    "lon": "longitude as string", 
+    "type": "place type (e.g., city, street, poi)",
+    "address": { 
+      "road": "Street/Place name", 
+      "city": "City", 
+      "state": "Province/State", 
+      "postcode": "Postcode", 
+      "country": "Country", 
+      "country_code": "2-letter CC" 
+    } 
+  }
+]. 
+Primary language: ${lang}. Output ONLY valid JSON.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      const text = response.text;
+      if (text) {
+        const data = JSON.parse(text);
+        if (Array.isArray(data)) {
+          return data.map((item: any) => ({
+            ...item,
+            place_id: item.place_id || Math.floor(Math.random() * 1000000),
+            licence: "Gemini AI Geocoding Search",
+            osm_type: "node",
+            osm_id: 0
+          }));
+        }
+      }
+    } catch (e) {
+      // Silent failure
+    }
+    return [];
+  }
+
   /**
    * Robust reverse geocoding using multiple mirrors
    */
@@ -471,14 +581,31 @@ async function startServer() {
         nominatimBlacklist.set(mirror, now + blacklistDuration);
         errors.push(`${mirror} [${msg}]`);
         
-        // Silently blacklist on expected network issues
-        if (!isNetworkError) {
-          console.warn(`[API] Reverse Mirror Failed: ${mirror} - ${msg}`);
+        // Silent mirror failures
+        if (!isNetworkError && !msg.includes('429')) {
+          console.debug(`[API] Reverse Mirror Failed: ${mirror} - ${msg}`);
         }
       }
     }
     
-    throw new Error(`All geocoding mirrors failed: ${errors.join(' | ')}`);
+    // AI Fallback before returning coordinate label
+    const geminiResult = await performGeminiReverseGeocode(lat, lon, lang);
+    if (geminiResult) {
+      console.log(`[API] Mirror failure at ${lat}, ${lon}. Recovered via Gemini AI.`);
+      return geminiResult;
+    }
+
+    // Fallback instead of throwing: return coordinate-based label if all mirrors fail
+    console.warn(`[API] All geocoding mirrors failed for ${lat}, ${lon}. Using coordinate fallback.`);
+    return {
+      place_id: 0,
+      display_name: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+      address: {
+        country: 'Unknown',
+        country_code: '??'
+      },
+      fallback: true
+    };
   }
 
   // Elevation Cache (Small in-memory cache)
@@ -721,7 +848,13 @@ async function startServer() {
       }
     }
 
-    throw new Error(`Overpass service unavailable: ${errors.join(' | ')}`);
+    console.warn(`[Overpass] All mirrors failed. Returning empty OSM structure.`);
+    return {
+      version: 0.6,
+      generator: "Overpass API Fallback (Server)",
+      osm3s: { timestamp_osm_base: new Date().toISOString() },
+      elements: []
+    };
   }
 
   /**
@@ -1739,7 +1872,6 @@ async function startServer() {
     'https://nominatim.openstreetmap.fr/search',
     'https://nominatim.osm.ch/search',
     'https://nominatim.openstreetmap.de/search',
-    'https://nominatim.qwant.com/search',
     'https://nominatim.openstreetmap.be/search',
     'https://nominatim.openstreetmap.ie/search',
     'https://nominatim.openstreetmap.org.tr/search',
@@ -1829,14 +1961,22 @@ async function startServer() {
         nominatimBlacklist.set(mirror, now + blacklistDuration);
         errors.push(`${mirror} [${msg}]`);
         
-        // Silently blacklist
-        if (!isNetworkError) {
-          console.warn(`[API] Search Mirror Failed: ${mirror} - ${msg}`);
+        // Silent mirror failures
+        if (!isNetworkError && !msg.includes('429')) {
+          console.debug(`[API] Search Mirror Failed: ${mirror} - ${msg}`);
         }
       }
     }
     
-    throw new Error(`All search mirrors failed: ${errors.join(' | ')}`);
+    // AI Fallback before failure
+    const geminiResults = await performGeminiSearch(q, accept_language || 'en', limit || 5);
+    if (geminiResults.length > 0) {
+      console.log(`[API] Mirror failure for search "${q}". Recovered via Gemini AI.`);
+      return geminiResults;
+    }
+    
+    console.warn(`[API] All search mirrors failed. Returning empty results.`);
+    return [];
   }
 
   // Spain Catastro Proxy
