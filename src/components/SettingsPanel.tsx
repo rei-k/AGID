@@ -556,7 +556,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                               >
                                 <FileDown className="w-3.5 h-3.5" /> {t('export_geojson')}
                               </button>
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-3 gap-2">
                                 <button 
                                   disabled={savedAgids.length === 0}
                                   onClick={() => {
@@ -565,7 +565,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                       lat: a.lat,
                                       lon: a.lng,
                                       name: a.name || a.address,
-                                      type: 'Saved Point',
+                                      type: t('saved_point'),
                                       timestamp: new Date().toISOString()
                                     }));
                                     ExportService.exportToCSV(data, `agid_saved_${new Date().getTime()}.csv`);
@@ -582,7 +582,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                       lat: a.lat,
                                       lon: a.lng,
                                       name: a.name || a.address,
-                                      type: 'Saved Point',
+                                      type: t('saved_point'),
                                       timestamp: new Date().toISOString()
                                     }));
                                     ExportService.exportToKML(data, `agid_saved_${new Date().getTime()}.kml`);
@@ -590,6 +590,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                   className="py-3 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
                                 >
                                   {t('export_kml')}
+                                </button>
+                                <button 
+                                  disabled={savedAgids.length === 0}
+                                  onClick={() => {
+                                    const data: ExportData[] = savedAgids.map(a => ({
+                                      id: a.id,
+                                      lat: a.lat,
+                                      lon: a.lng,
+                                      name: a.name || a.address,
+                                      type: t('saved_point'),
+                                      timestamp: new Date().toISOString()
+                                    }));
+                                    ExportService.exportToGPX(data, `agid_saved_${new Date().getTime()}.gpx`);
+                                  }}
+                                  className="py-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
+                                >
+                                  {t('export_gpx')}
                                 </button>
                               </div>
                             </div>

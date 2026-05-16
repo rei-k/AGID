@@ -11,6 +11,15 @@ export interface ExportData {
 }
 
 export class ExportService {
+  private static escapeXml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+
   static exportToCSV(data: ExportData[], fileName: string = 'geogrid_export.csv') {
     const headers = ['AGID', 'Latitude', 'Longitude', 'Altitude (m)', 'Name', 'Type', 'Timestamp'];
     const rows = data.map(item => [
@@ -86,6 +95,38 @@ export class ExportService {
 </kml>`;
 
     const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+    saveAs(blob, fileName);
+  }
+
+  static exportToGPX(data: ExportData[], fileName: string = 'geogrid_export.gpx') {
+    const exportedAt = new Date().toISOString();
+    let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="AGID" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>AGID Export</name>
+    <time>${exportedAt}</time>
+  </metadata>
+`;
+
+    data.forEach(item => {
+      const name = ExportService.escapeXml(item.name || item.id || 'AGID Point');
+      const desc = ExportService.escapeXml(`AGID: ${item.id}${item.type ? ` | Type: ${item.type}` : ''}`);
+      const waypointLines = [
+        `  <wpt lat="${item.lat.toFixed(8)}" lon="${item.lon.toFixed(8)}">`,
+        `    <name>${name}</name>`,
+        `    <desc>${desc}</desc>`
+      ];
+      if (typeof item.alt === 'number') {
+        waypointLines.push(`    <ele>${item.alt.toFixed(2)}</ele>`);
+      }
+      waypointLines.push(`    <time>${item.timestamp}</time>`);
+      waypointLines.push(`  </wpt>`);
+      gpx += `${waypointLines.join('\n')}\n`;
+    });
+
+    gpx += `</gpx>`;
+
+    const blob = new Blob([gpx], { type: 'application/gpx+xml;charset=utf-8;' });
     saveAs(blob, fileName);
   }
 }
