@@ -75,6 +75,7 @@ interface SettingsPanelProps {
   savedAgids: any[];
   setSavedAgids: (a: any[]) => void;
   searchHistory: string[];
+  setSearchHistory: (h: string[]) => void;
   clearHistory: () => void;
   clickedAgid: any;
   showConfirm: (title: string, message: string, onConfirm: () => void) => void;
@@ -118,6 +119,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   savedAgids,
   setSavedAgids,
   searchHistory,
+  setSearchHistory,
   clearHistory,
   clickedAgid,
   showConfirm,
@@ -303,49 +305,51 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             transition={{ type: 'spring', damping: 32, stiffness: 300, mass: 0.8 }}
             className="w-full h-full bg-slate-50 flex flex-col pointer-events-auto overflow-hidden relative"
           >
-            <div className="flex-1 flex flex-col overflow-hidden max-w-4xl mx-auto w-full bg-white shadow-[0_0_100px_rgba(0,0,0,0.1)]">
+            <div className="flex-1 flex flex-col overflow-hidden w-full bg-white">
               {/* Header */}
               <div 
-                className="px-6 py-6 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-xl sticky top-0 z-20"
+                className="px-6 py-6 border-b border-slate-100 bg-white/90 backdrop-blur-xl sticky top-0 z-20"
                 style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}
               >
-                <div className="flex items-center gap-6">
-                  <button 
-                    onClick={() => {
-                      if (settingsTab === 'main') {
-                        onClose();
-                      } else {
-                        setSettingsTab('main');
-                      }
-                    }}
-                    className="p-4 hover:bg-slate-100 rounded-2xl transition-all active:scale-95 text-slate-500 hover:text-slate-900 group"
-                  >
-                    {settingsTab === 'main' ? (
-                      <X className="w-6 h-6" />
-                    ) : (
-                      <ChevronRight className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" />
-                    )}
-                  </button>
-                  <div className="flex flex-col">
-                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">
-                      {settingsTab === 'main' ? t('settings') : 
-                       settingsTab === 'app-language' ? t('app_language') : 
-                       settingsTab === 'address-language' ? t('address_language') : 
-                       t(settingsTab.replace('-', '_') as any) || settingsTab.replace('-', ' ')}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                      <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                        {t('configuration_console')}
-                      </span>
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <button 
+                      onClick={() => {
+                        if (settingsTab === 'main') {
+                          onClose();
+                        } else {
+                          setSettingsTab('main');
+                        }
+                      }}
+                      className="p-4 hover:bg-slate-100 rounded-2xl transition-all active:scale-95 text-slate-500 hover:text-slate-900 group"
+                    >
+                      {settingsTab === 'main' ? (
+                        <X className="w-6 h-6" />
+                      ) : (
+                        <ChevronRight className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" />
+                      )}
+                    </button>
+                    <div className="flex flex-col">
+                      <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">
+                        {settingsTab === 'main' ? t('settings') : 
+                         settingsTab === 'app-language' ? t('app_language') : 
+                         settingsTab === 'address-language' ? t('address_language') : 
+                         t(settingsTab.replace('-', '_') as any) || settingsTab.replace('-', ' ')}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                          {t('configuration_console')}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-              <div className="pb-safe">
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+              <div className="max-w-4xl mx-auto pb-safe">
                 <AnimatePresence mode="wait">
                   {settingsTab === 'main' && (
                     <motion.div 
@@ -598,17 +602,57 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{t('search_history_label').replace('{{count}}', String(searchHistory.length))}</span>
                               </div>
                             </div>
-                            <button 
-                              disabled={searchHistory.length === 0}
-                              onClick={() => {
-                                const csvContent = "Query\n" + searchHistory.join("\n");
-                                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                                saveAs(blob, `agid_history_${new Date().getTime()}.csv`);
-                              }}
-                              className="w-full py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
-                            >
-                              <Download className="w-3.5 h-3.5" /> {t('download_history_csv')}
-                            </button>
+                            <div className="space-y-2">
+                              <button 
+                                disabled={searchHistory.length === 0}
+                                onClick={() => {
+                                  const csvContent = "Query\n" + searchHistory.join("\n");
+                                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                                  saveAs(blob, `agid_history_${new Date().getTime()}.csv`);
+                                }}
+                                className="w-full py-3 bg-slate-50 text-slate-600 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 flex items-center justify-center gap-2"
+                              >
+                                <Download className="w-3.5 h-3.5" /> {t('download_history_csv')}
+                              </button>
+                              
+                              <div className="relative">
+                                <input 
+                                  type="file" 
+                                  accept=".csv,.json"
+                                  className="hidden" 
+                                  id="import-history-input"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (evt) => {
+                                      const text = evt.target?.result as string;
+                                      try {
+                                        let imported: string[] = [];
+                                        if (file.name.endsWith('.json')) {
+                                          imported = JSON.parse(text);
+                                        } else {
+                                          imported = text.split('\n').slice(1).filter(line => line.trim());
+                                        }
+                                        const newHistory = Array.from(new Set([...searchHistory, ...imported]));
+                                        setSearchHistory(newHistory);
+                                        localStorage.setItem('search_history', JSON.stringify(newHistory));
+                                        showAlert('Import Successful', `${imported.length} history items imported.`);
+                                      } catch (err) {
+                                        showAlert('Import Failed', 'The file format was not recognized.');
+                                      }
+                                    };
+                                    reader.readAsText(file);
+                                  }}
+                                />
+                                <label 
+                                  htmlFor="import-history-input"
+                                  className="w-full py-3 bg-white text-indigo-600 border border-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer hover:bg-indigo-50 transition-colors"
+                                >
+                                  <FileDown className="w-3.5 h-3.5 rotate-180" /> {t('import_history')}
+                                </label>
+                              </div>
+                            </div>
                           </div>
 
                           <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
@@ -787,20 +831,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                               <p className="text-sm font-bold text-slate-700">{t('units')}</p>
                               <p className="text-[10px] text-slate-400 font-medium">{t('units_desc')}</p>
                             </div>
-                            <div className="flex bg-white p-1.5 rounded-xl border border-slate-200">
-                              {['automatic', 'kilometers', 'miles'].map((unit) => (
-                                <button 
-                                  key={unit}
-                                  onClick={() => setDistanceUnit(unit as any)}
-                                  className={cn(
-                                    "flex-1 md:flex-none md:px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                    distanceUnit === unit ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
-                                  )}
-                                >
-                                  {unit === 'automatic' ? t('system') : unit === 'kilometers' ? 'KM' : 'MI'}
-                                </button>
-                              ))}
-                            </div>
+                              <div className="flex bg-white p-1.5 rounded-xl border border-slate-200">
+                                {['automatic', 'kilometers', 'miles', 'nautical'].map((unit) => (
+                                  <button 
+                                    key={unit}
+                                    onClick={() => setDistanceUnit(unit as any)}
+                                    className={cn(
+                                      "flex-1 md:flex-none md:px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                      distanceUnit === unit ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
+                                    )}
+                                  >
+                                    {unit === 'automatic' ? t('system') : unit === 'kilometers' ? 'KM' : unit === 'miles' ? 'MI' : 'NM'}
+                                  </button>
+                                ))}
+                              </div>
                           </div>
 
                           <div className="p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
@@ -1053,23 +1097,70 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                           <div className="p-5 bg-blue-50 rounded-3xl border border-blue-100">
                             <h4 className="text-sm font-black text-blue-900 mb-2 uppercase tracking-widest">{t('how_to_use_agid')}</h4>
                             <p className="text-xs text-blue-800/70 leading-relaxed">
-                              AGID utilizes a hierarchical grid system to resolve any location on Earth into a human-readable 10-character code.
+                              {appLanguage === 'ja' 
+                                ? 'AGIDは階層型グリッドシステムを使用して、地球上のあらゆる場所を人間が読める10文字のコードに解決します。' 
+                                : 'AGID utilizes a hierarchical grid system to resolve any location on Earth into a human-readable 10-character code.'}
                             </p>
                           </div>
                           
                           <div className="grid gap-3">
-                            <button className="p-4 bg-white rounded-2xl border border-slate-100 text-left flex items-center justify-between group">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900">{t('common_questions')}</span>
-                              <BookOpen className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
-                            </button>
-                            <button className="p-4 bg-white rounded-2xl border border-slate-100 text-left flex items-center justify-between group">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900">{t('system_status')}</span>
-                              <Activity className="w-4 h-4 text-slate-300 group-hover:text-emerald-500" />
-                            </button>
-                            <button className="p-4 bg-white rounded-2xl border border-slate-100 text-left flex items-center justify-between group">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900">{t('contact_support')}</span>
-                              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900" />
-                            </button>
+                            <details className="group bg-white rounded-2xl border border-slate-100 overflow-hidden transition-all">
+                              <summary className="p-4 list-none cursor-pointer flex items-center justify-between group-hover:bg-slate-50">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-open:text-blue-600">{t('common_questions')}</span>
+                                <BookOpen className="w-4 h-4 text-slate-300 group-open:text-blue-500 group-open:rotate-12 transition-all" />
+                              </summary>
+                              <div className="p-4 pt-0 text-xs text-slate-500 space-y-3 leading-relaxed border-t border-slate-50 mt-2">
+                                <div className="space-y-1">
+                                  <p className="font-bold text-slate-700">Q: AGIDとは何ですか？</p>
+                                  <p>A: 地球上の3m×3mの区画に割り当てられた一意の番地システムです。住所がない場所でも正確に位置を特定できます。</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-bold text-slate-700">Q: オフラインで使用できますか？</p>
+                                  <p>A: 地図の表示にはインターネットが必要ですが、一度読み込んだエリアや保存済みの地点はキャッシュされます。Pro版ではオフラインマップが提供される予定です。</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-bold text-slate-700">Q: 精度はどのくらいですか？</p>
+                                  <p>A: 世界中で数センチメートル単位の計算精度を持ち、グリッド表示は3m四方（AGID-Standard）で提供されます。</p>
+                                </div>
+                              </div>
+                            </details>
+
+                            <details className="group bg-white rounded-2xl border border-slate-100 overflow-hidden transition-all">
+                              <summary className="p-4 list-none cursor-pointer flex items-center justify-between group-hover:bg-slate-50">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-open:text-emerald-600">{t('system_status')}</span>
+                                <Activity className="w-4 h-4 text-slate-300 group-open:text-emerald-500 group-open:animate-pulse transition-all" />
+                              </summary>
+                              <div className="p-4 pt-0 text-xs text-slate-500 space-y-3 leading-relaxed border-t border-slate-50 mt-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-bold">Core API</span>
+                                  <span className="text-emerald-500 font-black">OPERATIONAL</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="font-bold">Tile Engine</span>
+                                  <span className="text-emerald-500 font-black">99.9% UP</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="font-bold">Grid Resolver</span>
+                                  <span className="text-emerald-500 font-black">STABLE</span>
+                                </div>
+                                <div className="pt-2">
+                                  <button 
+                                    onClick={fetchQualityReport}
+                                    className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                                  >
+                                    View Data Quality Report
+                                  </button>
+                                </div>
+                              </div>
+                            </details>
+
+                            <a 
+                              href="mailto:support@agid-geospatial.example"
+                              className="p-4 bg-white rounded-2xl border border-slate-100 text-left flex items-center justify-between group hover:bg-slate-900 hover:border-slate-900 transition-all"
+                            >
+                               <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-white">{t('contact_support')}</span>
+                               <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                            </a>
                           </div>
                        </div>
                     </motion.div>
@@ -1303,7 +1394,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
             {/* Bottom Version Info */}
             <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 shrink-0 select-none">
-              <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <div className="max-w-4xl mx-auto flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
                 <span>AGID Engine 4.0.2</span>
                 <span className="flex items-center gap-1">
                   <div className="w-1 h-1 bg-emerald-500 rounded-full" />

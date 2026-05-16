@@ -295,6 +295,7 @@ export default function App() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showCoordinateSearch, setShowCoordinateSearch] = useState(false);
   const [isFlying, setIsFlying] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
@@ -377,7 +378,9 @@ export default function App() {
   const [useBidirectionalDijkstra, setUseBidirectionalDijkstra] = useState(false);
   const [isRoutingLoading, setIsRoutingLoading] = useState(false);
   const [routingMode, setRoutingMode] = useState<travelMode>('driving');
-  const [defaultNavApp, setDefaultNavApp] = useState<'google' | 'apple' | 'osmand' | 'organic_maps' | 'waze'>('google');
+  const [defaultNavApp, setDefaultNavApp] = useState<string>(() => {
+    return localStorage.getItem('agid_default_nav_app') || 'google';
+  });
 
   // Local Storage Persistence for settings and state
   useEffect(() => {
@@ -1370,6 +1373,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('agid_regional_type', regionalType); }, [regionalType]);
   useEffect(() => { localStorage.setItem('agid_regional_theme', regionalTheme); }, [regionalTheme]);
   useEffect(() => { localStorage.setItem('agid_shipping_mode', JSON.stringify(isShippingMode)); }, [isShippingMode]);
+  useEffect(() => { localStorage.setItem('agid_default_nav_app', defaultNavApp); }, [defaultNavApp]);
   useEffect(() => { localStorage.setItem('agid_home_agid', homeAgid); }, [homeAgid]);
 
   // Initialization logic for Geolocation and First Start
@@ -1938,8 +1942,12 @@ export default function App() {
         'it', 'ru'
       ];
       let langs: string[] = [];
+      if (addressLanguage && addressLanguage !== 'local') {
+        langs.push(addressLanguage);
+      }
+
       if (isSeaLoc) {
-        langs = ['en'];
+        if (!langs.includes('en')) langs.push('en');
       } else {
         const cc = prefix.toLowerCase();
         const countryLangs = COUNTRY_LANGUAGES[cc] || ['en'];
@@ -1947,10 +1955,10 @@ export default function App() {
 
         if (isPrimaryEn) {
           // English-speaking country: Domestic vs International, plus other local langs
-          langs = ['en_domestic', ...countryLangs.filter(l => l !== 'en'), 'en'];
+          langs.push('en_domestic', ...countryLangs.filter(l => l !== 'en'), 'en');
         } else {
           // Non-English primary country: Local(s) vs English
-          langs = [...countryLangs];
+          langs.push(...countryLangs);
           if (!langs.includes('en')) langs.push('en');
         }
       }
@@ -2293,6 +2301,8 @@ export default function App() {
             essential: true
           });
           setIsSearching(false);
+          setIsSearchFocused(false);
+          setSearchResults([]);
           return;
         }
       }
@@ -2332,6 +2342,10 @@ export default function App() {
           zoom: 19,
           essential: true
         });
+        setIsSearching(false);
+        setIsSearchFocused(false);
+        setSearchResults([]);
+        return;
       } else {
         // Use Smart Search (Local DB + Nominatim)
         const results = await smartSearch(query, lat, lng);
@@ -2503,7 +2517,7 @@ export default function App() {
 
   const clearHistory = () => {
     setSearchHistory([]);
-    localStorage.removeItem('agid_search_history');
+    localStorage.removeItem('search_history');
   };
 
   useEffect(() => {
@@ -4174,6 +4188,8 @@ export default function App() {
         setSearchQuery={setSearchQuery}
         searchResults={searchResults}
         setSearchResults={setSearchResults}
+        showCoordinateSearch={showCoordinateSearch}
+        setShowCoordinateSearch={setShowCoordinateSearch}
         isSearching={isSearching}
         searchHistory={searchHistory}
         clearHistory={clearHistory}
@@ -4181,6 +4197,11 @@ export default function App() {
         performSearch={performSearch}
         handleSearch={handleSearch}
         selectSearchResult={selectSearchResult}
+        getCurrentMapCenter={() => {
+          if (!map.current) return null;
+          const center = map.current.getCenter();
+          return { lat: center.lat, lng: center.lng };
+        }}
         startQrScanner={startQrScanner}
         setShowMenu={setShowMenu}
         qrFileRef={qrFileRef}
@@ -4244,6 +4265,7 @@ export default function App() {
         savedAgids={savedAgids}
         setSavedAgids={setSavedAgids}
         searchHistory={searchHistory}
+        setSearchHistory={setSearchHistory}
         clearHistory={clearHistory}
         clickedAgid={clickedAgid}
         showConfirm={(title, message, onConfirm) => setConfirmConfig({ show: true, title, message, onConfirm })}
@@ -4272,8 +4294,11 @@ export default function App() {
         setShowSettings={setShowSettings}
         setSettingsTab={(t) => setSettingsTab(t as any)}
         handleShare={handleShare}
-        isSearchVisible={false} // Placeholder
-        setSearchVisible={() => {}} // Placeholder
+        isSearchVisible={isSearchFocused}
+        setSearchVisible={(v) => {
+          setIsSearchFocused(v);
+          if (v) setShowCoordinateSearch(true);
+        }}
         appLanguage={appLanguage}
         setAppLanguage={setAppLanguage}
         t={t}

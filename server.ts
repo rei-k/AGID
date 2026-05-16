@@ -219,8 +219,9 @@ async function startServer() {
 
   /**
    * Safe fetch with timeout and error handling for all proxy routes
+   * Includes internal retry for network-level failures
    */
-  async function safeFetch(url: string, options: RequestInit = {}, timeoutMs = 60000) {
+  async function safeFetch(url: string, options: RequestInit = {}, timeoutMs = 60000, retries = 1): Promise<any> {
     // Basic cache check
     const cacheKey = `${url}-${JSON.stringify(options.body || '')}`;
     const cached = apiCache.get(cacheKey);
@@ -237,89 +238,110 @@ async function startServer() {
       } as any;
     }
 
-    const start = Date.now();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    
-    // Merge headers carefully
-    const headers: Record<string, string> = {
-      'User-Agent': USER_AGENT,
-      'Accept': 'application/json, text/plain, */*'
-    };
-    
-    if (options.headers) {
-      Object.assign(headers, options.headers);
+    let lastError: any = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const start = Date.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      // Merge headers carefully
+      const headers: Record<string, string> = {
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json, text/plain, */*'
+      };
+      
+      if (options.headers) {
+        Object.assign(headers, options.headers);
+      }
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        const duration = Date.now() - start;
+        
+        // Track quality based on URL pattern
+        let qType = 'other';
+        if (url.includes('elevation') || url.includes('met-no')) qType = 'elevation';
+        else if (url.includes('nominatim') || url.includes('address') || url.includes('zippopotam')) qType = 'address';
+        else if (url.includes('overpass')) qType = 'overpass';
+        
+        updateQualityStats(qType, response.ok, duration);
+
+        if (duration > 10000) {
+          console.warn(`[API] Slow response (${duration}ms): ${url}`);
+        }
+
+        // Cache successful JSON responses in background
+        if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+          const cloned = response.clone();
+          cloned.json().then(data => {
+            apiCache.set(cacheKey, { data, timestamp: Date.now() });
+          }).catch(() => {});
+        }
+        
+        return response;
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        lastError = error;
+        const duration = Date.now() - start;
+        
+        const errorMsg = error?.message || String(error);
+        const cause = error?.cause?.message || error?.cause?.code || error?.cause || '';
+        const causeStr = cause.toString();
+        const isDnsError = errorMsg.includes('getaddrinfo') || errorMsg.includes('ENOTFOUND') || errorMsg.includes('EAI_AGAIN') || 
+                          causeStr.includes('ENOTFOUND') || causeStr.includes('EAI_AGAIN') || causeStr.includes('EHOSTUNREACH') ||
+                          causeStr.includes('ECONNREFUSED');
+        const isNetworkError = isDnsError || errorMsg.includes('fetch failed') || error?.name === 'TypeError';
+        
+        // If it's a network/DNS error and we have retries left, wait a bit and try again
+        // Longer wait for DNS errors (transient infrastructure issues)
+        if (isNetworkError && attempt < retries) {
+          const delay = isDnsError ? 1000 * (attempt + 1) : 300 * (attempt + 1);
+          console.log(`[API] ${isDnsError ? 'DNS/Connect' : 'Network'} failure for ${url}, retrying in ${delay}ms... (Attempt ${attempt + 1}/${retries})`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+
+        const fullError = cause ? `${errorMsg} (Cause: ${cause})` : errorMsg;
+        const isMirrorUrl = url.includes('nominatim') || url.includes('overpass') || url.includes('photon');
+        
+        if (error?.name === 'AbortError') {
+          console.error(`[API] Timeout after ${duration}ms: ${url}`);
+        } else if (isMirrorUrl) {
+          // Silence mirror failures as they are handled by higher-level retry/fallback logic
+          // Only log if it's NOT a common network failure to help debug actual bugs
+          if (!isNetworkError) {
+            console.warn(`[API] Mirror Fetch Error (${duration}ms): ${url} - ${fullError}`);
+          }
+        } else {
+          console.error(`[API] Fetch Error for ${url}: ${fullError}`);
+        }
+        throw error;
+      }
     }
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      
-      const duration = Date.now() - start;
-      
-      // Track quality based on URL pattern
-      let qType = 'other';
-      if (url.includes('elevation') || url.includes('met-no')) qType = 'elevation';
-      else if (url.includes('nominatim') || url.includes('address') || url.includes('zippopotam')) qType = 'address';
-      else if (url.includes('overpass')) qType = 'overpass';
-      
-      updateQualityStats(qType, response.ok, duration);
-
-      if (duration > 10000) {
-        console.warn(`[API] Slow response (${duration}ms): ${url}`);
-      }
-
-      // Cache successful JSON responses in background
-      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-        const cloned = response.clone();
-        cloned.json().then(data => {
-          const cacheKey = `${url}-${JSON.stringify(options.body || '')}`;
-          apiCache.set(cacheKey, { data, timestamp: Date.now() });
-        }).catch(() => {});
-      }
-      
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      const duration = Date.now() - start;
-      
-      // Reduce log noise for common mirrors as the high-level code handles retries
-      const isMirrorUrl = url.includes('nominatim') || url.includes('overpass') || url.includes('photon');
-      
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error(`[API] Timeout after ${duration}ms: ${url}`);
-      } else if (isMirrorUrl) {
-        // Just log a warning for mirrors since we have fallbacks
-        console.warn(`[API] Mirror Fetch Failed (${duration}ms): ${url} - ${error instanceof Error ? error.message : error}`);
-      } else {
-        console.error(`[API] Fetch Error for ${url}:`, error);
-      }
-      throw error;
-    }
+    throw lastError;
   }
 
   // --- Nominatim Geocoding Mirrors ---
   const NOMINATIM_MIRRORS = [
     'https://nominatim.openstreetmap.org/reverse',      // Official
-    'https://nominatim.openstreetmap.fr/reverse',       // France (Stable)
-    'https://nominatim.osm.ch/reverse',                 // Switzerland (High Quality)
+    'https://nominatim.openstreetmap.fr/reverse',       // France
+    'https://nominatim.osm.ch/reverse',                 // Switzerland
     'https://nominatim.openstreetmap.de/reverse',       // Germany
+    'https://nominatim.qwant.com/reverse',              // Qwant
     'https://nominatim.openstreetmap.be/reverse',       // Belgium
     'https://nominatim.openstreetmap.ie/reverse',       // Ireland
-    'https://nominatim.openstreetmap.se/reverse',       // Sweden
-    'https://nominatim.openstreetmap.no/reverse',       // Norway
     'https://nominatim.openstreetmap.org.tr/reverse',    // Turkey
     'https://photon.komoot.io/reverse',                 // Photon (Fallback)
   ];
 
   const nominatimBlacklist = new Map<string, number>();
   const NOMINATIM_BLACKLIST_DURATION = 1000 * 60 * 30; // 30 mins
-  const NOMINATIM_DNS_BLACKLIST_DURATION = 1000 * 60 * 15; // 15 mins for persistent resolution failures
-
   /**
    * Robust reverse geocoding using multiple mirrors
    */
@@ -374,7 +396,7 @@ async function startServer() {
         // Add User-Agent and identifying headers
         const res = await safeFetch(url, {
           headers: { 
-            'User-Agent': 'AGID-Geogrid-Explorer/2.5.1 (kitaura.code@gmail.com; https://ais-dev-pccznu564ainowkzzbgqek-10301310581.asia-northeast1.run.app)',
+            'User-Agent': 'Mozilla/5.0 (compatible; AGID-Geogrid-Explorer/2.5.1; +https://github.com/kitauracode/geogrid-explorer)',
             'Accept-Language': lang
           }
         }, isPhoton ? 10000 : 15000);
@@ -437,11 +459,22 @@ async function startServer() {
       } catch (e: any) {
         // Blacklist on DNS/Network failure
         const msg = e.message || String(e);
-        const isDnsError = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('fetch failed');
-        nominatimBlacklist.set(mirror, now + (isDnsError ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
+        const cause = e?.cause?.message || e?.cause?.code || e?.cause || '';
+        const causeStr = cause.toString();
+        const isDnsError = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('EAI_AGAIN') || 
+                           causeStr.includes('ENOTFOUND') || causeStr.includes('EAI_AGAIN') || 
+                           causeStr.includes('EHOSTUNREACH') || causeStr.includes('ECONNREFUSED');
+        const isNetworkError = isDnsError || msg.includes('fetch failed') || msg.includes('timeout') || msg.includes('aborted');
+        
+        // Use 2 hours for DNS/Host issues, 60 seconds for other transient network issues
+        const blacklistDuration = isDnsError ? 1000 * 60 * 120 : (isNetworkError ? 60000 : NOMINATIM_BLACKLIST_DURATION);
+        nominatimBlacklist.set(mirror, now + blacklistDuration);
         errors.push(`${mirror} [${msg}]`);
-        // Log as warning unless it's the last one, to reduce noise
-        console.warn(`[API] Reverse Mirror Failed: ${mirror} - ${msg}`);
+        
+        // Silently blacklist on expected network issues
+        if (!isNetworkError) {
+          console.warn(`[API] Reverse Mirror Failed: ${mirror} - ${msg}`);
+        }
       }
     }
     
@@ -558,22 +591,21 @@ async function startServer() {
 
   // --- Overpass API Proxy with Mirror Support ---
   const OVERPASS_MIRRORS = [
-    'https://overpass.osm.ch/api/interpreter',          // Switzerland (Highly Reliable)
-    'https://overpass.osm.viarezo.fr/api/interpreter',  // France (Stable)
-    'https://overpass.kumi.systems/api/interpreter',    // Kumi (Global)
-    'https://overpass.private.coffee/api/interpreter',  // Coffee (German)
     'https://overpass-api.de/api/interpreter',          // Germany (Main)
-    'https://overpass.osm.ie/api/interpreter',          // Ireland
+    'https://overpass.osm.ch/api/interpreter',          // Switzerland
+    'https://overpass.osm.viarezo.fr/api/interpreter',  // France
+    'https://lz4.overpass-api.de/api/interpreter',      // Germany (Mirror 2)
+    'https://z.overpass-api.de/api/interpreter',       // Germany (Mirror 3)
+    'https://overpass.kumi.systems/api/interpreter',    // Kumi (Global)
     'https://overpass.osmosur.org/api/interpreter',     // South America
-    'https://overpass.be/api/interpreter',              // Belgium
     'https://overpass.nchc.org.tw/api/interpreter',     // Taiwan
-    'https://overpass.smartmaps.by/api/interpreter',    // Belarus
+    'https://overpass.be/api/interpreter',              // Belgium
   ];
 
   const mirrorBlacklist = new Map<string, number>();
   const BLACKLIST_DURATION_RATE_LIMIT = 1000 * 60 * 10; // 10 min
   const BLACKLIST_DURATION_ERROR = 1000 * 60 * 15; // 15 min
-  const BLACKLIST_DURATION_TIMEOUT = 1000 * 60 * 20; // 20 min
+  const BLACKLIST_DURATION_TIMEOUT = 1000 * 20; // 20s for transient timeouts
   const BLACKLIST_DURATION_406 = 1000 * 60 * 60 * 2; // 2 hours
   const BLACKLIST_DURATION_DNS = 1000 * 60 * 60 * 4; // 4 hours
 
@@ -602,14 +634,14 @@ async function startServer() {
     // Dynamic prioritization
     mirrorsToTry.sort((a, b) => {
       // Tier 1: Swiss & France (Highly Reliable)
-      const t1 = ['osm.ch', 'viarezo.fr'];
+      const t1 = ['osm.ch', 'viarezo.fr', 'overpass-api.de'];
       const aT1 = t1.some(p => a.includes(p));
       const bT1 = t1.some(p => b.includes(p));
       if (aT1 && !bT1) return -1;
       if (!aT1 && bT1) return 1;
 
-      // Tier 2: Kumi & Private Coffee
-      const t2 = ['kumi.systems', 'private.coffee'];
+      // Tier 2: Kumi
+      const t2 = ['kumi.systems'];
       const aT2 = t2.some(p => a.includes(p));
       const bT2 = t2.some(p => b.includes(p));
       if (aT2 && !bT2) return -1;
@@ -624,11 +656,9 @@ async function startServer() {
     for (let i = 0; i < maxAttempts; i++) {
       const mirror = mirrorsToTry[i];
       try {
-        console.log(`[Overpass Proxy] Attempt ${i + 1}/${maxAttempts} @ ${mirror}`);
-        
         const controller = new AbortController();
         // Individual mirror timeout reduced to failover faster
-        const timeoutDuration = i < 2 ? 30000 : 15000; 
+        const timeoutDuration = i < 2 ? 15000 : 10000; 
         const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
         const response = await fetch(mirror, {
@@ -636,7 +666,7 @@ async function startServer() {
           body: new URLSearchParams({ data: query }).toString(),
           headers: { 
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 AGID/2.7'
+            'User-Agent': 'Mozilla/5.0 (compatible; AGID-Geogrid-Explorer/2.5.1; +https://github.com/kitauracode/geogrid-explorer)'
           },
           signal: controller.signal
         });
@@ -663,18 +693,30 @@ async function startServer() {
         
         if (response.status === 429) {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_RATE_LIMIT);
+          console.debug(`[Overpass] Mirror ${mirror} rate limited (429)`);
         } else if (response.status === 406) {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_406);
+          console.debug(`[Overpass] Mirror ${mirror} returned 406 (Blacklisted)`);
         } else {
           mirrorBlacklist.set(mirror, Date.now() + BLACKLIST_DURATION_ERROR);
+          console.debug(`[Overpass] Mirror ${mirror} failed with HTTP ${response.status}`);
         }
         errors.push(`${mirror}: HTTP ${response.status}`);
       } catch (e: any) {
-        const isTimeout = e.name === 'AbortError' || e.code === 'UND_ERR_CONNECT_TIMEOUT';
-        const isDNS = e.code === 'ENOTFOUND' || e.code === 'EAI_AGAIN';
-        const errorDetail = isTimeout ? 'Timeout' : (isDNS ? 'DNS Failure' : e.message);
+        const msg = e.message || String(e);
+        const cause = e?.cause?.message || e?.cause?.code || e?.cause || '';
+        const causeStr = cause.toString();
         
-        mirrorBlacklist.set(mirror, Date.now() + (isDNS ? BLACKLIST_DURATION_DNS : (isTimeout ? BLACKLIST_DURATION_TIMEOUT : BLACKLIST_DURATION_ERROR)));
+        const isDnsError = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('EAI_AGAIN') || 
+                          causeStr.includes('ENOTFOUND') || causeStr.includes('EAI_AGAIN') || 
+                          causeStr.includes('EHOSTUNREACH') || causeStr.includes('ECONNREFUSED');
+        const isTimeout = e.name === 'AbortError' || msg.includes('timeout') || causeStr.includes('timeout');
+        
+        const blacklistDuration = isDnsError ? BLACKLIST_DURATION_DNS : (isTimeout ? BLACKLIST_DURATION_TIMEOUT : BLACKLIST_DURATION_ERROR);
+        mirrorBlacklist.set(mirror, Date.now() + blacklistDuration);
+        
+        const errorDetail = isTimeout ? 'Timeout' : (isDnsError ? 'DNS/Connect Failure' : msg);
+        console.debug(`[Overpass] Mirror failure for ${mirror}: ${errorDetail}`);
         errors.push(`${mirror}: ${errorDetail}`);
       }
     }
@@ -1507,19 +1549,18 @@ async function startServer() {
   });
 
   app.get('/api/nominatim/search', async (req, res) => {
-    const { q, countrycodes, limit, lang } = req.query;
+    const { q, countrycodes, limit, lang, addressdetails } = req.query;
     try {
-      const acceptLang = lang ? `${lang},en;q=0.9` : 'en';
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q as string)}&countrycodes=${countrycodes || ''}&limit=${limit || 10}&accept-language=${acceptLang}`;
-      const response = await safeFetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
-      }
-      res.status(response.status).json({ error: 'Nominatim search failed' });
-    } catch (error) {
+      const data = await performOsmSearch(q as string, {
+        countrycodes: countrycodes as string,
+        limit: limit ? parseInt(limit as string) : 10,
+        accept_language: lang ? (lang as string) : 'en',
+        addressdetails: addressdetails ? parseInt(addressdetails as string) : 1
+      });
+      res.json(data);
+    } catch (error: any) {
       console.error('[API] Nominatim Search Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Nominatim search failed' });
     }
   });
 
@@ -1697,8 +1738,11 @@ async function startServer() {
     'https://nominatim.openstreetmap.org/search',
     'https://nominatim.openstreetmap.fr/search',
     'https://nominatim.osm.ch/search',
-    'https://nominatim.qwant.com/search',
     'https://nominatim.openstreetmap.de/search',
+    'https://nominatim.qwant.com/search',
+    'https://nominatim.openstreetmap.be/search',
+    'https://nominatim.openstreetmap.ie/search',
+    'https://nominatim.openstreetmap.org.tr/search',
   ];
 
   /**
@@ -1742,7 +1786,7 @@ async function startServer() {
         const url = `${mirror}?${params.toString()}`;
         const res = await safeFetch(url, {
           headers: { 
-            'User-Agent': 'AGID-Geogrid-Explorer/2.4.0 (kitaura.code@gmail.com)',
+            'User-Agent': 'Mozilla/5.0 (compatible; AGID-Geogrid-Explorer/2.5.1; +https://github.com/kitauracode/geogrid-explorer)',
             'Accept-Language': accept_language || 'en'
           }
         }, 20000);
@@ -1774,10 +1818,21 @@ async function startServer() {
         }
       } catch (e: any) {
         const msg = e.message || String(e);
-        const isDns = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('fetch failed');
-        nominatimBlacklist.set(mirror, now + (isDns ? NOMINATIM_DNS_BLACKLIST_DURATION : NOMINATIM_BLACKLIST_DURATION));
+        const cause = e?.cause?.message || e?.cause?.code || e?.cause || '';
+        const causeStr = cause.toString();
+        const isDnsError = msg.includes('getaddrinfo') || msg.includes('ENOTFOUND') || msg.includes('EAI_AGAIN') || 
+                           causeStr.includes('ENOTFOUND') || causeStr.includes('EAI_AGAIN') || 
+                           causeStr.includes('EHOSTUNREACH') || causeStr.includes('ECONNREFUSED');
+        const isNetworkError = isDnsError || msg.includes('fetch failed') || msg.includes('timeout') || msg.includes('aborted');
+        
+        const blacklistDuration = isDnsError ? 1000 * 60 * 120 : (isNetworkError ? 60000 : NOMINATIM_BLACKLIST_DURATION);
+        nominatimBlacklist.set(mirror, now + blacklistDuration);
         errors.push(`${mirror} [${msg}]`);
-        console.warn(`[API] Search Mirror Failed: ${mirror} - ${msg}`);
+        
+        // Silently blacklist
+        if (!isNetworkError) {
+          console.warn(`[API] Search Mirror Failed: ${mirror} - ${msg}`);
+        }
       }
     }
     

@@ -51,10 +51,9 @@ export function CenterActionButton({ show, onClick }: { show: boolean; onClick: 
         >
           <button 
             onClick={onClick}
-            className="pointer-events-auto flex items-center justify-center gap-2 w-14 h-14 md:w-auto md:px-6 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-2xl transition-all active:scale-95 group"
+            className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl transition-all active:scale-95 group"
           >
-            <Target className="w-7 h-7 md:w-4 md:h-4 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest hidden md:block whitespace-nowrap">Select Center</span>
+            <Target className="w-6 h-6 group-hover:scale-110 transition-transform" />
           </button>
         </motion.div>
       )}
