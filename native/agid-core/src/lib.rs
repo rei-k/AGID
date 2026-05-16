@@ -180,4 +180,3 @@ pub extern "C" fn agid_get_lon(face: u32, qx: u32, qy: u32) -> f64 {
     let (_, lon) = get_from_quantized(face, qx.min(M), qy.min(M));
     lon
 }
-

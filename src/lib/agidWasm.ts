@@ -53,4 +53,3 @@ void initAgidWasm();
 export function getAgidWasmCore(): AgidWasmExports | null {
   return wasmCore;
 }
-
