@@ -5,6 +5,7 @@
 
 import { SEA_REGIONS, LAND_REGIONS, COUNTRY_REGIONS } from './regions';
 import { COUNTRIES } from '../constants/countries';
+import { getAgidWasmCore } from './agidWasm';
 export { SEA_REGIONS, LAND_REGIONS, COUNTRY_REGIONS };
 
 const BASE32_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
@@ -36,6 +37,15 @@ function invertEqualArea(val: number): number {
  * Maps Lat/Lon to (face, qx, qy)
  */
 function getQuantized(lat: number, lon: number) {
+  const wasmCore = getAgidWasmCore();
+  if (wasmCore) {
+    return {
+      face: wasmCore.agid_get_quantized_face(lat, lon),
+      qx: wasmCore.agid_get_quantized_qx(lat, lon),
+      qy: wasmCore.agid_get_quantized_qy(lat, lon),
+    };
+  }
+
   const phi = (lat * Math.PI) / 180;
   const theta = (lon * Math.PI) / 180;
 
@@ -81,6 +91,14 @@ function getQuantized(lat: number, lon: number) {
  * Inverse Cubed Sphere Projection
  */
 function getFromQuantized(face: number, qx: number, qy: number) {
+  const wasmCore = getAgidWasmCore();
+  if (wasmCore) {
+    return {
+      lat: wasmCore.agid_get_lat(face, qx, qy),
+      lon: wasmCore.agid_get_lon(face, qx, qy),
+    };
+  }
+
   const u = (qx / K) * 2.0 - 1.0;
   const v = (qy / K) * 2.0 - 1.0;
 
@@ -248,6 +266,13 @@ function rot(n: number, x: number, y: number, rx: number, ry: number) {
 }
 
 function encodeHilbert(n: number, x: number, y: number): bigint {
+  const wasmCore = getAgidWasmCore();
+  if (wasmCore && n === K) {
+    const hi = wasmCore.agid_encode_hilbert_hi(x, y);
+    const lo = wasmCore.agid_encode_hilbert_lo(x, y);
+    return (BigInt(hi) << 32n) | BigInt(lo);
+  }
+
   let d = 0n;
   for (let s = n / 2; s > 0; s = Math.floor(s / 2)) {
     const rx = (x & s) > 0 ? 1 : 0;
@@ -259,6 +284,16 @@ function encodeHilbert(n: number, x: number, y: number): bigint {
 }
 
 function decodeHilbert(n: number, d: bigint): { x: number, y: number } {
+  const wasmCore = getAgidWasmCore();
+  if (wasmCore && n === K) {
+    const hi = Number((d >> 32n) & 0xFFFF_FFFFn);
+    const lo = Number(d & 0xFFFF_FFFFn);
+    return {
+      x: wasmCore.agid_decode_hilbert_x(hi, lo),
+      y: wasmCore.agid_decode_hilbert_y(hi, lo),
+    };
+  }
+
   let x = 0;
   let y = 0;
   let t = d;
