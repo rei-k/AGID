@@ -1,0 +1,11 @@
+[package]
+name = "agid-rs"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Rust SDK scaffold for AGID"
+
+[lib]
+name = "agid_rs"
+path = "src/lib.rs"
+

@@ -1,0 +1,92 @@
+[
+  {
+    "label": "Tokyo Station",
+    "input": { "lat": 35.681236, "lon": 139.767125 },
+    "encoded": {
+      "id": "JP05AV8TJGHD",
+      "prefix": "JP",
+      "hash": "05AV8TJGHD",
+      "face": 1,
+      "isSea": false
+    },
+    "decoded": {
+      "lat": 35.68121961131576,
+      "lon": 139.76712226867676,
+      "prefix": "JP",
+      "face": 1,
+      "isSea": false
+    }
+  },
+  {
+    "label": "London",
+    "input": { "lat": 51.5074, "lon": -0.1278 },
+    "encoded": {
+      "id": "GB0H1TRYP885",
+      "prefix": "GB",
+      "hash": "0H1TRYP885",
+      "face": 4,
+      "isSea": false
+    },
+    "decoded": {
+      "lat": 51.507398797002274,
+      "lon": -0.12779240241675055,
+      "prefix": "GB",
+      "face": 4,
+      "isSea": false
+    }
+  },
+  {
+    "label": "New York",
+    "input": { "lat": 40.7128, "lon": -74.006 },
+    "encoded": {
+      "id": "US0ECWVG02V9",
+      "prefix": "US",
+      "hash": "0ECWVG02V9",
+      "face": 3,
+      "isSea": false
+    },
+    "decoded": {
+      "lat": 40.712787854519725,
+      "lon": -74.00600910186768,
+      "prefix": "US",
+      "face": 3,
+      "isSea": false
+    }
+  },
+  {
+    "label": "Sydney",
+    "input": { "lat": -33.8688, "lon": 151.2093 },
+    "encoded": {
+      "id": "AU046YV50ZPE",
+      "prefix": "AU",
+      "hash": "046YV50ZPE",
+      "face": 1,
+      "isSea": false
+    },
+    "decoded": {
+      "lat": -33.86880631982755,
+      "lon": 151.20929718017578,
+      "prefix": "AU",
+      "face": 1,
+      "isSea": false
+    }
+  },
+  {
+    "label": "Null Island",
+    "input": { "lat": 0, "lon": 0 },
+    "encoded": {
+      "id": "3B0200000000",
+      "prefix": "3B",
+      "hash": "0200000000",
+      "face": 0,
+      "isSea": true
+    },
+    "decoded": {
+      "lat": 0,
+      "lon": 0,
+      "prefix": "3B",
+      "face": 0,
+      "isSea": false
+    }
+  }
+]

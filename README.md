@@ -64,6 +64,22 @@ Environment variables can be set in a `.env` file (see `.env.example`).
 
 We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## SDK Scaffolds
+
+This repository now includes multi-language AGID SDK scaffolds:
+
+- `agid-spec` (canonical SDK contract + test vectors)
+- `agid-rs`
+- `agid-c`
+- `agid-cpp`
+- `agid-wasm`
+- `agid-js`
+- `agid-py`
+- `agid-go`
+- `agid-swift`
+- `agid-kotlin`
+- `agid-php`
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
